@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django App</title>
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'dist/output.css' %}">
+
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body class="bg-gray-100">
+
+    <nav class="bg-black text-white p-4">
+        My App
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>

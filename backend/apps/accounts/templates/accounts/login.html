@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow p-8">
+    <h1 class="text-2xl font-semibold mb-6">Logowanie</h1>
+
+    {% if form.errors %}
+    <div class="mb-4 p-3 bg-red-100 text-red-800 rounded text-sm">
+        Nieprawidlowa nazwa uzytkownika lub haslo.
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label for="id_username" class="block text-sm font-medium text-gray-700 mb-1">
+                Nazwa uzytkownika
+            </label>
+            <input
+                type="text"
+                name="username"
+                id="id_username"
+                required
+                autofocus
+                class="w-full border border-gray-300 rounded px-3 py-2"
+                value="{{ form.username.value|default:'' }}"
+            >
+        </div>
+        <div>
+            <label for="id_password" class="block text-sm font-medium text-gray-700 mb-1">
+                Haslo
+            </label>
+            <input
+                type="password"
+                name="password"
+                id="id_password"
+                required
+                class="w-full border border-gray-300 rounded px-3 py-2"
+            >
+        </div>
+        <button
+            type="submit"
+            class="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
+        >
+            Zaloguj sie
+        </button>
+    </form>
+</div>
+{% endblock %}

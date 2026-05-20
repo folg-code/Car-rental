@@ -13,8 +13,22 @@
 </head>
 <body class="bg-gray-100">
 
-    <nav class="bg-black text-white p-4">
-        My App
+    <nav class="bg-black text-white p-4 flex justify-between items-center">
+        <a href="{% url 'home' %}" class="font-semibold">Car Rental</a>
+        <div class="flex items-center gap-4 text-sm">
+            {% if user.is_authenticated %}
+                <span>{{ user.username }}</span>
+                {% if user.is_staff_member %}
+                <a href="{% url 'dashboard:home' %}" class="underline">Panel</a>
+                {% endif %}
+                <form method="post" action="{% url 'accounts:logout' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="underline">Wyloguj</button>
+                </form>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="underline">Logowanie</a>
+            {% endif %}
+        </div>
     </nav>
 
     <main class="max-w-6xl mx-auto p-6">

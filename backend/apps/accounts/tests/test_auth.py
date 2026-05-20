@@ -80,4 +80,4 @@ class TestAuthViews:
         client.login(username="owner1", password="secure-pass-123")
         response = client.get(reverse("dashboard:home"))
         assert response.status_code == 200
-        assert b"Panel operacyjny" in response.content
+        assert b"Pulpit" in response.content

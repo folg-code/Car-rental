@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    image: ${WEB_IMAGE:-ghcr.io/folg-code/car-rental:latest}
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    command: >
+      sh -c "python backend/manage.py migrate --noinput &&
+             gunicorn config.wsgi:application
+             --chdir backend
+             --bind 0.0.0.0:8000
+             --workers 3
+             --timeout 60"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+
+  # Odkomentuj po skonfigurowaniu domeny i Caddyfile na VPS.
+  # caddy:
+  #   image: caddy:2-alpine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #     - static_data:/srv/static:ro
+  #   depends_on:
+  #     - web
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:
+  # caddy_data:
+  # caddy_config:

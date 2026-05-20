@@ -5,6 +5,7 @@ __pycache__
 db.sqlite3
 node_modules
 staticfiles
+media
 dist
 .pytest_cache
 .mypy_cache
@@ -12,3 +13,4 @@ dist
 
 .env*
 !.env.example
+!.env.ci

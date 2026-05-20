@@ -1,0 +1,10 @@
+django>=5.2
+psycopg[binary]
+django-environ
+gunicorn>=23.0
+
+[dev]
+pytest>=8.0
+pytest-django>=4.9
+ruff>=0.11
+pre-commit>=4.0

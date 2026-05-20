@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: car-rental
+Version: 0.1.0
+Requires-Python: >=3.12
+Requires-Dist: django>=5.2
+Requires-Dist: psycopg[binary]
+Requires-Dist: django-environ
+Requires-Dist: gunicorn>=23.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: pytest-django>=4.9; extra == "dev"
+Requires-Dist: ruff>=0.11; extra == "dev"
+Requires-Dist: pre-commit>=4.0; extra == "dev"

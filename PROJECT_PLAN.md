@@ -12,12 +12,12 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 0 — fundament (ukończony) |
-| **Następny sprint** | Sprint 1 — struktura aplikacji + accounts |
-| **Postęp ogólny** | ~15% (infrastruktura; brak domeny biznesowej) |
+| **Aktualny etap** | Sprint 1 — struktura aplikacji + accounts (w toku) |
+| **Następny krok** | Podłączenie apps w Django → implementacja `accounts` |
+| **Postęp ogólny** | ~25% (infrastruktura + szkielet architektury; brak modeli i auth) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `main` |
-| **Repozytorium** | 3 commity; `backend/apps/` lokalnie, nie w git |
+| **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
 
 ### Legenda postępu sprintu
 
@@ -28,7 +28,7 @@
 | Sprint | Nazwa | Status | Postęp |
 |--------|-------|--------|--------|
 | 0 | Fundament techniczny | ✅ | 100% |
-| 1 | Struktura apps + accounts | ⬜ | 0% |
+| 1 | Struktura apps + accounts | 🟡 | ~55% |
 | 2 | fleet (flota) | ⬜ | 0% |
 | 3 | bookings (rezerwacje) | ⬜ | 0% |
 | 4 | pricing (cennik + snapshoty) | ⬜ | 0% |
@@ -40,13 +40,28 @@
 
 ---
 
+## Następne kroki (kolejność)
+
+1. **Dokończyć integrację Django (Sprint 1a)** — `INSTALLED_APPS`, poprawne `name = "apps.<app>"` w `apps.py`, brakujący szkielet `dashboard`, `django check` / migracje
+2. **Accounts (Sprint 1b)** — custom `User`, role, login/logout, `AUTH_USER_MODEL`
+3. **Panel wewnętrzny (Sprint 1c)** — `base_internal.html`, `/panel/`, nawigacja-placeholder, testy dostępu
+4. **Ustawienia środowiska (Sprint 1d)** — `pl` / `Europe/Warsaw`, `MEDIA_*`, szkic settings dev/prod
+5. **Sprint 2 — fleet** — modele `Car`, `AvailabilityBlock`, `AvailabilityService` + testy
+
+Szacunek: kroki 1–4 zamykają Sprint 1; potem przejście do floty bez przeskakiwania kolejności z mapy zależności.
+
+---
+
 ## Aktywne TODO
 
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
-- [ ] Zdecydować: zachować `apps/core` czy usunąć na rzecz docelowych appów
-- [ ] Dodać `backend/apps/` do gita i podłączyć w `INSTALLED_APPS`
-- [ ] Rozpocząć Sprint 1 (accounts + layout wewnętrzny)
+- [ ] Dodać wszystkie apps do `INSTALLED_APPS` w `config/settings.py`
+- [ ] Ujednolicić `apps.py`: `name = "apps.<nazwa>"` (obecnie m.in. `"website"` zamiast `"apps.website"`)
+- [ ] Uzupełnić szkielet `apps/dashboard/` (`apps.py`, puste moduły jak w pozostałych appkach)
+- [ ] Uruchomić `python backend/manage.py check` w Dockerze
+- [ ] Zaimplementować `accounts`: model `User`, role, login/logout
+- [ ] `base_internal.html` + widok `/panel/` (pusty dashboard)
 
 ---
 
@@ -60,6 +75,12 @@
 - [x] Pytest + Ruff + pre-commit
 - [x] Dokumentacja architektury (`AGENT_CONTEXT.md`)
 - [x] Strona startowa `/` + Django admin
+- [x] `PROJECT_PLAN.md` — plan sprintów i śledzenie postępu
+- [x] `backend/ARCHITECTURE.md` — przegląd architektury backendu
+- [x] 9 aplikacji domenowych + `services/` / `selectors/` (szkielet)
+- [x] `README.md` z granicami odpowiedzialności w każdej appce
+- [x] Usunięto `apps/core`; struktura zgodna z `AGENT_CONTEXT`
+- [x] Commit *introduce architecture* (`backend/apps/`)
 
 ---
 
@@ -70,7 +91,8 @@
 | Data | Sprint | Opis |
 |------|--------|------|
 | 2026-05-20 | 0 | Utworzono plan prac; potwierdzono stan: infrastruktura gotowa, domena 0% |
-| | | |
+| 2026-05-20 | 1 | Architektura backendu: 9 apps, README granic, ARCHITECTURE.md, szkielet services/selectors |
+| 2026-05-20 | 1 | Naprawiono kodowanie `__init__.py` (UTF-8); usunięto boilerplate Django z pustych modułów |
 | | | |
 
 ---
@@ -81,7 +103,10 @@
 
 | Data | Opis | Status |
 |------|------|--------|
-| 2026-05-20 | `backend/apps/core/` — szkielet lokalny, niezacommitowany, nie w `INSTALLED_APPS` | otwarty |
+| 2026-05-20 | `apps/core` — konflikt ze strukturą docelową | **zamknięty** (usunięty) |
+| 2026-05-20 | Apps nie w `INSTALLED_APPS` — Django nie ładuje modułów | otwarty |
+| 2026-05-20 | `apps.py` z `name = "<app>"` zamiast `"apps.<app>"` | otwarty |
+| 2026-05-20 | `dashboard` — tylko README, brak `apps.py` i plików szkieletu | otwarty |
 | | | |
 
 ---
@@ -118,16 +143,20 @@
 
 ---
 
-# Sprint 1 — Struktura aplikacji + accounts ⬜
+# Sprint 1 — Struktura aplikacji + accounts 🟡
 
 **Cel:** gotowa baza pod domenę — auth, layout wewnętrzny, konwencje kodu.
 
 ### Struktura projektu
 
-- [ ] Uporządkować `backend/apps/` (usunąć lub przekształcić `core`)
-- [ ] Konwencja nazw: `apps.<nazwa>` w `INSTALLED_APPS`
-- [ ] Szkielet katalogów: `services/`, `selectors/` (wzorzec dla kolejnych appów)
-- [ ] Commit i push struktury apps
+- [x] Uporządkować `backend/apps/` (usunięto `core`, 9 appów domenowych)
+- [x] Szkielet katalogów: `services/`, `selectors/` we wszystkich appkach (oprócz `dashboard` — do uzupełnienia)
+- [x] `README.md` — granice odpowiedzialności per app (co robi / czego nie robi)
+- [x] `backend/ARCHITECTURE.md` — mapa zależności i konwencje
+- [x] Commit struktury apps (*introduce architecture*)
+- [ ] Konwencja `apps.<nazwa>` w `INSTALLED_APPS` i `AppConfig.name`
+- [ ] Uzupełnić szkielet `apps/dashboard/`
+- [ ] `django check` + pierwsze migracje po podłączeniu apps
 
 ### App `accounts`
 
@@ -150,6 +179,15 @@
 - [ ] Test dostępu do widoku wewnętrznego
 
 **Definition of Done:** zalogowany pracownik widzi pusty panel wewnętrzny; migracje w Dockerze OK.
+
+### Podział prac (Sprint 1)
+
+| Faza | Zakres | Status |
+|------|--------|--------|
+| 1a | Integracja Django (`INSTALLED_APPS`, `apps.py`, `dashboard`) | ⬜ |
+| 1b | `accounts` — model, role, auth | ⬜ |
+| 1c | Panel `/panel/` — layout + routing | ⬜ |
+| 1d | Ustawienia locale/media + testy | ⬜ |
 
 ---
 
@@ -415,8 +453,8 @@ Sprint 9+ (produkcja)
 
 ## Szybka checklista „co jest w repo”
 
-| Komponent | W repo | Działa |
-|-----------|--------|--------|
+| Komponent | W repo | Działa / zintegrowane |
+|-----------|--------|------------------------|
 | Django + config | ✅ | ✅ |
 | Docker Compose | ✅ | ✅ |
 | PostgreSQL | ✅ | ✅ |
@@ -424,15 +462,18 @@ Sprint 9+ (produkcja)
 | Pytest / Ruff | ✅ | ✅ |
 | `AGENT_CONTEXT.md` | ✅ | — |
 | `PROJECT_PLAN.md` | ✅ | — |
-| `apps/accounts` | ❌ | — |
-| `apps/fleet` | ❌ | — |
+| `backend/ARCHITECTURE.md` | ✅ | — |
+| `apps/*` szkielet + README | ✅ | ❌ (nie w `INSTALLED_APPS`) |
+| `apps/accounts` — model/auth | ❌ | — |
+| `apps/fleet` — modele | ❌ | — |
 | `apps/bookings` | ❌ | — |
 | `apps/pricing` | ❌ | — |
 | `apps/payments` | ❌ | — |
 | `apps/operations` | ❌ | — |
 | `apps/documents` | ❌ | — |
-| `apps/dashboard` | ❌ | — |
-| `apps/website` | ❌ | — |
+| `apps/dashboard` — pełny szkielet | 🟡 | — |
+| `apps/website` | 🟡 | — |
+| Panel `/panel/` | ❌ | — |
 
 ---
 

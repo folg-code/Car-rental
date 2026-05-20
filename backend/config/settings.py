@@ -15,8 +15,12 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = BASE_DIR.parent
 
 env = environ.Env()
+for env_file in (ROOT_DIR / ".env", ROOT_DIR / ".env.local", ROOT_DIR / ".env.docker"):
+    if env_file.exists():
+        env.read_env(str(env_file))
 
 
 # Quick-start development settings - unsuitable for production
@@ -33,7 +37,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -41,6 +45,20 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
+
+LOCAL_APPS = [
+    "apps.accounts",
+    "apps.fleet",
+    "apps.bookings",
+    "apps.pricing",
+    "apps.payments",
+    "apps.operations",
+    "apps.documents",
+    "apps.dashboard",
+    "apps.website",
+]
+
+INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

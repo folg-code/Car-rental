@@ -55,11 +55,19 @@ Settings → Branches → rule dla `main`:
 
 Dzięki temu merge bez przejścia testów nie jest możliwy.
 
-### 4. Wyłączenie deployu tymczasowo
+### 4. Włączenie / wyłączenie deployu
 
-Nie ustawiaj `DEPLOY_HOST` — job **Deploy to VPS** zostanie pominięty (`if: secrets.DEPLOY_HOST != ''`).
+Deploy na VPS uruchamia się tylko gdy ustawisz **zmienną repozytorium** (nie secret):
 
-CI na PR nadal działa.
+Settings → Secrets and variables → Actions → **Variables** → New repository variable:
+
+| Variable | Value |
+|----------|--------|
+| `ENABLE_DEPLOY` | `true` |
+
+Bez `ENABLE_DEPLOY=true` job **Deploy to VPS** jest pomijany (build obrazu do GHCR i tak się wykona).
+
+> GitHub **nie pozwala** używać `secrets.*` w warunkach `if:` na poziomie joba.
 
 ## Przygotowanie VPS (pierwszy raz)
 

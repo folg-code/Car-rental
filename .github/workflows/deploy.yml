@@ -2,7 +2,9 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+
   workflow_dispatch:
 
 concurrency:
@@ -15,7 +17,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: car-rental
 
 jobs:
   ci:
@@ -27,11 +29,12 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-latest
     needs: ci
+
     outputs:
       image_tag: ${{ steps.meta.outputs.tags }}
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -40,12 +43,12 @@ jobs:
           node-version: "20"
           cache: npm
 
-      - name: Build Tailwind CSS for production
+      - name: Build Tailwind CSS
         run: |
           npm ci
           npm run build:css:prod
 
-      - name: Log in to GitHub Container Registry
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -56,12 +59,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=
+            type=raw,value=latest
+            type=sha
 
-      - name: Build and push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -76,34 +79,49 @@ jobs:
     name: Deploy to VPS
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: secrets.DEPLOY_HOST != ''
+
+    # secrets.* nie można używać w if: — użyj zmiennej repozytorium ENABLE_DEPLOY=true
+    if: vars.ENABLE_DEPLOY == 'true'
+
+    env:
+      GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Copy compose and deploy files to server
+      - name: Copy deployment files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "docker-compose.prod.yml,deploy/Caddyfile,scripts/deploy.sh,.env.example"
+          source: |
+            docker-compose.prod.yml
+            deploy/Caddyfile
+            scripts/deploy.sh
+            .env.example
           target: ${{ secrets.DEPLOY_PATH }}
 
-      - name: Run deploy on VPS
+      - name: Run deployment on VPS
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script_stop: true
+
           script: |
             set -euo pipefail
+
             cd "${{ secrets.DEPLOY_PATH }}"
+
             chmod +x scripts/deploy.sh
-            if [ -n "${{ secrets.GHCR_READ_TOKEN }}" ]; then
-              echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            if [ -n "$GHCR_READ_TOKEN" ]; then
+              echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             fi
-            export WEB_IMAGE=ghcr.io/${{ github.repository }}:latest
+
+            export WEB_IMAGE=ghcr.io/${{ github.repository_owner }}/car-rental:latest
+
             ./scripts/deploy.sh

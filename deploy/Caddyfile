@@ -1,0 +1,11 @@
+# Przykład — zamień example.com na swoją domenę.
+# Wymaga: web nasłuchuje na 127.0.0.1:8000 (docker-compose.prod.yml).
+
+# example.com {
+#     encode gzip
+#     handle /static/* {
+#         root * /srv/static
+#         file_server
+#     }
+#     reverse_proxy web:8000
+# }

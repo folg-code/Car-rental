@@ -7,7 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:css": "tailwindcss -i ./backend/static/css/input.css -o ./backend/static/dist/output.css",
+    "build:css:prod": "tailwindcss -i ./backend/static/css/input.css -o ./backend/static/dist/output.css --minify"
   },
   "repository": {
     "type": "git",

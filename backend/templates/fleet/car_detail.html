@@ -1,0 +1,75 @@
+{% extends "base_internal.html" %}
+
+{% block title %}{{ car.registration_number }}{% endblock %}
+{% block page_heading %}{{ car.make }} {{ car.model }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">{{ car.registration_number }} · {{ car.get_status_display }}</p>
+{% endblock %}
+
+{% block content %}
+<div class="flex gap-3 mb-6">
+    <a href="{% url 'fleet:car_edit' car.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Edytuj</a>
+    <a href="{% url 'fleet:block_create' car.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">+ Blokada</a>
+    <a href="{% url 'fleet:damage_create' car.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">+ Uszkodzenie</a>
+    <a href="{% url 'fleet:car_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Lista</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Dane pojazdu</h2>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt class="text-gray-500">Kategoria</dt><dd>{{ car.category.name }}</dd>
+            <dt class="text-gray-500">Rok</dt><dd>{{ car.year }}</dd>
+            <dt class="text-gray-500">Paliwo</dt><dd>{{ car.get_fuel_type_display }}</dd>
+            <dt class="text-gray-500">Przebieg</dt><dd>{{ car.mileage }} km</dd>
+            <dt class="text-gray-500">Miejsca</dt><dd>{{ car.seats }}</dd>
+            {% if car.vin %}<dt class="text-gray-500">VIN</dt><dd>{{ car.vin }}</dd>{% endif %}
+            {% if car.color %}<dt class="text-gray-500">Kolor</dt><dd>{{ car.color }}</dd>{% endif %}
+        </dl>
+        {% if car.notes %}
+        <p class="mt-4 text-sm text-gray-600"><span class="text-gray-500">Notatki:</span> {{ car.notes }}</p>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Blokady dostepnosci</h2>
+        {% if car.availability_blocks.all %}
+        <ul class="space-y-2 text-sm">
+            {% for block in car.availability_blocks.all %}
+            <li class="flex justify-between items-start border-b pb-2">
+                <div>
+                    <span class="font-medium">{{ block.get_block_type_display }}</span>
+                    <p class="text-gray-500">{{ block.start_at|date:"Y-m-d H:i" }} — {{ block.end_at|date:"Y-m-d H:i" }}</p>
+                    <p>{{ block.reason }}</p>
+                </div>
+                <form method="post" action="{% url 'fleet:block_delete' car.pk block.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-red-600 text-xs hover:underline" onclick="return confirm('Usunac blokade?')">Usun</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-sm">Brak blokad.</p>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <h2 class="font-medium mb-4">Historia uszkodzen</h2>
+        {% if car.damages.all %}
+        <ul class="space-y-3 text-sm">
+            {% for damage in car.damages.all %}
+            <li class="border-l-4 {% if damage.status == 'active' %}border-amber-400{% else %}border-gray-300{% endif %} pl-3">
+                <span class="font-medium">{{ damage.get_severity_display }}</span> — {{ damage.get_status_display }}
+                <p>{{ damage.description }}</p>
+                {% if damage.location %}<p class="text-gray-500">{{ damage.location }}</p>{% endif %}
+                <p class="text-xs text-gray-400">{{ damage.reported_at|date:"Y-m-d H:i" }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-sm">Brak zarejestrowanych uszkodzen.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

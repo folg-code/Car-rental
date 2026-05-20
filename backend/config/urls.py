@@ -27,6 +27,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("konto/", include("apps.accounts.urls")),
     path("panel/", include("apps.dashboard.urls")),
+    path("panel/flota/", include("apps.fleet.urls")),
 ]
 
 if settings.DEBUG:

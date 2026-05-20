@@ -24,3 +24,13 @@ services:
 
     depends_on:
       - db
+
+  tailwind:
+    image: node:20
+
+    working_dir: /app
+
+    command: sh -c "npm ci && npm run build:css"
+
+    volumes:
+      - .:/app

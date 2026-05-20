@@ -21,17 +21,16 @@ class TestPanelLayout:
         assert b"Car Rental" in response.content
         assert b"Pulpit" in response.content
 
-    def test_fleet_placeholder_accessible_for_staff(self, client) -> None:
+    def test_fleet_list_accessible_for_staff(self, client) -> None:
         UserService.create_user(
             username="staff2",
             password="secure-pass-123",
             role=UserRole.EMPLOYEE,
         )
         client.login(username="staff2", password="secure-pass-123")
-        response = client.get(reverse("dashboard:fleet"))
+        response = client.get(reverse("fleet:car_list"))
         assert response.status_code == 200
         assert b"Flota" in response.content
-        assert b"nie jest jeszcze zaimplementowana" in response.content
 
 
 @pytest.mark.django_db

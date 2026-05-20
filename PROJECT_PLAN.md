@@ -12,9 +12,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 1 ✅ — gotowe do Sprint 2 (`fleet`) |
-| **Następny krok** | Modele `Car`, `CarCategory`, `AvailabilityBlock` |
-| **Postęp ogólny** | ~40% (fundament + auth + panel; brak domeny floty/rezerwacji) |
+| **Aktualny etap** | Sprint 2 — fleet (w toku / prawie ukonczone) |
+| **Następny krok** | Sprint 3 — bookings (rezerwacje) |
+| **Postęp ogólny** | ~50% (flota: modele + panel + AvailabilityService) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `main` |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -29,7 +29,7 @@
 |--------|-------|--------|--------|
 | 0 | Fundament techniczny | ✅ | 100% |
 | 1 | Struktura apps + accounts | ✅ | 100% |
-| 2 | fleet (flota) | ⬜ | 0% |
+| 2 | fleet (flota) | 🟡 | ~90% |
 | 3 | bookings (rezerwacje) | ⬜ | 0% |
 | 4 | pricing (cennik + snapshoty) | ⬜ | 0% |
 | 5 | Rental + payments MVP | ⬜ | 0% |
@@ -54,8 +54,8 @@
 
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
-- [ ] Sprint 2: model `Car` + migracje
-- [ ] Sprint 2: `AvailabilityService` + testy dostępności
+- [ ] Seed danych demo (kategorie + 2–3 auta) — opcjonalnie
+- [ ] Upload zdjec/dokumentow w panelu (obecnie admin)
 
 ---
 
@@ -202,37 +202,42 @@
 
 ---
 
-# Sprint 2 — fleet (flota) ⬜
+# Sprint 2 — fleet (flota) 🟡
 
 **Cel:** zarządzanie pojazdami i blokadami dostępności (~15 aut).
 
 ### Modele
 
-- [ ] `CarCategory`
-- [ ] `Car`
-- [ ] `CarImage`
-- [ ] `CarDocument`
-- [ ] `AvailabilityBlock`
-- [ ] `Damage` (historia globalna, niezależna od protokołów)
-- [ ] `DamagePhoto`
-- [ ] `RepairRecord`
+- [x] `CarCategory`
+- [x] `Car`
+- [x] `CarImage`
+- [x] `CarDocument`
+- [x] `AvailabilityBlock`
+- [x] `Damage` (historia globalna, niezależna od protokołów)
+- [x] `DamagePhoto`
+- [x] `RepairRecord`
+- [x] Migracja `fleet.0001_initial`
 
 ### UI / admin
 
-- [ ] CRUD aut w panelu wewnętrznym
-- [ ] CRUD kategorii
-- [ ] Zarządzanie blokadami dostępności (serwis, ręczne)
-- [ ] Lista i edycja uszkodzeń per auto
+- [x] CRUD aut w panelu (`/panel/flota/`)
+- [x] CRUD kategorii
+- [x] Blokady dostępności (dodawanie/usuwanie)
+- [x] Rejestracja uszkodzen
+- [x] Django admin (wszystkie modele)
 
 ### Logika
 
-- [ ] `AvailabilityService` v1 — dostępność **wyliczana**, bez pola `is_available` na `Car`
-- [ ] Selektory zapytań (bez mutacji stanu)
+- [x] `AvailabilityService` — dostępność **wyliczana**, bez `is_available`
+- [x] `FleetMaintenanceService`, `DamageService`, `CarService`
+- [x] Selektory (`car`, `availability`)
+- [x] Hook pod `bookings` (pusta lista do Sprint 3)
 
 ### Testy
 
-- [ ] Nakładające się `AvailabilityBlock` — odrzucenie
-- [ ] Podstawowe zapytania o wolne auta w przedziale dat
+- [x] Nakładające się `AvailabilityBlock` — odrzucenie
+- [x] `is_car_available` z blokada i statusem auta
+- [x] Widoki panelu (9 testow fleet)
 
 **Definition of Done:** pełna flota w systemie; ręczna blokada serwisowa działa.
 

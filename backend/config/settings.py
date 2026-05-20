@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
+
 import environ
 from pathlib import Path
 
@@ -18,9 +20,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BASE_DIR.parent
 
 env = environ.Env()
-for env_file in (ROOT_DIR / ".env", ROOT_DIR / ".env.local", ROOT_DIR / ".env.docker"):
-    if env_file.exists():
-        env.read_env(str(env_file))
+if (ROOT_DIR / ".env").exists():
+    env.read_env(str(ROOT_DIR / ".env"))
+if "POSTGRES_HOST" not in os.environ:
+    if (ROOT_DIR / ".env.local").exists():
+        env.read_env(str(ROOT_DIR / ".env.local"))
+    elif (ROOT_DIR / ".env.docker").exists():
+        env.read_env(str(ROOT_DIR / ".env.docker"))
 
 
 # Quick-start development settings - unsuitable for production

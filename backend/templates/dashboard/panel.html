@@ -1,0 +1,35 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Pulpit{% endblock %}
+{% block page_heading %}Pulpit{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">Przeglad operacyjny firmy</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-gray-300">
+        <p class="text-sm text-gray-500">Aktywne wynajmy</p>
+        <p class="text-2xl font-semibold text-gray-400">—</p>
+        <p class="text-xs text-gray-400 mt-1">Sprint 3+ (bookings)</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-gray-300">
+        <p class="text-sm text-gray-500">Wolne auta</p>
+        <p class="text-2xl font-semibold text-gray-400">—</p>
+        <p class="text-xs text-gray-400 mt-1">Sprint 2 (fleet)</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-gray-300">
+        <p class="text-sm text-gray-500">Nadchodzace zwroty</p>
+        <p class="text-2xl font-semibold text-gray-400">—</p>
+        <p class="text-xs text-gray-400 mt-1">Sprint 3+ (bookings)</p>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-lg font-medium mb-2">Witaj, {{ user.get_full_name|default:user.username }}</h2>
+    <p class="text-gray-600 text-sm">
+        Rola: <strong>{{ user.get_role_display }}</strong>.
+        Uzyj menu po lewej — moduly domenowe beda aktywowane w kolejnych sprintach.
+    </p>
+</div>
+{% endblock %}

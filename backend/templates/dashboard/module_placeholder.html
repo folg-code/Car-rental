@@ -1,0 +1,16 @@
+{% extends "base_internal.html" %}
+
+{% block title %}{{ module_name }}{% endblock %}
+{% block page_heading %}{{ module_name }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">Modul planowany w kolejnym sprincie</p>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-8 max-w-2xl">
+    <p class="text-gray-600">
+        Sekcja <strong>{{ module_name }}</strong> nie jest jeszcze zaimplementowana.
+        Zobacz <code>PROJECT_PLAN.md</code> dla harmonogramu prac.
+    </p>
+</div>
+{% endblock %}

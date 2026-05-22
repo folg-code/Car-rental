@@ -19,6 +19,7 @@ from apps.bookings.selectors.reservation import get_reservation_by_id, list_rese
 from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
+from apps.payments.selectors.payment import get_rental_payment_summary
 from apps.pricing.selectors.price_list import (
     get_price_list_for_date,
     list_active_extras,
@@ -297,6 +298,7 @@ def rental_detail(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, "Nie znaleziono wynajmu.")
         return redirect("bookings:rental_list")
     reservation = rental.reservation
+    payment_summary = get_rental_payment_summary(rental.pk)
     return render(
         request,
         "bookings/rental_detail.html",
@@ -304,6 +306,7 @@ def rental_detail(request: HttpRequest, pk: int) -> HttpResponse:
             "rental": rental,
             "reservation": reservation,
             "price_total": PriceSnapshotService.reservation_total(reservation),
+            "payment_summary": payment_summary,
         },
     )
 

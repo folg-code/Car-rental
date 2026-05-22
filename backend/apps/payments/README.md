@@ -33,17 +33,24 @@ Rejestracja **ruchu pieniężnego** — wpłaty, kaucje, zwroty, opłaty dodatko
 
 ---
 
-## Modele (planowane)
+## Modele (zaimplementowane — Sprint 5 MVP)
 
-Zgodnie z `AGENT_CONTEXT.md` § payments. Powiązania FK do `Rental` / `Reservation` (nie do `Invoice` jako źródło prawdy).
+- `PaymentIntent` — przygotowanie pod bramke online
+- `Payment` — FK do `Rental` (+ opcjonalnie `Reservation`, `PaymentIntent`)
+- `PaymentProviderEvent` — log webhookow (szkielet)
+- Typy: `rental_fee`, `deposit`, `refund`, `extra_charge`, `damage_charge`
+- Metody: `cash`, `bank_transfer`, `card`, `blik`, `online_gateway`
 
 ---
 
-## Serwisy (planowane)
+## Serwisy (zaimplementowane)
 
-- `PaymentService` — record_payment, record_deposit, refund_deposit
-- `PaymentGatewayService` — intent, webhook, idempotencja zdarzeń
-- Jawne rozróżnienie revenue vs liability w selektorach raportowych
+- `PaymentService.record_payment`, `record_deposit`, `record_rental_fee`, `refund_deposit`
+- Selektory: `get_rental_payment_summary`, `get_rental_revenue_total`, `get_rental_deposit_balance`
+- Panel: `/panel/platnosci/`, platnosci per wynajem `/panel/platnosci/wynajem/<id>/`
+- **Kaucja ≠ przychód** — `REVENUE_PAYMENT_TYPES` bez `deposit` / `refund`
+
+Planowane później: `PaymentGatewayService` (webhooki, idempotencja)
 
 ---
 

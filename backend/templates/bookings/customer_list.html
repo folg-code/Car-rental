@@ -1,0 +1,66 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Klienci{% endblock %}
+{% block page_heading %}Klienci{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">{{ customers|length }} klient(ow) w systemie</p>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-3 mb-6">
+    <a href="{% url 'bookings:customer_create' %}" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">
+        + Nowy klient
+    </a>
+</div>
+
+<form method="get" class="mb-4 flex gap-2 items-center max-w-md">
+    <input
+        type="search"
+        name="q"
+        value="{{ search }}"
+        placeholder="Szukaj: imie, nazwisko, email, telefon, firma, NIP..."
+        class="flex-1 border rounded px-3 py-2 text-sm"
+    />
+    <button type="submit" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Szukaj</button>
+    {% if search %}
+    <a href="{% url 'bookings:customer_list' %}" class="text-sm text-gray-500 hover:underline">Wyczysc</a>
+    {% endif %}
+</form>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+            <tr>
+                <th class="px-4 py-3">Nazwisko i imie</th>
+                <th class="px-4 py-3">E-mail</th>
+                <th class="px-4 py-3">Telefon</th>
+                <th class="px-4 py-3">Firma</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            {% for customer in customers %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium">{{ customer.last_name }} {{ customer.first_name }}</td>
+                <td class="px-4 py-3">{{ customer.email|default:"—" }}</td>
+                <td class="px-4 py-3">{{ customer.phone|default:"—" }}</td>
+                <td class="px-4 py-3">{{ customer.company_name|default:"—" }}</td>
+                <td class="px-4 py-3 text-right">
+                    <a href="{% url 'bookings:customer_detail' customer.pk %}" class="text-blue-600 hover:underline">Szczegoly</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                    {% if search %}
+                    Brak wynikow dla „{{ search }}”.
+                    {% else %}
+                    Brak klientow. <a href="{% url 'bookings:customer_create' %}" class="underline">Dodaj pierwszego</a>.
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

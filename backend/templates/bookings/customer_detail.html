@@ -1,0 +1,59 @@
+{% extends "base_internal.html" %}
+
+{% block title %}{{ customer.full_name }}{% endblock %}
+{% block page_heading %}{{ customer.full_name }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">
+    {% if customer.company_name %}{{ customer.company_name }} · {% endif %}
+    utworzono {{ customer.created_at|date:"Y-m-d H:i" }}
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="flex gap-3 mb-6">
+    <a href="{% url 'bookings:customer_edit' customer.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Edytuj</a>
+    <a href="{% url 'bookings:customer_delete' customer.pk %}" class="border border-red-200 text-red-700 px-4 py-2 rounded text-sm hover:bg-red-50">Usun</a>
+    <a href="{% url 'bookings:customer_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Lista</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Dane kontaktowe</h2>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt class="text-gray-500">E-mail</dt>
+            <dd>{{ customer.email|default:"—" }}</dd>
+            <dt class="text-gray-500">Telefon</dt>
+            <dd>{{ customer.phone|default:"—" }}</dd>
+            {% if customer.user %}
+            <dt class="text-gray-500">Konto</dt>
+            <dd>{{ customer.user.username }}</dd>
+            {% endif %}
+        </dl>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Firma i adres</h2>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt class="text-gray-500">Firma</dt>
+            <dd>{{ customer.company_name|default:"—" }}</dd>
+            <dt class="text-gray-500">NIP</dt>
+            <dd>{{ customer.tax_id|default:"—" }}</dd>
+            <dt class="text-gray-500">Ulica</dt>
+            <dd>{{ customer.street|default:"—" }}</dd>
+            <dt class="text-gray-500">Miasto</dt>
+            <dd>
+                {% if customer.postal_code %}{{ customer.postal_code }} {% endif %}{{ customer.city|default:"—" }}
+            </dd>
+            <dt class="text-gray-500">Kraj</dt>
+            <dd>{{ customer.country }}</dd>
+        </dl>
+    </div>
+
+    {% if customer.notes %}
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <h2 class="font-medium mb-4">Notatki</h2>
+        <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ customer.notes }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

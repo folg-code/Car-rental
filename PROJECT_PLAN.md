@@ -32,7 +32,7 @@
 | 1 | Struktura apps + accounts | ✅ | 100% |
 | 2 | fleet (flota) | ✅ | 100% |
 | 3 | bookings (rezerwacje) | ✅ | 100% |
-| 4 | pricing (cennik + snapshoty) | ⬜ | 0% |
+| 4 | pricing (cennik + snapshoty) | 🟡 | ~25% |
 | 5 | Rental + payments MVP | ⬜ | 0% |
 | 6 | operations (wydanie/zwrot) | ⬜ | 0% |
 | 7 | documents (PDF, faktury) | ⬜ | 0% |
@@ -305,8 +305,8 @@
 
 ### Modele
 
-- [ ] `PriceList`, `DailyRate`, `PricingRule`, `ExtraService`
-- [ ] `PriceLine` — snapshot przy rezerwacji
+- [x] `PriceList`, `DailyRate`, `PricingRule`, `ExtraService` — `pricing.0001_initial`
+- [x] `PriceLine` — snapshot przy rezerwacji (`bookings.0003_priceline`)
 
 ### Logika
 
@@ -551,7 +551,7 @@ Sprint 9+ (produkcja)
 | Locale PL + MEDIA/STATIC | ✅ | ✅ |
 | `apps/fleet` — modele + panel | ✅ | ✅ |
 | `apps/bookings` — Customer, Reservation, panel | ✅ | ✅ |
-| `apps/pricing` | ❌ | — |
+| `apps/pricing` — modele cennika | ✅ | ✅ (admin) |
 | `apps/payments` | ❌ | — |
 | `apps/operations` | ❌ | — |
 | `apps/documents` | ❌ | — |

@@ -32,9 +32,14 @@
 
 ---
 
-## Modele (planowane)
+## Modele
 
-Zgodnie z `AGENT_CONTEXT.md` § pricing. Brak FK do `Reservation` — powiązanie snapshotu po stronie `bookings`.
+- `PriceList` — cennik (okres obowiazywania, waluta, domyslny)
+- `DailyRate` — stawka dzienna per `fleet.CarCategory`
+- `PricingRule` — weekend, swieta/sezon, rabat dlugoterminowy, rabat reczny
+- `ExtraService` — fotelik, dodatkowy kierowca, dostawa, mycie, paliwo, km
+
+Snapshot na rezerwacji: `bookings.PriceLine` (brak FK z `pricing` do `Reservation`).
 
 ---
 

@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -149,6 +152,71 @@ class Reservation(models.Model):
         if self.start_at and self.end_at and self.start_at >= self.end_at:
             raise ValidationError(
                 "Data zakonczenia musi byc pozniejsza niz data rozpoczecia."
+            )
+
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class PriceLineType(models.TextChoices):
+    """Typ pozycji snapshotu — zgodny z wynikiem kalkulacji pricing."""
+
+    DAILY_RENTAL = "daily_rental", "Wynajem dzienny"
+    WEEKEND_SURCHARGE = "weekend_surcharge", "Doplata weekendowa"
+    HOLIDAY_SURCHARGE = "holiday_surcharge", "Doplata swiateczna"
+    SEASON_SURCHARGE = "season_surcharge", "Doplata sezonowa"
+    DISCOUNT = "discount", "Rabat"
+    EXTRA_SERVICE = "extra_service", "Usluga dodatkowa"
+    MANUAL = "manual", "Pozycja reczna"
+
+
+class PriceLine(models.Model):
+    """
+    Snapshot ceny na rezerwacji — niemutowalny po zatwierdzeniu.
+
+    Powstaje z wyniku PricingService; pricing nie trzyma FK do Reservation.
+    """
+
+    reservation = models.ForeignKey(
+        Reservation,
+        on_delete=models.CASCADE,
+        related_name="price_lines",
+    )
+    line_type = models.CharField(max_length=32, choices=PriceLineType.choices)
+    description = models.CharField(max_length=255)
+    quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("1"),
+        validators=[MinValueValidator(Decimal("0.01"))],
+        help_text="Liczba dni lub jednostek.",
+    )
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    source_code = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Kod zrodla (np. extra child_seat, regula weekend).",
+    )
+    sort_order = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["reservation", "sort_order", "pk"]
+        verbose_name = "pozycja ceny"
+        verbose_name_plural = "pozycje ceny"
+
+    def __str__(self) -> str:
+        return f"{self.description}: {self.total_amount}"
+
+    def clean(self) -> None:
+        super().clean()
+        expected = (self.quantity * self.unit_price).quantize(Decimal("0.01"))
+        actual = self.total_amount.quantize(Decimal("0.01"))
+        if expected != actual:
+            raise ValidationError(
+                "Suma pozycji musi rownac quantity * unit_price (snapshot)."
             )
 
     def save(self, *args, **kwargs) -> None:

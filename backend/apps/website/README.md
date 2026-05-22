@@ -16,6 +16,7 @@
 - Portal klienta (zalogowany `customer`): historia rezerwacji, pobranie dokumentów (linki `documents`)
 - SEO-friendly strony statyczne (regulamin, kontakt) — szablony w tej app
 - Rate limiting / podstawowa ochrona formularzy publicznych
+- **Chat AI — konsultant klienta** (widget + endpoint wiadomości) — patrz [`../../docs/AI_CONSULTANT.md`](../../docs/AI_CONSULTANT.md)
 
 ---
 
@@ -40,12 +41,19 @@
 Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).  
 **Brak** duplikacji `Car`, `Reservation`, `Customer`.
 
+### Chat AI (planowane)
+
+- `ChatSession` — sesja (anonimowa lub powiązana z `User` role=customer)
+- `ChatMessage` — rola user/assistant/system, treść, timestamp (audyt)
+
 ---
 
 ## Serwisy (planowane)
 
 - `PublicBookingOrchestrator` — jeden punkt wejścia: search → quote → reserve → payment intent
 - Opcjonalnie `CustomerPortalService` — lista dokumentów do pobrania (selektory `documents` + auth)
+- `ConsultantChatService` — orchestracja czatu: kontekst → LLM → odpowiedź; wywołania **read-only** do innych app
+- `adapters/llm.py` — `LLMClient` (interfejs), implementacja providera z env (`OPENAI_API_KEY` itd.)
 
 Logika biznesowa w serwisach **innych** app — `website` tylko koordynuje.
 
@@ -75,3 +83,6 @@ Logika biznesowa w serwisach **innych** app — `website` tylko koordynuje.
 - Model `Payment` w `website`
 - Omijanie `ReservationService` przy zapisie z formularza
 - Kopiowanie querysetów floty z duplikacją filtrów dostępności
+- Tworzenie rezerwacji lub płatności bezpośrednio z odpowiedzi LLM
+- Wysyłanie do modelu pełnych tabel DB lub danych innych klientów
+- Wywołanie API LLM z widoku szablonu (tylko przez `ConsultantChatService` → adapter)

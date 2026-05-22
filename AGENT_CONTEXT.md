@@ -363,6 +363,33 @@ Customer capabilities:
 - download documents,
 - view reservation history.
 
+### AI customer consultant (chatbot)
+
+Public-facing **AI assistant** embedded in the website — helps customers before and during booking.
+
+Capabilities (target):
+- answer FAQ (warunki wynajmu, kaucja, dokumenty, godziny odbioru),
+- help search available cars (dates → `AvailabilityService` + fleet selectors),
+- explain pricing estimates (read-only via `PricingService` — no binding quote without reservation flow),
+- guide user to reservation form (deep link with pre-filled dates/car),
+- for logged-in customers: general status of own reservation (read-only via `bookings` selectors — no PII leakage to other users).
+
+Out of scope for chatbot:
+- creating or modifying reservations directly in chat (must go through `ReservationService` / form),
+- processing payments,
+- staff / internal operations,
+- legal/tax/accounting advice beyond scripted policy snippets,
+- access to other customers' data.
+
+Architecture:
+- UI and orchestration: `website` app,
+- LLM provider: **adapter** (`website/adapters/llm.py`) — OpenAI / Anthropic / other via env,
+- conversation persistence: `ChatSession`, `ChatMessage` models in `website` (audit + UX, not source of business truth),
+- system prompt built from **curated context** (fleet categories, FAQ, policies) — never raw DB dump,
+- rate limiting, session token (anonymous or linked to `User` with role `customer`).
+
+See: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md).
+
 ---
 
 # 7. Service Layer Architecture
@@ -584,14 +611,14 @@ In progress:
 - Workflow design
 
 Not implemented yet:
-- fleet app
-- bookings app
+- bookings app (full)
 - pricing engine
 - payments
 - operations workflows
 - documents system
-- dashboard
-- customer-facing website
+- dashboard (metryki)
+- customer-facing website (publiczny kanał)
+- AI customer consultant (chatbot)
 
 ---
 

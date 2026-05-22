@@ -5,6 +5,7 @@
 > - Zaznaczaj `[x]` przy ukończonych zadaniach; zostaw `[ ]` dla otwartych.
 > - Nowe bieżące zadania dopisuj w **Aktywne TODO**; po zakończeniu przenoś do **Zrobione**.
 > - Szczegóły architektury i reguły biznesowe: [`AGENT_CONTEXT.md`](./AGENT_CONTEXT.md).
+> - Chat AI (konsultant klienta): [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md).
 
 ---
 
@@ -36,6 +37,7 @@
 | 6 | operations (wydanie/zwrot) | ⬜ | 0% |
 | 7 | documents (PDF, faktury) | ⬜ | 0% |
 | 8 | dashboard + website | ⬜ | 0% |
+| 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Produkcja i integracje | ⬜ | backlog |
 
@@ -46,7 +48,9 @@
 1. ~~**Integracja Django (Sprint 1a)**~~ ✅
 2. ~~**Accounts (Sprint 1b)**~~ ✅
 3. ~~**Panel wewnętrzny (Sprint 1c + 1d)**~~ ✅
-4. **Sprint 2 — fleet** — modele `Car`, `AvailabilityBlock`, `AvailabilityService` + testy
+4. **Sprint 2 — fleet** — dokończenie (~90%)
+5. **Sprint 3–8** — bookings → … → website publiczny
+6. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ---
 
@@ -397,6 +401,42 @@
 
 ---
 
+# Sprint 8b — Chat AI (konsultant klienta) ⬜
+
+**Cel:** publiczny asystent AI na stronie — FAQ, pomoc w wyborze auta, prowadzenie do rezerwacji (bez zapisu rezerwacji z czatu).
+
+Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+
+**Zależności:** Sprint 8 (layout `website`); pełne tool calls po Sprint 2–4 (fleet, bookings, pricing).
+
+### MVP (Faza A — możliwe przed pełnym website)
+
+- [ ] `ChatSession`, `ChatMessage` — modele + migracje
+- [ ] Adapter `LLMClient` + konfiguracja env (`LLM_API_KEY`, `LLM_MODEL`)
+- [ ] `ConsultantChatService` — FAQ-only, system prompt z polityką firmy
+- [ ] Widok `/asystent/` + widget na `base.html`
+- [ ] Rate limiting, CSRF, komunikat RODO/disclaimer
+- [ ] Testy z mockiem LLM
+
+### Rozszerzenie (Faza B — po bookings + pricing)
+
+- [ ] Tool `search_available_cars` → `AvailabilityService`
+- [ ] Tool `estimate_price` → `PricingService` (disclaimer: orientacyjnie)
+- [ ] Tool `get_my_reservation_status` — tylko zalogowany `customer`
+- [ ] Deep link do formularza rezerwacji z parametrami dat/auto
+- [ ] Retencja wiadomości / polityka czyszczenia
+- [ ] (Opcjonalnie) panel wewnętrzny: podgląd rozmów dla supportu
+
+### Bezpieczeństwo
+
+- [ ] Klucze API tylko w secrets / `.env`
+- [ ] Brak PII innych klientów w kontekście LLM
+- [ ] Jawny zakaz tworzenia rezerwacji/płatności przez model (prompt + brak tooli mutujących)
+
+**Definition of Done:** klient na stronie publicznej prowadzi rozmowę z botem; bot odpowiada po polsku na FAQ; po Sprint 4 — potrafi podać wolne auta i orientacyjną cenę; konwersja kończy się linkiem do formularza rezerwacji.
+
+---
+
 # Sprint 9+ — Backlog (produkcja i integracje)
 
 <!-- Nie przypisane do konkretnego sprintu — priorytetyzuj przed startem -->
@@ -425,6 +465,7 @@
 - [ ] Raporty finansowe (przychód vs kaucje vs faktury)
 - [ ] Powiadomienia SMS/push
 - [ ] Wielojęzyczność UI
+- [ ] Chat AI — eskalacja do człowieka, analityka konwersji (jeśli nie w Sprint 8b)
 
 ---
 
@@ -448,6 +489,8 @@ Sprint 6 (operations)
 Sprint 7 (documents)  ← wymaga snapshotów z 4 i 6
     ↓
 Sprint 8 (dashboard + website)
+    ↓
+Sprint 8b (chat AI — konsultant)  ← wymaga website; pełne tools po 2–4
     ↓
 Sprint 9+ (produkcja)
 ```
@@ -491,7 +534,8 @@ Sprint 9+ (produkcja)
 | `apps/documents` | ❌ | — |
 | `apps/dashboard` — pełny szkielet | ✅ | ✅ |
 | `apps/website` | ✅ | ✅ |
-| Panel `/panel/` | ❌ | — |
+| Chat AI konsultant | ❌ | — (plan: Sprint 8b) |
+| `docs/AI_CONSULTANT.md` | ✅ | — |
 
 ---
 

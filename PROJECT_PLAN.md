@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 5 — Rental + payments MVP (kolejny) |
-| **Następny krok** | Model `Rental`, `Payment`, `convert_to_rental()` |
-| **Postęp ogólny** | ~65% (Sprint 0–4 zamkniete) |
+| **Aktualny etap** | Sprint 6 — operations (wydanie / zwrot) |
+| **Następny krok** | `HandoverProtocol`, `ReturnProtocol`, workflow mobilny |
+| **Postęp ogólny** | ~72% (Sprint 0–5 zamkniete) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -33,7 +33,7 @@
 | 2 | fleet (flota) | ✅ | 100% |
 | 3 | bookings (rezerwacje) | ✅ | 100% |
 | 4 | pricing (cennik + snapshoty) | ✅ | 100% |
-| 5 | Rental + payments MVP | ⬜ | 0% |
+| 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ⬜ | 0% |
 | 7 | documents (PDF, faktury) | ⬜ | 0% |
 | 8 | dashboard + website | ⬜ | 0% |
@@ -51,8 +51,9 @@
 4. ~~**Sprint 2 — fleet**~~ ✅
 5. ~~**Sprint 3 — bookings**~~ ✅
 6. ~~**Sprint 4 — pricing**~~ ✅ — cennik, snapshoty, tryb ceny na rezerwacji, kaucja na kategorii
-7. **Sprint 5–8** — rental, payments, operations, documents, website
-8. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+7. ~~**Sprint 5 — rental + payments**~~ ✅ — wynajem operacyjny, rejestracja platnosci (reczna)
+8. **Sprint 6–8** — operations, documents, website
+9. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ---
 
@@ -110,6 +111,15 @@
 - [x] Sprint 4: rozpis cen na szczegolach rezerwacji, `seed_demo` z cennikiem
 - [x] Sprint 4: testy pricing + bookings + fleet (~59 w tych modulach)
 - [x] Sprint 4 — **zamkniety** (Definition of Done spelnione)
+- [x] Sprint 5: model `Rental` + `RentalService` + `bookings.0005_rental`
+- [x] Sprint 5: `ReservationService.convert_to_rental()` z `confirmed` + snapshot ceny
+- [x] Sprint 5: panel wynajmow `/panel/rezerwacje/wynajmy/`, cykl scheduled → active → returned → closed
+- [x] Sprint 5: dostepnosc — blokada przez wynajem (nie `converted_to_rental` na rezerwacji)
+- [x] Sprint 5: `Payment`, `PaymentIntent`, `PaymentProviderEvent` + `payments.0001_initial`
+- [x] Sprint 5: `PaymentService` (rental_fee, deposit, refund) + panel `/panel/platnosci/`
+- [x] Sprint 5: kaucja ≠ przychod (`REVENUE_PAYMENT_TYPES`, selektory salda)
+- [x] Sprint 5: testy bookings (~45) + payments (10)
+- [x] Sprint 5 — **zamkniety** (Definition of Done spelnione)
 
 ---
 
@@ -130,6 +140,9 @@
 | 2026-05-20 | 4 | Pricing: modele, `PricingService`, panel cennikow, snapshoty `PriceLine` |
 | 2026-05-20 | 4 | Rezerwacja: tryb ceny (auto/cennik/reczna), kaucja na kategorii, edycja kategorii |
 | 2026-05-20 | 4 | Domkniecie Sprint 4 — migracje `pricing.0001`, `bookings.0003/0004`, `fleet.0002` |
+| 2026-05-20 | 5 | Rental: model, serwis, panel, integracja dostepnosci, `seed_demo` z wynajmem |
+| 2026-05-20 | 5 | Payments: `PaymentService`, panel platnosci per wynajem, regula kaucja ≠ przychod |
+| 2026-05-20 | 5 | Domkniecie Sprint 5 — migracje `bookings.0005`, `payments.0001` |
 | | | |
 
 ---
@@ -350,28 +363,42 @@
 
 ---
 
-# Sprint 5 — Rental + payments MVP ⬜
+# Sprint 5 — Rental + payments MVP ✅
 
 **Cel:** `Reservation → Rental` + rejestracja płatności bez bramki online.
 
-### bookings (cd.)
+### bookings — wynajem
 
-- [ ] Model `Rental` + statusy: scheduled, active, returned, closed, cancelled
-- [ ] `ReservationService.convert_to_rental()` tylko z `confirmed`
+- [x] Model `Rental` + statusy: scheduled, active, returned, closed, cancelled — `bookings.0005_rental`
+- [x] `RentalService` — convert, start, mark_returned, close, cancel (scheduled)
+- [x] `ReservationService.convert_to_rental()` tylko z `confirmed` + wymagany `PriceLine`
+- [x] Panel `/panel/rezerwacje/wynajmy/` — lista, szczegoly, akcje statusow
+- [x] Przycisk „Utworz wynajem” na potwierdzonej rezerwacji
+- [x] Dostepnosc: `BLOCKING_RENTAL_STATUSES`; rezerwacja `converted_to_rental` nie blokuje auta
+- [x] Pulpit: metryka „Aktywne wynajmy”
+- [x] `seed_demo` — przykladowy wynajem z rezerwacji DEMO
 
 ### payments
 
-- [ ] `Payment`, `PaymentIntent`
-- [ ] Typy: rental_fee, deposit, refund, extra_charge, damage_charge
-- [ ] Metody: cash, bank_transfer, card (ręczna rejestracja)
-- [ ] **Kaucja ≠ przychód** — reguła w serwisie/raporcie (kwota z `CarCategory.deposit` juz w fleet)
+- [x] `Payment`, `PaymentIntent`, `PaymentProviderEvent` — `payments.0001_initial`
+- [x] Typy: rental_fee, deposit, refund, extra_charge, damage_charge
+- [x] Metody: cash, bank_transfer, card, blik (+ online_gateway w modelu, bez integracji)
+- [x] `PaymentService` — record_payment, record_deposit, record_rental_fee, refund_deposit
+- [x] Selektory: `get_rental_payment_summary`, `get_rental_revenue_total`, `get_rental_deposit_balance`
+- [x] Panel `/panel/platnosci/` + `/panel/platnosci/wynajem/<id>/` (formularz, szybka kaucja/zwrot)
+- [x] Podglad platnosci na szczegolach wynajmu
+- [x] **Kaucja ≠ przychód** — `REVENUE_PAYMENT_TYPES` bez deposit/refund
 
 ### Testy
 
-- [ ] Konwersja tylko z poprawnego statusu
-- [ ] Depozyt nie wliczany do revenue
+- [x] Konwersja tylko z `confirmed`, duplikat i nakladanie wynajmow
+- [x] Cykl zycia wynajmu (start → zwrot → zamkniecie)
+- [x] Depozyt nie wliczany do `revenue_total`; zwrot kaucji z walidacja salda
+- [x] Widoki panelu (wynajmy, platnosci)
 
-**Definition of Done:** operacyjny wynajem z opłatą i kaucją w systemie.
+**Definition of Done:** operacyjny wynajem z opłatą i kaucją w systemie. — **spełnione**
+
+> **Backlog (poza MVP Sprint 5):** bramka online (`PaymentGatewayService`, webhooki `PaymentProviderEvent`).
 
 ---
 
@@ -577,9 +604,9 @@ Sprint 9+ (produkcja)
 | Panel `/panel/` + `base_internal.html` | ✅ | ✅ |
 | Locale PL + MEDIA/STATIC | ✅ | ✅ |
 | `apps/fleet` — flota, kategorie (+ deposit), panel | ✅ | ✅ |
-| `apps/bookings` — Customer, Reservation, `PriceLine`, tryb ceny | ✅ | ✅ |
+| `apps/bookings` — Reservation, `Rental`, `PriceLine`, tryb ceny | ✅ | ✅ |
 | `apps/pricing` — cennik, panel, `PricingService` | ✅ | ✅ |
-| `apps/payments` | ❌ | — |
+| `apps/payments` — Payment, panel, kaucja ≠ przychod | ✅ | ✅ |
 | `apps/operations` | ❌ | — |
 | `apps/documents` | ❌ | — |
 | `apps/dashboard` — pełny szkielet | ✅ | ✅ |

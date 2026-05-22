@@ -1,0 +1,112 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Platnosci — wynajem #{{ rental.pk }}{% endblock %}
+{% block page_heading %}Platnosci wynajmu #{{ rental.pk }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">
+    {{ reservation.customer.full_name }} · {{ reservation.car.registration_number }}
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-3 mb-6">
+    <a href="{% url 'bookings:rental_detail' rental.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Wynajem</a>
+    <a href="{% url 'payments:payment_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Wszystkie platnosci</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
+        <p class="text-sm text-gray-500">Do zaplaty (wynajem)</p>
+        <p class="text-2xl font-semibold">{{ summary.rental_fee_due }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">Naliczone: {{ summary.price_total }} PLN · zaplacono {{ summary.rental_fees_paid }} PLN</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-amber-500">
+        <p class="text-sm text-gray-500">Kaucja (saldo)</p>
+        <p class="text-2xl font-semibold">{{ summary.deposit_balance }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">Oczekiwana: {{ summary.deposit_expected }} PLN · wplaty {{ summary.deposits_paid }} PLN</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
+        <p class="text-sm text-gray-500">Przychod (bez kaucji)</p>
+        <p class="text-2xl font-semibold">{{ summary.revenue_total }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">Oplata + dodatki + szkody</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Szybkie akcje</h2>
+        <div class="flex flex-wrap gap-2">
+            {% if summary.deposit_balance < summary.deposit_expected %}
+            <form method="post" action="{% url 'payments:record_deposit_quick' rental.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="border px-3 py-2 rounded text-sm hover:bg-gray-50">
+                    Przyjmij kaucje ({{ summary.deposit_expected }} PLN)
+                </button>
+            </form>
+            {% endif %}
+            {% if summary.deposit_balance > 0 %}
+            <form
+                method="post"
+                action="{% url 'payments:refund_deposit_quick' rental.pk %}"
+                onsubmit="return confirm('Zwrocic kaucje {{ summary.deposit_balance }} PLN?')"
+            >
+                {% csrf_token %}
+                <button type="submit" class="border px-3 py-2 rounded text-sm hover:bg-gray-50">
+                    Zwroc kaucje ({{ summary.deposit_balance }} PLN)
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Nowa platnosc</h2>
+        <form method="post" class="space-y-3">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="block text-sm text-gray-600 mb-1">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm">Zarejestruj</button>
+        </form>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 mt-6">
+    <h2 class="font-medium mb-4">Historia platnosci</h2>
+    <table class="min-w-full text-sm">
+        <thead class="text-left text-gray-500 border-b">
+            <tr>
+                <th class="pb-2">Data</th>
+                <th class="pb-2">Typ</th>
+                <th class="pb-2">Metoda</th>
+                <th class="pb-2 text-right">Kwota</th>
+                <th class="pb-2">Notatka</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr class="border-b border-gray-100">
+                <td class="py-2">{{ payment.paid_at|date:"Y-m-d H:i" }}</td>
+                <td class="py-2">{{ payment.get_payment_type_display }}</td>
+                <td class="py-2">{{ payment.get_method_display }}</td>
+                <td class="py-2 text-right font-medium">{{ payment.amount }} PLN</td>
+                <td class="py-2 text-gray-500">{{ payment.notes|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="py-4 text-gray-500">Brak platnosci.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>
+    input, select { width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; }
+</style>
+{% endblock %}

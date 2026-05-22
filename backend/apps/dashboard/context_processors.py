@@ -9,6 +9,8 @@ def panel_navigation(request):
         panel_section = "bookings"
     elif match and match.app_name == "pricing":
         panel_section = "pricing"
+    elif match and match.app_name == "payments":
+        panel_section = "payments"
     elif match:
         panel_section = match.url_name
     else:

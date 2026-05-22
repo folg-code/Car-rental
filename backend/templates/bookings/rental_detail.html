@@ -88,9 +88,31 @@
     {% endif %}
 
     <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
-        <h2 class="font-medium mb-4">Koszty (snapshot z rezerwacji)</h2>
-        <p class="text-sm text-gray-600 mb-2">Suma naliczona na rezerwacji: <strong>{{ price_total }} PLN</strong></p>
-        <p class="text-xs text-gray-500">Rejestracja platnosci — modul payments (Sprint 5, kolejny krok).</p>
+        <div class="flex justify-between items-start mb-4">
+            <h2 class="font-medium">Koszty i platnosci</h2>
+            <a href="{% url 'payments:rental_payments' rental.pk %}" class="text-sm text-blue-600 hover:underline">
+                Zarzadzaj platnosciami →
+            </a>
+        </div>
+        <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+            <div>
+                <dt class="text-gray-500">Naliczone</dt>
+                <dd class="font-semibold">{{ price_total }} PLN</dd>
+            </div>
+            <div>
+                <dt class="text-gray-500">Do zaplaty</dt>
+                <dd class="font-semibold">{{ payment_summary.rental_fee_due }} PLN</dd>
+            </div>
+            <div>
+                <dt class="text-gray-500">Kaucja (saldo)</dt>
+                <dd class="font-semibold">{{ payment_summary.deposit_balance }} PLN</dd>
+            </div>
+            <div>
+                <dt class="text-gray-500">Przychod</dt>
+                <dd class="font-semibold">{{ payment_summary.revenue_total }} PLN</dd>
+            </div>
+        </dl>
+        <p class="text-xs text-gray-500">Kaucja nie wlicza sie do przychodu.</p>
     </div>
 
     {% if rental.cancellation_reason %}

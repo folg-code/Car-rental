@@ -44,7 +44,7 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
     ),
     PanelNavItem(
         label="Platnosci",
-        url_name="dashboard:payments",
+        url_name="payments:payment_list",
         section_key="payments",
         icon="wallet",
         enabled=True,

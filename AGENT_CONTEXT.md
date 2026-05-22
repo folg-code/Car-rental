@@ -224,6 +224,16 @@ Rental statuses:
 - closed
 - cancelled
 
+Rental workflow:
+- `RentalService.convert_from_reservation()` — only from `confirmed` + existing `PriceLine`; sets reservation to `converted_to_rental`
+- `RentalService.start` / `mark_returned` / `close` / `cancel` (cancel only while `scheduled`)
+- One rental per reservation (`OneToOne`); `deposit_amount` snapshot from `CarCategory` at conversion
+- Availability: `BLOCKING_RENTAL_STATUSES` block the car; `converted_to_rental` reservation does **not** block (rental does)
+
+Panel:
+- `/panel/rezerwacje/wynajmy/` — list, detail, status actions
+- „Utworz wynajem” on confirmed reservation detail
+
 ---
 
 # pricing/
@@ -273,10 +283,10 @@ Responsibilities:
 - refunds.
 
 Models:
-- PaymentIntent
-- Payment
-- Refund
-- PaymentProviderEvent
+- PaymentIntent — prepared for online gateway (MVP: manual booking via `Payment`)
+- Payment — FK `Rental` (required), optional `Reservation`, `PaymentIntent`
+- PaymentProviderEvent — webhook log skeleton
+- Refunds are `Payment` rows with `payment_type=refund` (no separate `Refund` model)
 
 Supported methods:
 - online_gateway
@@ -291,6 +301,16 @@ Supported payment types:
 - refund
 - extra_charge
 - damage_charge
+
+Implemented (Sprint 5 MVP):
+- `PaymentService.record_payment`, `record_deposit`, `record_rental_fee`, `refund_deposit`
+- Selectors: `get_rental_payment_summary`, `get_rental_revenue_total`, `get_rental_deposit_balance`
+- `REVENUE_PAYMENT_TYPES` — rental_fee, extra_charge, damage_charge only (**deposit ≠ revenue**)
+- Panel: `/panel/platnosci/`, `/panel/platnosci/wynajem/<id>/` (form + quick deposit/refund)
+- Payment summary embedded on rental detail
+
+Not implemented yet:
+- `PaymentGatewayService`, live webhooks, online checkout
 
 ---
 
@@ -615,9 +635,9 @@ Critical priorities:
 
 > Sprint tracking: [`PROJECT_PLAN.md`](./PROJECT_PLAN.md) — last updated 2026-05-20.
 
-**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots)
+**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP)
 
-**Next sprint:** 5 — `Rental`, `Payment`, `convert_to_rental()`, deposit as liability (not revenue).
+**Next sprint:** 6 — operations (`HandoverProtocol`, `ReturnProtocol`, mobile workflow).
 
 Implemented:
 - Django project setup
@@ -632,20 +652,21 @@ Implemented:
 - fleet: models, panel CRUD (`/panel/flota/`), category list + **edit** (`/kategorie/<id>/edycja/`), `CarCategory.deposit`, `AvailabilityService`
 - bookings: Customer, Reservation, `PriceLine` snapshot, `ReservationService`, panel CRUD (`/panel/rezerwacje/`, clients under `/klienci/`)
 - bookings: reservation pricing modes (`auto` / `price_list` / `custom`), `PriceSnapshotService.freeze()`, price breakdown on reservation detail
+- bookings: `Rental` model, `RentalService`, `ReservationService.convert_to_rental()`, panel `/panel/rezerwacje/wynajmy/`, rental blocks availability (not `converted_to_rental` reservation)
 - pricing: `PriceList`, `DailyRate`, `PricingRule`, `ExtraService`, `PricingService.calculate()`, panel `/panel/cenniki/`
-- dashboard: layout, navigation, bookings metrics on home
+- payments: `Payment`, `PaymentIntent`, `PaymentProviderEvent`, `PaymentService`, panel `/panel/platnosci/`, deposit/refund with balance validation, **deposit ≠ revenue**
+- dashboard: layout, navigation, bookings + rental metrics on home
 - CI/CD (GitHub Actions)
-- `manage.py seed_demo` — fleet, customers, default price list, category deposits, sample reservation with price
+- `manage.py seed_demo` — fleet, customers, price list, sample reservation + rental (scheduled)
 
 In progress:
 - (none)
 
 Not implemented yet:
-- `Rental` model and `ReservationService.convert_to_rental()`
-- payments (`Payment`, `PaymentIntent`, deposit/refund recording; **deposit ≠ revenue**)
-- operations workflows (handover/return protocols)
+- operations workflows (handover/return protocols, signatures, photos)
 - documents system (PDF, invoices)
-- dashboard (full operational metrics beyond current home widgets)
+- payment gateway integration (webhooks, online checkout)
+- dashboard (full operational KPIs beyond home widgets)
 - customer-facing website (public booking channel)
 - AI customer consultant (chatbot)
 

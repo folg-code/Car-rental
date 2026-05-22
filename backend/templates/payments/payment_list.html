@@ -1,0 +1,54 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Platnosci{% endblock %}
+{% block page_heading %}Platnosci{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">Ostatnie ksiegowania (ruch pieniezny)</p>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+            <tr>
+                <th class="px-4 py-3">Data</th>
+                <th class="px-4 py-3">Wynajem</th>
+                <th class="px-4 py-3">Klient</th>
+                <th class="px-4 py-3">Typ</th>
+                <th class="px-4 py-3">Metoda</th>
+                <th class="px-4 py-3 text-right">Kwota</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            {% for payment in payments %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3">{{ payment.paid_at|date:"Y-m-d H:i" }}</td>
+                <td class="px-4 py-3">
+                    <a href="{% url 'payments:rental_payments' payment.rental_id %}" class="text-blue-600 hover:underline">
+                        #{{ payment.rental_id }}
+                    </a>
+                </td>
+                <td class="px-4 py-3">{{ payment.rental.reservation.customer.full_name }}</td>
+                <td class="px-4 py-3">{{ payment.get_payment_type_display }}</td>
+                <td class="px-4 py-3">{{ payment.get_method_display }}</td>
+                <td class="px-4 py-3 text-right font-medium">{{ payment.amount }} PLN</td>
+                <td class="px-4 py-3 text-right text-xs text-gray-400">
+                    {% if payment.is_revenue %}przychod{% else %}zobowiazanie{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                    Brak zarejestrowanych platnosci.
+                    <a href="{% url 'bookings:rental_list' %}" class="text-blue-600 hover:underline">Wynajmy</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="text-xs text-gray-500 mt-4">
+    Kaucja nie jest przychodem. Zwroty kaucji obnizaja saldo zobowiazania.
+</p>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Kategorie{% endblock %}
+{% block page_heading %}Kategorie pojazdow{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Lista</h2>
+        <ul class="space-y-2 text-sm">
+            {% for cat in categories %}
+            <li class="flex justify-between border-b pb-2">
+                <span>{{ cat.name }}</span>
+                <span class="text-gray-400">{{ cat.cars.count }} aut</span>
+            </li>
+            {% empty %}
+            <li class="text-gray-500">Brak kategorii.</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'fleet:car_list' %}" class="inline-block mt-4 text-sm text-gray-500 hover:underline">← Flota</a>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Nowa kategoria</h2>
+        <form method="post" class="space-y-3">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="block text-sm text-gray-600 mb-1">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+            <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm">Dodaj</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

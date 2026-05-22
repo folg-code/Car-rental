@@ -6,6 +6,7 @@ Requires-Dist: django>=5.2
 Requires-Dist: psycopg[binary]
 Requires-Dist: django-environ
 Requires-Dist: gunicorn>=23.0
+Requires-Dist: Pillow>=10.0
 Provides-Extra: dev
 Requires-Dist: pytest>=8.0; extra == "dev"
 Requires-Dist: pytest-django>=4.9; extra == "dev"

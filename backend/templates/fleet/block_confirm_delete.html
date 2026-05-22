@@ -1,0 +1,15 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Usun blokade{% endblock %}
+{% block page_heading %}Potwierdz usuniecie{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6 max-w-md">
+    <p class="text-sm mb-4">Usunac blokade <strong>{{ block.get_block_type_display }}</strong> dla {{ car.registration_number }}?</p>
+    <form method="post" class="flex gap-3">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded text-sm">Usun</button>
+        <a href="{% url 'fleet:car_detail' car.pk %}" class="text-sm self-center hover:underline">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

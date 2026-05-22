@@ -16,7 +16,7 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
     ),
     PanelNavItem(
         label="Flota",
-        url_name="dashboard:fleet",
+        url_name="fleet:car_list",
         section_key="fleet",
         icon="car",
         enabled=True,

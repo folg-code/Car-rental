@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -7,6 +8,7 @@ from django.utils import timezone
 from apps.bookings.models import (
     BLOCKING_RESERVATION_STATUSES,
     Reservation,
+    ReservationPricingMode,
     ReservationStatus,
 )
 from apps.bookings.selectors.availability import get_overlapping_reservations
@@ -63,6 +65,9 @@ class ReservationService:
         status: str = ReservationStatus.DRAFT,
         notes: str = "",
         created_by_id: int | None = None,
+        pricing_mode: str = ReservationPricingMode.AUTO,
+        price_list_id: int | None = None,
+        custom_total: Decimal | None = None,
     ) -> Reservation:
         if status not in ReservationStatus.values:
             msg = f"Nieprawidlowy status rezerwacji: {status}"
@@ -81,6 +86,9 @@ class ReservationService:
             status=status,
             notes=notes,
             created_by_id=created_by_id,
+            pricing_mode=pricing_mode,
+            price_list_id=price_list_id,
+            custom_total=custom_total,
         )
         reservation.full_clean()
 
@@ -95,7 +103,7 @@ class ReservationService:
         if status in (
             ReservationStatus.PENDING_PAYMENT,
             ReservationStatus.CONFIRMED,
-        ):
+        ) or PriceSnapshotService.can_recalculate(reservation):
             PriceSnapshotService.freeze(reservation)
         return reservation
 
@@ -118,9 +126,9 @@ class ReservationService:
             end_at=reservation.end_at,
             exclude_reservation_id=reservation.pk,
         )
+        PriceSnapshotService.freeze(reservation)
         reservation.status = ReservationStatus.CONFIRMED
         reservation.save(update_fields=["status", "updated_at"])
-        PriceSnapshotService.freeze(reservation)
         return reservation
 
     @staticmethod
@@ -172,6 +180,9 @@ class ReservationService:
         end_at: datetime | None = None,
         status: str | None = None,
         notes: str | None = None,
+        pricing_mode: str | None = None,
+        price_list_id: int | None = None,
+        custom_total: Decimal | None = None,
     ) -> Reservation:
         ReservationService._assert_can_mutate(reservation)
 
@@ -185,6 +196,17 @@ class ReservationService:
             reservation.end_at = end_at
         if notes is not None:
             reservation.notes = notes
+        if pricing_mode is not None:
+            reservation.pricing_mode = pricing_mode
+            if pricing_mode == ReservationPricingMode.AUTO:
+                reservation.price_list_id = None
+                reservation.custom_total = None
+            elif pricing_mode == ReservationPricingMode.PRICE_LIST:
+                reservation.price_list_id = price_list_id
+                reservation.custom_total = None
+            elif pricing_mode == ReservationPricingMode.CUSTOM:
+                reservation.price_list_id = None
+                reservation.custom_total = custom_total
         if status is not None:
             if status not in ReservationStatus.values:
                 msg = f"Nieprawidlowy status rezerwacji: {status}"
@@ -203,4 +225,6 @@ class ReservationService:
             )
 
         reservation.save()
+        if PriceSnapshotService.can_recalculate(reservation):
+            PriceSnapshotService.freeze(reservation)
         return reservation

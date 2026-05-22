@@ -5,7 +5,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.accounts.permissions import staff_required
 from apps.bookings.forms import CustomerForm, ReservationCancelForm, ReservationForm
-from apps.bookings.models import Customer, Reservation, ReservationStatus
+from apps.bookings.models import (
+    Customer,
+    Reservation,
+    ReservationPricingMode,
+    ReservationStatus,
+)
 from apps.bookings.selectors.customer import get_customer_by_id, list_customers
 from apps.bookings.selectors.reservation import get_reservation_by_id, list_reservations
 from apps.bookings.services.price_snapshot import PriceSnapshotService
@@ -54,15 +59,26 @@ def reservation_detail(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, "Nie znaleziono rezerwacji.")
         return redirect("bookings:reservation_list")
     price_list = get_price_list_for_date(reservation.start_at.date())
-    available_extras = list_active_extras(price_list) if price_list is not None else []
+    if reservation.pricing_mode == ReservationPricingMode.PRICE_LIST:
+        price_list = reservation.price_list
+    available_extras = (
+        list_active_extras(price_list)
+        if price_list is not None
+        and reservation.pricing_mode != ReservationPricingMode.CUSTOM
+        else []
+    )
     return render(
         request,
         "bookings/reservation_detail.html",
         {
             "reservation": reservation,
             "price_total": PriceSnapshotService.reservation_total(reservation),
-            "can_recalculate_price": PriceSnapshotService.can_recalculate(reservation),
+            "can_recalculate_price": (
+                PriceSnapshotService.can_recalculate(reservation)
+                and reservation.pricing_mode != ReservationPricingMode.CUSTOM
+            ),
             "available_extras": available_extras,
+            "category_deposit": reservation.car.category.deposit,
         },
     )
 
@@ -103,6 +119,7 @@ def reservation_create(request: HttpRequest) -> HttpResponse:
     form = ReservationForm(request.POST or None, initial=initial)
     if request.method == "POST" and form.is_valid():
         try:
+            pl = form.cleaned_data.get("price_list")
             reservation = ReservationService.create(
                 customer_id=form.cleaned_data["customer"].pk,
                 car_id=form.cleaned_data["car"].pk,
@@ -111,6 +128,9 @@ def reservation_create(request: HttpRequest) -> HttpResponse:
                 status=form.cleaned_data["status"],
                 notes=form.cleaned_data.get("notes", ""),
                 created_by_id=request.user.pk,
+                pricing_mode=form.cleaned_data["pricing_mode"],
+                price_list_id=pl.pk if pl else None,
+                custom_total=form.cleaned_data.get("custom_total"),
             )
         except ValidationError as exc:
             _add_validation_errors_to_form(form, exc)
@@ -142,6 +162,7 @@ def reservation_edit(request: HttpRequest, pk: int) -> HttpResponse:
             else reservation.status
         )
         try:
+            pl = form.cleaned_data.get("price_list")
             ReservationService.update(
                 reservation,
                 customer_id=form.cleaned_data["customer"].pk,
@@ -150,6 +171,9 @@ def reservation_edit(request: HttpRequest, pk: int) -> HttpResponse:
                 end_at=form.cleaned_data["end_at"],
                 status=status,
                 notes=form.cleaned_data.get("notes", ""),
+                pricing_mode=form.cleaned_data["pricing_mode"],
+                price_list_id=pl.pk if pl else None,
+                custom_total=form.cleaned_data.get("custom_total"),
             )
         except ValidationError as exc:
             _add_validation_errors_to_form(form, exc)

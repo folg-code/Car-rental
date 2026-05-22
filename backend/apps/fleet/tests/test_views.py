@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from django.urls import reverse
 
@@ -61,3 +63,24 @@ class TestFleetViews:
         )
         assert response.status_code == 302
         assert Car.objects.filter(registration_number="GD99999").exists()
+
+    def test_category_edit_updates_deposit(self, staff_client, db) -> None:
+        category = CarCategory.objects.create(
+            name="Premium",
+            slug="premium",
+            deposit=Decimal("1000.00"),
+        )
+        response = staff_client.post(
+            reverse("fleet:category_edit", kwargs={"pk": category.pk}),
+            {
+                "name": "Premium Plus",
+                "slug": "premium",
+                "description": "",
+                "sort_order": 0,
+                "deposit": "2500.50",
+            },
+        )
+        assert response.status_code == 302
+        category.refresh_from_db()
+        assert category.name == "Premium Plus"
+        assert category.deposit == Decimal("2500.50")

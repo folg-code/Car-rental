@@ -19,6 +19,7 @@
         <h2 class="font-medium mb-4">Dane pojazdu</h2>
         <dl class="grid grid-cols-2 gap-2 text-sm">
             <dt class="text-gray-500">Kategoria</dt><dd>{{ car.category.name }}</dd>
+            <dt class="text-gray-500">Kaucja (kategoria)</dt><dd>{{ car.category.deposit }} PLN</dd>
             <dt class="text-gray-500">Rok</dt><dd>{{ car.year }}</dd>
             <dt class="text-gray-500">Paliwo</dt><dd>{{ car.get_fuel_type_display }}</dd>
             <dt class="text-gray-500">Przebieg</dt><dd>{{ car.mileage }} km</dd>

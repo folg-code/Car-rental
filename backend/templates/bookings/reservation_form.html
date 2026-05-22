@@ -7,9 +7,10 @@
 {% include "bookings/_nav.html" with active_tab="reservations" %}
 
 <div class="bg-white rounded-lg shadow p-6 max-w-2xl">
-    <form method="post" class="space-y-4">
+    <form method="post" class="space-y-4" id="reservation-form">
         {% csrf_token %}
         {% for field in form %}
+        {% if field.name != "pricing_mode" and field.name != "price_list" and field.name != "custom_total" and field.name != "notes" %}
         <div>
             <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
                 {{ field.label }}
@@ -19,7 +20,37 @@
             <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
             {% endif %}
         </div>
+        {% endif %}
         {% endfor %}
+
+        <fieldset class="border rounded p-4 space-y-3">
+            <legend class="text-sm font-medium px-1">Naliczanie ceny</legend>
+            {% for radio in form.pricing_mode %}
+            <label class="flex items-center gap-2 text-sm">
+                {{ radio.tag }}
+                {{ radio.choice_label }}
+            </label>
+            {% endfor %}
+            <div id="price-list-field" class="hidden">
+                <label class="block text-sm text-gray-600 mb-1">{{ form.price_list.label }}</label>
+                {{ form.price_list }}
+            </div>
+            <div id="custom-total-field" class="hidden">
+                <label class="block text-sm text-gray-600 mb-1">{{ form.custom_total.label }}</label>
+                {{ form.custom_total }}
+                {% if form.custom_total.errors %}
+                <p class="text-red-600 text-xs mt-1">{{ form.custom_total.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </fieldset>
+
+        <div>
+            <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                {{ form.notes.label }}
+            </label>
+            {{ form.notes }}
+        </div>
+
         {% if form.non_field_errors %}
         <p class="text-red-600 text-sm">{{ form.non_field_errors.0 }}</p>
         {% endif %}
@@ -31,5 +62,23 @@
 </div>
 <style>
     input, select, textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; }
+    input[type="radio"] { width: auto; }
 </style>
+<script>
+(function () {
+    const form = document.getElementById("reservation-form");
+    if (!form) return;
+    const radios = form.querySelectorAll('input[name="pricing_mode"]');
+    const priceListBox = document.getElementById("price-list-field");
+    const customBox = document.getElementById("custom-total-field");
+    function sync() {
+        const selected = form.querySelector('input[name="pricing_mode"]:checked');
+        const mode = selected ? selected.value : "auto";
+        priceListBox.classList.toggle("hidden", mode !== "price_list");
+        customBox.classList.toggle("hidden", mode !== "custom");
+    }
+    radios.forEach((r) => r.addEventListener("change", sync));
+    sync();
+})();
+</script>
 {% endblock %}

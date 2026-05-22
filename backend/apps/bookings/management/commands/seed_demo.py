@@ -24,12 +24,22 @@ class Command(BaseCommand):
     def handle(self, *args, **options) -> None:
         kompakt, _ = CarCategory.objects.get_or_create(
             slug="kompakt",
-            defaults={"name": "Kompakt", "sort_order": 1},
+            defaults={
+                "name": "Kompakt",
+                "sort_order": 1,
+                "deposit": Decimal("1500.00"),
+            },
         )
         suv, _ = CarCategory.objects.get_or_create(
             slug="suv",
-            defaults={"name": "SUV", "sort_order": 2},
+            defaults={"name": "SUV", "sort_order": 2, "deposit": Decimal("3000.00")},
         )
+        if kompakt.deposit == 0:
+            kompakt.deposit = Decimal("1500.00")
+            kompakt.save(update_fields=["deposit"])
+        if suv.deposit == 0:
+            suv.deposit = Decimal("3000.00")
+            suv.save(update_fields=["deposit"])
 
         cars_data = [
             {

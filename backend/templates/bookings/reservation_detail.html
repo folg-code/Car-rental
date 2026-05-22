@@ -58,6 +58,12 @@
             </dd>
             <dt class="text-gray-500">Pojazd</dt>
             <dd>{{ reservation.car.make }} {{ reservation.car.model }} ({{ reservation.car.registration_number }})</dd>
+            <dt class="text-gray-500">Kategoria</dt>
+            <dd>{{ reservation.car.category.name }}</dd>
+            <dt class="text-gray-500">Kaucja (kategoria)</dt>
+            <dd>{{ category_deposit }} PLN</dd>
+            <dt class="text-gray-500">Sposob ceny</dt>
+            <dd>{{ reservation.get_pricing_mode_display }}{% if reservation.price_list %} — {{ reservation.price_list.name }}{% endif %}</dd>
         </dl>
     </div>
 

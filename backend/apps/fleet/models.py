@@ -1,4 +1,7 @@
+from decimal import Decimal
+
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -7,6 +10,13 @@ class CarCategory(models.Model):
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     sort_order = models.PositiveSmallIntegerField(default=0)
+    deposit = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0"),
+        validators=[MinValueValidator(Decimal("0"))],
+        help_text="Kaucja zwrotna dla pojazdow tej kategorii (PLN).",
+    )
 
     class Meta:
         ordering = ["sort_order", "name"]

@@ -9,6 +9,7 @@ from apps.pricing.dto import CalculatedPriceLine, PricingResult
 from apps.pricing.models import (
     AmountType,
     ExtraServiceChargeType,
+    PriceList,
     PricingRule,
     PricingRuleType,
 )
@@ -96,9 +97,11 @@ class PricingService:
         start_at: datetime,
         end_at: datetime,
         extra_codes: list[str] | None = None,
+        price_list: PriceList | None = None,
     ) -> PricingResult:
         period = PricingService._rental_period(start_at, end_at)
-        price_list = get_price_list_for_date(period.dates[0])
+        if price_list is None:
+            price_list = get_price_list_for_date(period.dates[0])
         if price_list is None:
             raise ValidationError("Brak aktywnego cennika dla wybranego terminu.")
 

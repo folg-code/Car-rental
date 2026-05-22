@@ -10,7 +10,7 @@ from apps.fleet.forms import (
     CarForm,
     DamageForm,
 )
-from apps.fleet.models import AvailabilityBlock, Car
+from apps.fleet.models import AvailabilityBlock, Car, CarCategory
 from apps.fleet.selectors.car import get_car_detail, list_cars, list_categories
 from apps.fleet.services.damage import DamageService
 from apps.fleet.services.maintenance import FleetMaintenanceService
@@ -80,6 +80,21 @@ def category_list(request: HttpRequest) -> HttpResponse:
         request,
         "fleet/category_list.html",
         {"categories": list_categories(), "form": form},
+    )
+
+
+@staff_required
+def category_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    category = get_object_or_404(CarCategory, pk=pk)
+    form = CarCategoryForm(request.POST or None, instance=category)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, f"Zapisano kategorie {category.name}.")
+        return redirect("fleet:category_list")
+    return render(
+        request,
+        "fleet/category_form.html",
+        {"form": form, "title": f"Edycja — {category.name}", "category": category},
     )
 
 

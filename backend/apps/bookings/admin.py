@@ -42,6 +42,7 @@ class ReservationAdmin(admin.ModelAdmin):
         "start_at",
         "end_at",
         "status",
+        "pricing_mode",
         "created_at",
     )
     list_filter = ("status",)
@@ -51,7 +52,7 @@ class ReservationAdmin(admin.ModelAdmin):
         "customer__email",
         "car__registration_number",
     )
-    raw_id_fields = ("customer", "car", "created_by")
+    raw_id_fields = ("customer", "car", "created_by", "price_list")
     readonly_fields = ("created_at", "updated_at", "cancelled_at")
     date_hierarchy = "start_at"
     inlines = (PriceLineInline,)

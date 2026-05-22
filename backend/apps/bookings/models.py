@@ -89,6 +89,12 @@ TERMINAL_RESERVATION_STATUSES = frozenset(
 )
 
 
+class ReservationPricingMode(models.TextChoices):
+    AUTO = "auto", "Automatyczny (cennik na date)"
+    PRICE_LIST = "price_list", "Wybrany cennik"
+    CUSTOM = "custom", "Kwota reczna"
+
+
 class Reservation(models.Model):
     """Intent rezerwacji — oddzielny od operacyjnego wynajmu (Rental)."""
 
@@ -111,6 +117,26 @@ class Reservation(models.Model):
         db_index=True,
     )
     notes = models.TextField(blank=True)
+    pricing_mode = models.CharField(
+        max_length=16,
+        choices=ReservationPricingMode.choices,
+        default=ReservationPricingMode.AUTO,
+    )
+    price_list = models.ForeignKey(
+        "pricing.PriceList",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reservations",
+    )
+    custom_total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        help_text="Uzywane gdy pricing_mode=custom.",
+    )
     cancellation_reason = models.CharField(max_length=255, blank=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -153,6 +179,19 @@ class Reservation(models.Model):
             raise ValidationError(
                 "Data zakonczenia musi byc pozniejsza niz data rozpoczecia."
             )
+        if self.pricing_mode == ReservationPricingMode.PRICE_LIST:
+            if self.price_list_id is None:
+                raise ValidationError(
+                    {"price_list": "Wybierz cennik lub zmien sposob naliczania ceny."}
+                )
+        elif self.pricing_mode == ReservationPricingMode.CUSTOM:
+            if self.custom_total is None:
+                raise ValidationError(
+                    {"custom_total": "Podaj kwote reczna dla tej rezerwacji."}
+                )
+        else:
+            self.price_list_id = None
+            self.custom_total = None
 
     def save(self, *args, **kwargs) -> None:
         self.full_clean()

@@ -7,12 +7,14 @@ from django.utils import timezone
 
 from apps.bookings.models import (
     BLOCKING_RESERVATION_STATUSES,
+    Rental,
     Reservation,
     ReservationPricingMode,
     ReservationStatus,
 )
 from apps.bookings.selectors.availability import get_overlapping_reservations
 from apps.bookings.services.price_snapshot import PriceSnapshotService
+from apps.bookings.services.rental import RentalService
 from apps.fleet.models import Car
 from apps.fleet.services.availability import AvailabilityService
 
@@ -228,3 +230,17 @@ class ReservationService:
         if PriceSnapshotService.can_recalculate(reservation):
             PriceSnapshotService.freeze(reservation)
         return reservation
+
+    @staticmethod
+    @transaction.atomic
+    def convert_to_rental(
+        reservation: Reservation,
+        *,
+        created_by_id: int | None = None,
+        notes: str = "",
+    ) -> Rental:
+        return RentalService.convert_from_reservation(
+            reservation,
+            created_by_id=created_by_id,
+            notes=notes,
+        )

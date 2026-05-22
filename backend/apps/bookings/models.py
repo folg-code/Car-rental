@@ -76,7 +76,6 @@ BLOCKING_RESERVATION_STATUSES = frozenset(
     {
         ReservationStatus.PENDING_PAYMENT,
         ReservationStatus.CONFIRMED,
-        ReservationStatus.CONVERTED_TO_RENTAL,
     }
 )
 
@@ -192,6 +191,127 @@ class Reservation(models.Model):
         else:
             self.price_list_id = None
             self.custom_total = None
+
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class RentalStatus(models.TextChoices):
+    SCHEDULED = "scheduled", "Zaplanowany"
+    ACTIVE = "active", "Aktywny"
+    RETURNED = "returned", "Zwrocony"
+    CLOSED = "closed", "Zamkniety"
+    CANCELLED = "cancelled", "Anulowany"
+
+
+BLOCKING_RENTAL_STATUSES = frozenset(
+    {
+        RentalStatus.SCHEDULED,
+        RentalStatus.ACTIVE,
+        RentalStatus.RETURNED,
+    }
+)
+
+TERMINAL_RENTAL_STATUSES = frozenset(
+    {
+        RentalStatus.CLOSED,
+        RentalStatus.CANCELLED,
+    }
+)
+
+
+class Rental(models.Model):
+    """
+    Operacyjny wynajem — powstaje z potwierdzonej rezerwacji (max jeden na rezerwacje).
+
+    Terminy planowane kopiowane z rezerwacji; faktyczne daty wydania/zwrotu uzupelniane
+    przy zmianie statusu (protokoly w operations — Sprint 6).
+    """
+
+    reservation = models.OneToOneField(
+        Reservation,
+        on_delete=models.PROTECT,
+        related_name="rental",
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=RentalStatus.choices,
+        default=RentalStatus.SCHEDULED,
+        db_index=True,
+    )
+    scheduled_start_at = models.DateTimeField()
+    scheduled_end_at = models.DateTimeField()
+    actual_start_at = models.DateTimeField(null=True, blank=True)
+    actual_end_at = models.DateTimeField(null=True, blank=True)
+    deposit_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0"),
+        validators=[MinValueValidator(Decimal("0"))],
+        help_text="Snapshot kaucji z kategorii auta w momencie konwersji.",
+    )
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="rentals_created",
+    )
+    cancellation_reason = models.CharField(max_length=255, blank=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-scheduled_start_at"]
+        verbose_name = "wynajem"
+        verbose_name_plural = "wynajmy"
+        indexes = [
+            models.Index(fields=["status", "scheduled_start_at"]),
+            models.Index(fields=["status", "scheduled_end_at"]),
+        ]
+
+    def __str__(self) -> str:
+        return (
+            f"Wynajem #{self.pk or '—'} — "
+            f"rezerwacja #{self.reservation_id or '—'} "
+            f"({self.get_status_display()})"
+        )
+
+    @property
+    def customer(self) -> Customer:
+        return self.reservation.customer
+
+    @property
+    def car(self):
+        return self.reservation.car
+
+    @property
+    def blocks_availability(self) -> bool:
+        return self.status in BLOCKING_RENTAL_STATUSES
+
+    @property
+    def is_terminal(self) -> bool:
+        return self.status in TERMINAL_RENTAL_STATUSES
+
+    def clean(self) -> None:
+        super().clean()
+        if (
+            self.scheduled_start_at
+            and self.scheduled_end_at
+            and self.scheduled_start_at >= self.scheduled_end_at
+        ):
+            raise ValidationError(
+                "Planowana data zakonczenia musi byc pozniejsza niz rozpoczecia."
+            )
+        if self.actual_start_at and self.actual_end_at:
+            if self.actual_start_at >= self.actual_end_at:
+                raise ValidationError(
+                    "Faktyczna data zwrotu musi byc pozniejsza niz wydania."
+                )
 
     def save(self, *args, **kwargs) -> None:
         self.full_clean()

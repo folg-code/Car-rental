@@ -7,13 +7,17 @@ from apps.accounts.permissions import staff_required
 from apps.bookings.forms import CustomerForm, ReservationCancelForm, ReservationForm
 from apps.bookings.models import (
     Customer,
+    Rental,
+    RentalStatus,
     Reservation,
     ReservationPricingMode,
     ReservationStatus,
 )
 from apps.bookings.selectors.customer import get_customer_by_id, list_customers
+from apps.bookings.selectors.rental import get_rental_by_id, list_rentals
 from apps.bookings.selectors.reservation import get_reservation_by_id, list_reservations
 from apps.bookings.services.price_snapshot import PriceSnapshotService
+from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
 from apps.pricing.selectors.price_list import (
     get_price_list_for_date,
@@ -79,6 +83,11 @@ def reservation_detail(request: HttpRequest, pk: int) -> HttpResponse:
             ),
             "available_extras": available_extras,
             "category_deposit": reservation.car.category.deposit,
+            "can_convert_to_rental": (
+                reservation.status == ReservationStatus.CONFIRMED
+                and reservation.price_lines.exists()
+                and not Rental.objects.filter(reservation_id=reservation.pk).exists()
+            ),
         },
     )
 
@@ -241,6 +250,126 @@ def reservation_cancel(request: HttpRequest, pk: int) -> HttpResponse:
         "bookings/reservation_cancel.html",
         {"reservation": reservation, "form": form},
     )
+
+
+@staff_required
+def reservation_convert_to_rental(request: HttpRequest, pk: int) -> HttpResponse:
+    reservation = get_reservation_by_id(pk)
+    if reservation is None:
+        messages.error(request, "Nie znaleziono rezerwacji.")
+        return redirect("bookings:reservation_list")
+    if request.method == "POST":
+        try:
+            rental = ReservationService.convert_to_rental(
+                reservation,
+                created_by_id=request.user.pk,
+            )
+        except ValidationError as exc:
+            messages.error(request, exc.messages[0] if exc.messages else str(exc))
+            return redirect("bookings:reservation_detail", pk=pk)
+        messages.success(request, f"Utworzono wynajem #{rental.pk}.")
+        return redirect("bookings:rental_detail", pk=rental.pk)
+    return redirect("bookings:reservation_detail", pk=pk)
+
+
+# --- Wynajmy ---
+
+
+@staff_required
+def rental_list(request: HttpRequest) -> HttpResponse:
+    status_filter = request.GET.get("status", "").strip()
+    rentals = list_rentals(status=status_filter or None)
+    return render(
+        request,
+        "bookings/rental_list.html",
+        {
+            "rentals": rentals,
+            "status_filter": status_filter,
+            "status_choices": RentalStatus.choices,
+        },
+    )
+
+
+@staff_required
+def rental_detail(request: HttpRequest, pk: int) -> HttpResponse:
+    rental = get_rental_by_id(pk)
+    if rental is None:
+        messages.error(request, "Nie znaleziono wynajmu.")
+        return redirect("bookings:rental_list")
+    reservation = rental.reservation
+    return render(
+        request,
+        "bookings/rental_detail.html",
+        {
+            "rental": rental,
+            "reservation": reservation,
+            "price_total": PriceSnapshotService.reservation_total(reservation),
+        },
+    )
+
+
+def _rental_action_redirect(
+    request: HttpRequest,
+    rental: Rental,
+    *,
+    success_message: str,
+    action,
+) -> HttpResponse:
+    if request.method == "POST":
+        try:
+            action(rental)
+        except ValidationError as exc:
+            messages.error(request, exc.messages[0] if exc.messages else str(exc))
+        else:
+            messages.success(request, success_message)
+    return redirect("bookings:rental_detail", pk=rental.pk)
+
+
+@staff_required
+def rental_start(request: HttpRequest, pk: int) -> HttpResponse:
+    rental = get_object_or_404(Rental, pk=pk)
+    return _rental_action_redirect(
+        request,
+        rental,
+        success_message="Rozpoczeto wynajem (wydanie pojazdu).",
+        action=RentalService.start,
+    )
+
+
+@staff_required
+def rental_return(request: HttpRequest, pk: int) -> HttpResponse:
+    rental = get_object_or_404(Rental, pk=pk)
+    return _rental_action_redirect(
+        request,
+        rental,
+        success_message="Zarejestrowano zwrot pojazdu.",
+        action=RentalService.mark_returned,
+    )
+
+
+@staff_required
+def rental_close(request: HttpRequest, pk: int) -> HttpResponse:
+    rental = get_object_or_404(Rental, pk=pk)
+    return _rental_action_redirect(
+        request,
+        rental,
+        success_message="Zamknieto wynajem.",
+        action=RentalService.close,
+    )
+
+
+@staff_required
+def rental_cancel(request: HttpRequest, pk: int) -> HttpResponse:
+    rental = get_object_or_404(Rental, pk=pk)
+    if request.method == "POST":
+        reason = request.POST.get("reason", "").strip()
+        try:
+            RentalService.cancel(rental, reason=reason)
+        except ValidationError as exc:
+            messages.error(request, exc.messages[0] if exc.messages else str(exc))
+        else:
+            messages.success(request, "Anulowano wynajem.")
+    return redirect("bookings:rental_detail", pk=pk)
 
 
 # --- Klienci ---

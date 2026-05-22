@@ -10,6 +10,7 @@ def get_reservation_by_id(reservation_id: int) -> Reservation | None:
         Reservation.objects.select_related(
             "customer", "car", "car__category", "created_by"
         )
+        .select_related("rental")
         .prefetch_related("price_lines")
         .filter(pk=reservation_id)
         .first()

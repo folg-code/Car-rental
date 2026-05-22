@@ -1,0 +1,106 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Wynajem #{{ rental.pk }}{% endblock %}
+{% block page_heading %}Wynajem #{{ rental.pk }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">{{ rental.get_status_display }} · rezerwacja #{{ reservation.pk }}</p>
+{% endblock %}
+
+{% block content %}
+{% include "bookings/_nav.html" with active_tab="rentals" %}
+
+<div class="flex flex-wrap gap-3 mb-6">
+    {% if rental.status == "scheduled" %}
+    <form method="post" action="{% url 'bookings:rental_start' rental.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">Wydaj pojazd (start)</button>
+    </form>
+    <form
+        method="post"
+        action="{% url 'bookings:rental_cancel' rental.pk %}"
+        onsubmit="return confirm('Anulowac zaplanowany wynajem?')"
+    >
+        {% csrf_token %}
+        <input type="hidden" name="reason" value="Anulowano przed wydaniem" />
+        <button type="submit" class="border border-red-200 text-red-700 px-4 py-2 rounded text-sm hover:bg-red-50">Anuluj wynajem</button>
+    </form>
+    {% endif %}
+    {% if rental.status == "active" %}
+    <form method="post" action="{% url 'bookings:rental_return' rental.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">Zarejestruj zwrot</button>
+    </form>
+    {% endif %}
+    {% if rental.status == "returned" %}
+    <form method="post" action="{% url 'bookings:rental_close' rental.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Zamknij wynajem</button>
+    </form>
+    {% endif %}
+    <a href="{% url 'bookings:reservation_detail' reservation.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Rezerwacja</a>
+    <a href="{% url 'bookings:rental_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Lista</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Klient i pojazd</h2>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt class="text-gray-500">Klient</dt>
+            <dd>
+                <a href="{% url 'bookings:customer_detail' reservation.customer.pk %}" class="text-blue-600 hover:underline">
+                    {{ reservation.customer.full_name }}
+                </a>
+            </dd>
+            <dt class="text-gray-500">Pojazd</dt>
+            <dd>{{ reservation.car.make }} {{ reservation.car.model }} ({{ reservation.car.registration_number }})</dd>
+            <dt class="text-gray-500">Kaucja (snapshot)</dt>
+            <dd>{{ rental.deposit_amount }} PLN</dd>
+        </dl>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Terminy</h2>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt class="text-gray-500">Plan od</dt>
+            <dd>{{ rental.scheduled_start_at|date:"Y-m-d H:i" }}</dd>
+            <dt class="text-gray-500">Plan do</dt>
+            <dd>{{ rental.scheduled_end_at|date:"Y-m-d H:i" }}</dd>
+            {% if rental.actual_start_at %}
+            <dt class="text-gray-500">Wydano</dt>
+            <dd>{{ rental.actual_start_at|date:"Y-m-d H:i" }}</dd>
+            {% endif %}
+            {% if rental.actual_end_at %}
+            <dt class="text-gray-500">Zwrot</dt>
+            <dd>{{ rental.actual_end_at|date:"Y-m-d H:i" }}</dd>
+            {% endif %}
+            {% if rental.closed_at %}
+            <dt class="text-gray-500">Zamknieto</dt>
+            <dd>{{ rental.closed_at|date:"Y-m-d H:i" }}</dd>
+            {% endif %}
+        </dl>
+    </div>
+
+    {% if rental.notes %}
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <h2 class="font-medium mb-4">Notatki</h2>
+        <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ rental.notes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <h2 class="font-medium mb-4">Koszty (snapshot z rezerwacji)</h2>
+        <p class="text-sm text-gray-600 mb-2">Suma naliczona na rezerwacji: <strong>{{ price_total }} PLN</strong></p>
+        <p class="text-xs text-gray-500">Rejestracja platnosci — modul payments (Sprint 5, kolejny krok).</p>
+    </div>
+
+    {% if rental.cancellation_reason %}
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2 border-l-4 border-red-300">
+        <h2 class="font-medium mb-2 text-red-800">Anulowanie</h2>
+        <p class="text-sm">{{ rental.cancellation_reason }}</p>
+        {% if rental.cancelled_at %}
+        <p class="text-xs text-gray-500 mt-1">{{ rental.cancelled_at|date:"Y-m-d H:i" }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

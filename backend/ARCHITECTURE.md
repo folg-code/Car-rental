@@ -18,6 +18,7 @@ Plan sprintów i postęp: [`../PROJECT_PLAN.md`](../PROJECT_PLAN.md)
 | Cena ≠ płatność ≠ faktura | Osobne aplikacje: `pricing`, `payments`, `documents` |
 | Kaucja ≠ przychód | Depozyty to zobowiązania (`payments`) |
 | Historia niemutowalna | Snapshoty, PDF, `PriceLine` — nie przebudowywać z live DB |
+| AI konsultant | Odpowiada i prowadzi — **nie** zapisuje rezerwacji ani płatności z czatu |
 
 ---
 
@@ -82,11 +83,27 @@ apps/<nazwa>/
               ┌───────────┴───────────┐
               ▼                       ▼
         ┌───────────┐           ┌──────────┐
-        │ dashboard │           │ website  │
-        └───────────┘           └──────────┘
+        │ dashboard │           │ website  │──► adapters/llm (zewn. API)
+        └───────────┘           │ chat AI  │
+                                └──────────┘
 ```
 
 **Kierunek zależności:** aplikacja wyżej może wywoływać publiczne serwisy/selektory aplikacji niżej; unikać importów cyklicznych i logiki biznesowej w `models.py` / szablonach.
+
+### Moduł: AI konsultant klienta (w `website`)
+
+```text
+Klient (przeglądarka)
+    → widok / widget czatu (HTMX lub fetch)
+    → website.views.chat
+    → ConsultantChatService
+         ├─► selektory: fleet, bookings (read-only), FAQ
+         ├─► AvailabilityService / PricingService (tylko odczyt)
+         └─► adapters.llm.LLMClient (OpenAI-compatible API)
+    → zapis ChatMessage (audyt, UX)
+```
+
+Szczegóły: [`../docs/AI_CONSULTANT.md`](../docs/AI_CONSULTANT.md).
 
 ---
 
@@ -95,6 +112,7 @@ apps/<nazwa>/
 | Aplikacja | Prefix | Użytkownik |
 |-----------|--------|------------|
 | `website` | `/` | Klient / publiczny |
+| `website` (chat) | `/asystent/` lub widget na stronach | Klient — konsultant AI |
 | `dashboard` | `/panel/` | Pracownik / właściciel |
 | `fleet` | `/panel/flota/` | Wewnętrzny |
 | `bookings` | `/panel/rezerwacje/` | Wewnętrzny |
@@ -129,3 +147,4 @@ apps/<nazwa>/
 | documents | [`apps/documents/README.md`](apps/documents/README.md) |
 | dashboard | [`apps/dashboard/README.md`](apps/dashboard/README.md) |
 | website | [`apps/website/README.md`](apps/website/README.md) |
+| AI konsultant (chat) | [`docs/AI_CONSULTANT.md`](../docs/AI_CONSULTANT.md) |

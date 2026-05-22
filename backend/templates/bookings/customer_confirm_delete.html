@@ -1,0 +1,18 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Usun klienta{% endblock %}
+{% block page_heading %}Potwierdz usuniecie{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6 max-w-md">
+    <p class="text-sm mb-4">
+        Usunac klienta <strong>{{ customer.full_name }}</strong>?
+        {% if customer.email %}<span class="block text-gray-500 mt-1">{{ customer.email }}</span>{% endif %}
+    </p>
+    <form method="post" class="flex gap-3">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded text-sm">Usun</button>
+        <a href="{% url 'bookings:customer_detail' customer.pk %}" class="text-sm self-center hover:underline">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

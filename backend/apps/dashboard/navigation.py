@@ -23,7 +23,7 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
     ),
     PanelNavItem(
         label="Rezerwacje",
-        url_name="dashboard:bookings",
+        url_name="bookings:customer_list",
         section_key="bookings",
         icon="calendar",
         enabled=True,

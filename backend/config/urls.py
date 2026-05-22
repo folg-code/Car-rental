@@ -28,6 +28,7 @@ urlpatterns = [
     path("konto/", include("apps.accounts.urls")),
     path("panel/", include("apps.dashboard.urls")),
     path("panel/flota/", include("apps.fleet.urls")),
+    path("panel/rezerwacje/", include("apps.bookings.urls")),
 ]
 
 if settings.DEBUG:

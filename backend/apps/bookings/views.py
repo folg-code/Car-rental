@@ -133,6 +133,19 @@ def reservation_edit(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @staff_required
+def reservation_expire(request: HttpRequest, pk: int) -> HttpResponse:
+    reservation = get_object_or_404(Reservation, pk=pk)
+    if request.method == "POST":
+        try:
+            ReservationService.expire(reservation)
+        except ValidationError as exc:
+            messages.error(request, exc.messages[0] if exc.messages else str(exc))
+        else:
+            messages.success(request, "Oznaczono rezerwacje jako wygasla.")
+    return redirect("bookings:reservation_detail", pk=pk)
+
+
+@staff_required
 def reservation_confirm(request: HttpRequest, pk: int) -> HttpResponse:
     reservation = get_object_or_404(Reservation, pk=pk)
     if request.method == "POST":

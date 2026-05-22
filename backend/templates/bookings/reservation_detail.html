@@ -18,6 +18,14 @@
         {% csrf_token %}
         <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">Potwierdz</button>
     </form>
+    <form
+        method="post"
+        action="{% url 'bookings:reservation_expire' reservation.pk %}"
+        onsubmit="return confirm('Oznaczyc rezerwacje jako wygasla?')"
+    >
+        {% csrf_token %}
+        <button type="submit" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Wygas</button>
+    </form>
     {% endif %}
     {% if reservation.status != "cancelled" and reservation.status != "expired" and reservation.status != "converted_to_rental" %}
     <a href="{% url 'bookings:reservation_cancel' reservation.pk %}" class="border border-red-200 text-red-700 px-4 py-2 rounded text-sm hover:bg-red-50">Anuluj</a>
@@ -60,6 +68,13 @@
     <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
         <h2 class="font-medium mb-4">Notatki</h2>
         <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ reservation.notes }}</p>
+    </div>
+    {% endif %}
+
+    {% if reservation.status == "expired" %}
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2 border-l-4 border-amber-300">
+        <h2 class="font-medium mb-2 text-amber-800">Wygasla</h2>
+        <p class="text-sm text-gray-600">Rezerwacja nie zostala potwierdzona w terminie.</p>
     </div>
     {% endif %}
 

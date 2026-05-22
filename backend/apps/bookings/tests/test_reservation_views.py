@@ -122,3 +122,18 @@ class TestReservationViews:
         )
         assert response.status_code == 200
         assert sample_reservation.customer.last_name.encode() in response.content
+
+    def test_expire_reservation(
+        self, staff_client, sample_reservation: Reservation
+    ) -> None:
+        sample_reservation.status = ReservationStatus.PENDING_PAYMENT
+        sample_reservation.save()
+        response = staff_client.post(
+            reverse(
+                "bookings:reservation_expire",
+                kwargs={"pk": sample_reservation.pk},
+            ),
+        )
+        assert response.status_code == 302
+        sample_reservation.refresh_from_db()
+        assert sample_reservation.status == ReservationStatus.EXPIRED

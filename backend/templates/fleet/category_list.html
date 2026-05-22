@@ -7,16 +7,32 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white rounded-lg shadow p-6">
         <h2 class="font-medium mb-4">Lista</h2>
-        <ul class="space-y-2 text-sm">
-            {% for cat in categories %}
-            <li class="flex justify-between border-b pb-2">
-                <span>{{ cat.name }}</span>
-                <span class="text-gray-400">{{ cat.cars.count }} aut</span>
-            </li>
-            {% empty %}
-            <li class="text-gray-500">Brak kategorii.</li>
-            {% endfor %}
-        </ul>
+        <table class="min-w-full text-sm">
+            <thead class="text-left text-gray-500 border-b">
+                <tr>
+                    <th class="pb-2">Nazwa</th>
+                    <th class="pb-2">Kaucja</th>
+                    <th class="pb-2">Auta</th>
+                    <th class="pb-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr class="border-b border-gray-100">
+                    <td class="py-2 font-medium">{{ cat.name }}</td>
+                    <td class="py-2">{{ cat.deposit }} PLN</td>
+                    <td class="py-2 text-gray-500">{{ cat.cars.count }}</td>
+                    <td class="py-2 text-right">
+                        <a href="{% url 'fleet:category_edit' cat.pk %}" class="text-blue-600 hover:underline">Edytuj</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="py-4 text-gray-500">Brak kategorii.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         <a href="{% url 'fleet:car_list' %}" class="inline-block mt-4 text-sm text-gray-500 hover:underline">← Flota</a>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
@@ -27,10 +43,16 @@
             <div>
                 <label class="block text-sm text-gray-600 mb-1">{{ field.label }}</label>
                 {{ field }}
+                {% if field.help_text %}
+                <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+                {% endif %}
             </div>
             {% endfor %}
             <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm">Dodaj</button>
         </form>
     </div>
 </div>
+<style>
+    input, select, textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; }
+</style>
 {% endblock %}

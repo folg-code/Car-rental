@@ -13,7 +13,7 @@
 - `PricingService` — wejście: auto/kategoria, daty, wybrane extras → wyjście: struktura pozycji do zapisu jako `PriceLine` w `bookings`
 - Konfiguracja opłat jednorazowych: fotelik, dodatkowy kierowca, dostawa, mycie, paliwo, km dodatkowe
 - Selektory: aktywny cennik, reguły dla daty
-- Admin cenników (wewnętrzny)
+- Panel `/panel/cenniki/` — CRUD cenników, stawki, reguły, dodatki (Django Admin nadal dostępny)
 
 ---
 
@@ -32,16 +32,23 @@
 
 ---
 
-## Modele (planowane)
+## Modele
 
-Zgodnie z `AGENT_CONTEXT.md` § pricing. Brak FK do `Reservation` — powiązanie snapshotu po stronie `bookings`.
+- `PriceList` — cennik (okres obowiazywania, waluta, domyslny)
+- `DailyRate` — stawka dzienna per `fleet.CarCategory`
+- `PricingRule` — weekend, swieta/sezon, rabat dlugoterminowy, rabat reczny
+- `ExtraService` — fotelik, dodatkowy kierowca, dostawa, mycie, paliwo, km
+
+Snapshot na rezerwacji: `bookings.PriceLine` (brak FK z `pricing` do `Reservation`).
 
 ---
 
-## Serwisy (planowane)
+## Serwisy
 
-- `PricingService.calculate(...)` → DTO / listę pozycji (opis, kwota netto/brutto, typ pozycji)
-- (Opcjonalnie) `PricingRuleEngine` — ewaluacja reguł bez efektów ubocznych
+- `PricingService.calculate(...)` → `PricingResult` / `CalculatedPriceLine`
+- Selektory: `selectors/price_list.py` (cennik na datę, stawki, reguły, extras)
+
+Zapis snapshotu: `bookings.PriceSnapshotService` (nie w `pricing`).
 
 Wszystkie obliczenia cen **tylko** w `services/`, nigdy w szablonach.
 

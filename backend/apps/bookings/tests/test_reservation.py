@@ -1,18 +1,42 @@
 from datetime import UTC, datetime
+from decimal import Decimal
 
 import pytest
 from django.core.exceptions import ValidationError
 
-from apps.bookings.models import Customer, Reservation, ReservationStatus
+from apps.bookings.models import (
+    Customer,
+    PriceLineType,
+    Reservation,
+    ReservationPricingMode,
+    ReservationStatus,
+)
 from apps.bookings.services.reservation import ReservationService
 from apps.fleet.models import AvailabilityBlockType, Car, CarCategory, CarStatus
 from apps.fleet.services.availability import AvailabilityService
 from apps.fleet.services.maintenance import FleetMaintenanceService
+from apps.pricing.models import DailyRate, PriceList
 
 
 @pytest.fixture
 def category(db) -> CarCategory:
     return CarCategory.objects.create(name="SUV", slug="suv")
+
+
+@pytest.fixture(autouse=True)
+def default_price_list(db, category: CarCategory) -> PriceList:
+    price_list = PriceList.objects.create(
+        name="Test cennik rezerwacji",
+        slug="test-rezerwacje",
+        is_default=True,
+        is_active=True,
+    )
+    DailyRate.objects.create(
+        price_list=price_list,
+        category=category,
+        amount=Decimal("100.00"),
+    )
+    return price_list
 
 
 @pytest.fixture
@@ -203,6 +227,39 @@ class TestReservationService:
             end_at=new_end,
         )
         assert updated.end_at == new_end
+
+    def test_create_with_custom_total(self, customer: Customer, car: Car) -> None:
+        start, end = _interval()
+        reservation = ReservationService.create(
+            customer_id=customer.pk,
+            car_id=car.pk,
+            start_at=start,
+            end_at=end,
+            status=ReservationStatus.DRAFT,
+            pricing_mode=ReservationPricingMode.CUSTOM,
+            custom_total=Decimal("2500.00"),
+        )
+        assert reservation.pricing_mode == ReservationPricingMode.CUSTOM
+        lines = list(reservation.price_lines.all())
+        assert len(lines) == 1
+        assert lines[0].line_type == PriceLineType.MANUAL
+        assert lines[0].total_amount == Decimal("2500.00")
+
+    def test_create_with_explicit_price_list(
+        self, customer: Customer, car: Car, default_price_list: PriceList
+    ) -> None:
+        start, end = _interval()
+        reservation = ReservationService.create(
+            customer_id=customer.pk,
+            car_id=car.pk,
+            start_at=start,
+            end_at=end,
+            status=ReservationStatus.DRAFT,
+            pricing_mode=ReservationPricingMode.PRICE_LIST,
+            price_list_id=default_price_list.pk,
+        )
+        assert reservation.price_list_id == default_price_list.pk
+        assert reservation.price_lines.exists()
 
     def test_cannot_cancel_terminal(self, customer: Customer, car: Car) -> None:
         start, end = _interval()

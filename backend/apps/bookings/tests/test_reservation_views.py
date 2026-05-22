@@ -1,12 +1,19 @@
 from datetime import UTC, datetime
+from decimal import Decimal
 
 import pytest
 from django.urls import reverse
 
 from apps.accounts.models import UserRole
 from apps.accounts.services.user import UserService
-from apps.bookings.models import Customer, Reservation, ReservationStatus
+from apps.bookings.models import (
+    Customer,
+    Reservation,
+    ReservationPricingMode,
+    ReservationStatus,
+)
 from apps.fleet.models import Car, CarCategory, CarStatus
+from apps.pricing.models import DailyRate, PriceList
 
 
 @pytest.fixture
@@ -31,6 +38,22 @@ def car(db) -> Car:
         year=2022,
         status=CarStatus.ACTIVE,
     )
+
+
+@pytest.fixture(autouse=True)
+def default_price_list(db, car: Car) -> PriceList:
+    price_list = PriceList.objects.create(
+        name="Cennik testowy rezerwacji",
+        slug="test-rezerwacje-widoki",
+        is_default=True,
+        is_active=True,
+    )
+    DailyRate.objects.create(
+        price_list=price_list,
+        category=car.category,
+        amount=Decimal("120.00"),
+    )
+    return price_list
 
 
 @pytest.fixture
@@ -80,6 +103,7 @@ class TestReservationViews:
                 "start_at": "2026-09-01T10:00",
                 "end_at": "2026-09-05T10:00",
                 "status": ReservationStatus.DRAFT,
+                "pricing_mode": ReservationPricingMode.AUTO,
                 "notes": "Testowa rezerwacja",
             },
         )

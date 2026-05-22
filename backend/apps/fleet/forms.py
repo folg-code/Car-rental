@@ -13,12 +13,15 @@ from apps.fleet.models import (
 class CarCategoryForm(forms.ModelForm):
     class Meta:
         model = CarCategory
-        fields = ["name", "slug", "description", "sort_order"]
+        fields = ["name", "slug", "description", "sort_order", "deposit"]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-input"}),
             "slug": forms.TextInput(attrs={"class": "form-input"}),
             "description": forms.Textarea(attrs={"class": "form-input", "rows": 3}),
             "sort_order": forms.NumberInput(attrs={"class": "form-input"}),
+            "deposit": forms.NumberInput(
+                attrs={"class": "form-input", "step": "0.01", "min": "0"}
+            ),
         }
 
 

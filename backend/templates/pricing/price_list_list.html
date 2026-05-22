@@ -1,0 +1,65 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Cenniki{% endblock %}
+{% block page_heading %}Cenniki{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">{{ price_lists|length }} cennik(ow)</p>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-3 mb-6">
+    <a href="{% url 'pricing:price_list_create' %}" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">
+        + Nowy cennik
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+            <tr>
+                <th class="px-4 py-3">Nazwa</th>
+                <th class="px-4 py-3">Waluta</th>
+                <th class="px-4 py-3">Okres</th>
+                <th class="px-4 py-3">Stawki</th>
+                <th class="px-4 py-3">Reguly</th>
+                <th class="px-4 py-3">Dodatki</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            {% for pl in price_lists %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium">
+                    {{ pl.name }}
+                    {% if pl.is_default %}<span class="text-xs text-blue-600 ml-1">domyslny</span>{% endif %}
+                </td>
+                <td class="px-4 py-3">{{ pl.currency }}</td>
+                <td class="px-4 py-3 text-gray-600">
+                    {% if pl.valid_from or pl.valid_to %}
+                    {{ pl.valid_from|date:"Y-m-d"|default:"—" }} – {{ pl.valid_to|date:"Y-m-d"|default:"—" }}
+                    {% else %}
+                    bezterminowo
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3">{{ pl.rates_count }}</td>
+                <td class="px-4 py-3">{{ pl.rules_count }}</td>
+                <td class="px-4 py-3">{{ pl.extras_count }}</td>
+                <td class="px-4 py-3">
+                    {% if pl.is_active %}<span class="text-green-700">aktywny</span>{% else %}nieaktywny{% endif %}
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <a href="{% url 'pricing:price_list_detail' pl.pk %}" class="text-blue-600 hover:underline">Szczegoly</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                    Brak cennikow. <a href="{% url 'pricing:price_list_create' %}" class="underline">Utworz pierwszy</a>.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

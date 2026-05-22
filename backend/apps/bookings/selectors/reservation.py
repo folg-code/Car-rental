@@ -7,7 +7,10 @@ from apps.bookings.models import Reservation
 
 def get_reservation_by_id(reservation_id: int) -> Reservation | None:
     return (
-        Reservation.objects.select_related("customer", "car", "car__category")
+        Reservation.objects.select_related(
+            "customer", "car", "car__category", "created_by"
+        )
+        .prefetch_related("price_lines")
         .filter(pk=reservation_id)
         .first()
     )

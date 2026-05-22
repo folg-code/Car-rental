@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from apps.bookings.models import Customer, Reservation
+from apps.bookings.models import Customer, PriceLine, Reservation
+
+
+class PriceLineInline(admin.TabularInline):
+    model = PriceLine
+    extra = 0
+    readonly_fields = ("created_at",)
 
 
 @admin.register(Customer)
@@ -36,6 +42,7 @@ class ReservationAdmin(admin.ModelAdmin):
         "start_at",
         "end_at",
         "status",
+        "pricing_mode",
         "created_at",
     )
     list_filter = ("status",)
@@ -45,6 +52,7 @@ class ReservationAdmin(admin.ModelAdmin):
         "customer__email",
         "car__registration_number",
     )
-    raw_id_fields = ("customer", "car", "created_by")
+    raw_id_fields = ("customer", "car", "created_by", "price_list")
     readonly_fields = ("created_at", "updated_at", "cancelled_at")
     date_hierarchy = "start_at"
+    inlines = (PriceLineInline,)

@@ -29,6 +29,13 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
         enabled=True,
     ),
     PanelNavItem(
+        label="Cenniki",
+        url_name="pricing:price_list_list",
+        section_key="pricing",
+        icon="tag",
+        enabled=True,
+    ),
+    PanelNavItem(
         label="Operacje",
         url_name="dashboard:operations",
         section_key="operations",

@@ -13,10 +13,10 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 4 — pricing (kolejny) |
-| **Następny krok** | Sprint 4 — `PriceList`, `PricingService`, `PriceLine` |
-| **Postęp ogólny** | ~60% (Sprint 0–3 zamkniete) |
-| **Ostatnia aktualizacja** | 2026-05-22 |
+| **Aktualny etap** | Sprint 5 — Rental + payments MVP (kolejny) |
+| **Następny krok** | Model `Rental`, `Payment`, `convert_to_rental()` |
+| **Postęp ogólny** | ~65% (Sprint 0–4 zamkniete) |
+| **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
 
@@ -32,7 +32,7 @@
 | 1 | Struktura apps + accounts | ✅ | 100% |
 | 2 | fleet (flota) | ✅ | 100% |
 | 3 | bookings (rezerwacje) | ✅ | 100% |
-| 4 | pricing (cennik + snapshoty) | ⬜ | 0% |
+| 4 | pricing (cennik + snapshoty) | ✅ | 100% |
 | 5 | Rental + payments MVP | ⬜ | 0% |
 | 6 | operations (wydanie/zwrot) | ⬜ | 0% |
 | 7 | documents (PDF, faktury) | ⬜ | 0% |
@@ -50,7 +50,7 @@
 3. ~~**Panel wewnętrzny (Sprint 1c + 1d)**~~ ✅
 4. ~~**Sprint 2 — fleet**~~ ✅
 5. ~~**Sprint 3 — bookings**~~ ✅
-6. **Sprint 4 — pricing** — cennik + snapshoty `PriceLine`
+6. ~~**Sprint 4 — pricing**~~ ✅ — cennik, snapshoty, tryb ceny na rezerwacji, kaucja na kategorii
 7. **Sprint 5–8** — rental, payments, operations, documents, website
 8. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
@@ -103,6 +103,13 @@
 - [x] Sprint 3: UI „Wygas” rezerwacje + metryki pulpitu (rezerwacje, wolne auta, koniec w 7 dni)
 - [x] Sprint 3: `manage.py seed_demo` (kategorie, 3 auta, 2 klientow, przykladowa rezerwacja)
 - [x] Sprint 3 — **zamkniety** (Definition of Done spelnione)
+- [x] Sprint 4: modele cennika + `PriceLine` + `PricingService` + `PriceSnapshotService`
+- [x] Sprint 4: panel `/panel/cenniki/` (CRUD cennikow, stawki, reguly, dodatki)
+- [x] Sprint 4: tryb ceny na rezerwacji — auto / wybrany cennik / kwota reczna (`bookings.0004`)
+- [x] Sprint 4: `CarCategory.deposit` + edycja kategorii `/panel/flota/kategorie/<id>/edycja/` (`fleet.0002`)
+- [x] Sprint 4: rozpis cen na szczegolach rezerwacji, `seed_demo` z cennikiem
+- [x] Sprint 4: testy pricing + bookings + fleet (~59 w tych modulach)
+- [x] Sprint 4 — **zamkniety** (Definition of Done spelnione)
 
 ---
 
@@ -120,6 +127,9 @@
 | 2026-05-20 | 2 | Fleet: modele, panel, AvailabilityService, merge PR #7 |
 | 2026-05-22 | 3 | Bookings: Customer + Reservation, serwisy, panel CRUD, testy |
 | 2026-05-22 | 3 | Domkniecie Sprint 3: wygaszenie UI, seed_demo, metryki pulpitu |
+| 2026-05-20 | 4 | Pricing: modele, `PricingService`, panel cennikow, snapshoty `PriceLine` |
+| 2026-05-20 | 4 | Rezerwacja: tryb ceny (auto/cennik/reczna), kaucja na kategorii, edycja kategorii |
+| 2026-05-20 | 4 | Domkniecie Sprint 4 — migracje `pricing.0001`, `bookings.0003/0004`, `fleet.0002` |
 | | | |
 
 ---
@@ -240,7 +250,8 @@
 ### UI / admin
 
 - [x] CRUD aut w panelu (`/panel/flota/`)
-- [x] CRUD kategorii
+- [x] CRUD kategorii (lista + tworzenie + edycja `/kategorie/<id>/edycja/`)
+- [x] `CarCategory.deposit` — kaucja zwrotna per kategoria (`fleet.0002`)
 - [x] Blokady dostępności (dodawanie/usuwanie)
 - [x] Rejestracja uszkodzen
 - [x] Django admin (wszystkie modele)
@@ -274,7 +285,7 @@
 ### UI
 
 - [x] Panel `/panel/rezerwacje/` — lista rezerwacji + filtr statusu
-- [x] Formularz tworzenia/edycji rezerwacji (auto + daty + klient + status)
+- [x] Formularz tworzenia/edycji rezerwacji (auto + daty + klient + status + tryb ceny)
 - [x] Potwierdzanie i anulowanie (z powodem) na szczegółach rezerwacji
 - [x] CRUD klientow `/panel/rezerwacje/klienci/` (zakładki Rezerwacje | Klienci)
 - [x] UI akcji „Wygas rezerwacje” (`/wygas/` + przycisk na szczegolach)
@@ -299,27 +310,43 @@
 
 ---
 
-# Sprint 4 — pricing (cennik + snapshoty) ⬜
+# Sprint 4 — pricing (cennik + snapshoty) ✅
 
 **Cel:** naliczanie opłat oddzielone od płatności i faktur (§8 AGENT_CONTEXT).
 
 ### Modele
 
-- [ ] `PriceList`, `DailyRate`, `PricingRule`, `ExtraService`
-- [ ] `PriceLine` — snapshot przy rezerwacji
+- [x] `PriceList`, `DailyRate`, `PricingRule`, `ExtraService` — `pricing.0001_initial`
+- [x] `PriceLine` — snapshot przy rezerwacji (`bookings.0003_priceline`)
+- [x] `Reservation.pricing_mode`, `price_list`, `custom_total` — `bookings.0004`
+- [x] `CarCategory.deposit` — kaucja na kategorii (`fleet.0002`)
 
 ### Logika
 
-- [ ] `PricingService` — stawka dzienna, weekend, święto, rabat długoterminowy
-- [ ] Dodatki: fotelik, dodatkowy kierowca, opłaty jednorazowe
-- [ ] Zamrożenie `PriceLine` przy zapisie rezerwacji
+- [x] `PricingService.calculate()` — doba, weekend, sezon/święta, rabat 7+ dni, extras; opcjonalny `price_list`
+- [x] `PriceSnapshotService.freeze()` — zapis `PriceLine` (auto / wybrany cennik / kwota reczna)
+- [x] Auto-naliczanie przy create/update (szkic, oczekuje platnosci), `confirm` (freeze przed zmiana statusu)
+- [x] Panel: „Oblicz” + rozpis cen na szczegółach rezerwacji (bez przeliczania w trybie `custom`)
+- [x] `seed_demo` — domyślny cennik, kaucje kategorii, przykładowa rezerwacja z ceną
+- [x] Panel `/panel/cenniki/` — lista, edycja cennika, stawki / reguły / dodatki
+
+### UI rezerwacji i floty (uzupelnienie Sprint 4)
+
+- [x] Formularz rezerwacji: wybor trybu ceny (auto / cennik / kwota reczna)
+- [x] Szczegoly rezerwacji: tryb ceny, kaucja z kategorii auta
+- [x] Panel kategorii: edycja (`/panel/flota/kategorie/<id>/edycja/`), kolumna kaucji na liscie
+- [x] Karta auta: wyswietlanie kaucji kategorii
 
 ### Testy
 
-- [ ] Scenariusz: kilka dni + weekend + extra
-- [ ] Zmiana cennika **nie zmienia** istniejącej rezerwacji
+- [x] Scenariusz: kilka dni + weekend + extra + rabat długoterminowy
+- [x] Zmiana cennika **nie zmienia** istniejącego snapshotu
+- [x] Rezerwacja z `custom_total` i z wybranym `price_list`
+- [x] Widoki: create rezerwacji, confirm, edycja kategorii (deposit)
 
-**Definition of Done:** rezerwacja ma historyczny rozpis kosztów.
+**Definition of Done:** rezerwacja ma historyczny rozpis kosztów. — **spełnione**
+
+> **Uwaga:** pole `deposit` na kategorii to przygotowanie pod Sprint 5 — rejestracja kaucji jako platnosci (`deposit` ≠ przychod) nadal w `payments`.
 
 ---
 
@@ -337,7 +364,7 @@
 - [ ] `Payment`, `PaymentIntent`
 - [ ] Typy: rental_fee, deposit, refund, extra_charge, damage_charge
 - [ ] Metody: cash, bank_transfer, card (ręczna rejestracja)
-- [ ] **Kaucja ≠ przychód** — reguła w serwisie/raporcie
+- [ ] **Kaucja ≠ przychód** — reguła w serwisie/raporcie (kwota z `CarCategory.deposit` juz w fleet)
 
 ### Testy
 
@@ -549,9 +576,9 @@ Sprint 9+ (produkcja)
 | `apps/accounts` — model/auth | ✅ | ✅ |
 | Panel `/panel/` + `base_internal.html` | ✅ | ✅ |
 | Locale PL + MEDIA/STATIC | ✅ | ✅ |
-| `apps/fleet` — modele + panel | ✅ | ✅ |
-| `apps/bookings` — Customer, Reservation, panel | ✅ | ✅ |
-| `apps/pricing` | ❌ | — |
+| `apps/fleet` — flota, kategorie (+ deposit), panel | ✅ | ✅ |
+| `apps/bookings` — Customer, Reservation, `PriceLine`, tryb ceny | ✅ | ✅ |
+| `apps/pricing` — cennik, panel, `PricingService` | ✅ | ✅ |
 | `apps/payments` | ❌ | — |
 | `apps/operations` | ❌ | — |
 | `apps/documents` | ❌ | — |

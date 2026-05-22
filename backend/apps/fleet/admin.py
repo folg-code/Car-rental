@@ -13,7 +13,7 @@ from apps.fleet.models import (
 
 @admin.register(CarCategory)
 class CarCategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug", "sort_order")
+    list_display = ("name", "slug", "deposit", "sort_order")
     prepopulated_fields = {"slug": ("name",)}
 
 

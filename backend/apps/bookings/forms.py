@@ -1,8 +1,13 @@
 from django import forms
 from django.utils import timezone
 
-from apps.bookings.models import Customer, Reservation, ReservationStatus
+from apps.bookings.models import (
+    Customer,
+    Reservation,
+    ReservationStatus,
+)
 from apps.fleet.models import Car, CarStatus
+from apps.pricing.models import PriceList
 
 
 class CustomerForm(forms.ModelForm):
@@ -29,7 +34,17 @@ class CustomerForm(forms.ModelForm):
 class ReservationForm(forms.ModelForm):
     class Meta:
         model = Reservation
-        fields = ["customer", "car", "start_at", "end_at", "status", "notes"]
+        fields = [
+            "customer",
+            "car",
+            "start_at",
+            "end_at",
+            "status",
+            "pricing_mode",
+            "price_list",
+            "custom_total",
+            "notes",
+        ]
         widgets = {
             "start_at": forms.DateTimeInput(
                 attrs={"type": "datetime-local"},
@@ -49,6 +64,14 @@ class ReservationForm(forms.ModelForm):
         ).select_related("category")
         self.fields["customer"].queryset = Customer.objects.order_by(
             "last_name", "first_name"
+        )
+        self.fields["price_list"].queryset = PriceList.objects.filter(
+            is_active=True
+        ).order_by("-is_default", "name")
+        self.fields["price_list"].required = False
+        self.fields["custom_total"].required = False
+        self.fields["custom_total"].widget.attrs.update(
+            {"step": "0.01", "min": "0.01", "placeholder": "np. 1500.00"}
         )
         if self.instance.pk:
             editable_statuses = [

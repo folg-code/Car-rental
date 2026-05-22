@@ -182,6 +182,7 @@ Models:
 
 Important:
 Damage history is global and independent from protocols.
+`CarCategory.deposit` — refundable deposit amount (PLN) per category; used for display until `payments` records actual deposit transactions.
 
 ---
 
@@ -206,6 +207,15 @@ Reservation statuses:
 - cancelled
 - expired
 - converted_to_rental
+
+Reservation pricing modes (`pricing_mode`):
+- `auto` — default price list for reservation start date
+- `price_list` — explicit `PriceList` FK on reservation
+- `custom` — manual `custom_total` → single immutable `PriceLine` (MANUAL)
+
+Pricing snapshots:
+- `PriceSnapshotService.freeze()` writes `PriceLine` rows (never recalculate confirmed reservations with existing lines)
+- Panel: create/edit reservation selects pricing mode; detail shows breakdown and category deposit
 
 Rental statuses:
 - scheduled
@@ -240,8 +250,16 @@ Examples:
 - fuel refill,
 - extra kilometers.
 
+Implemented services:
+- `PricingService.calculate()` — daily rate, rules (weekend/season/holiday), long-rental discount, extras; optional explicit `price_list`
+- `PriceSnapshotService` lives in `bookings` (freeze only; pricing app does not FK to `Reservation`)
+
+Panel:
+- `/panel/cenniki/` — CRUD price lists, daily rates, rules, extra services
+
 Important:
 All pricing calculations must live in services.
+Pricing app calculates only; `bookings.PriceLine` is the immutable snapshot at reservation time.
 
 ---
 
@@ -595,6 +613,12 @@ Critical priorities:
 
 # 19. Current Project Status
 
+> Sprint tracking: [`PROJECT_PLAN.md`](./PROJECT_PLAN.md) — last updated 2026-05-20.
+
+**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots)
+
+**Next sprint:** 5 — `Rental`, `Payment`, `convert_to_rental()`, deposit as liability (not revenue).
+
 Implemented:
 - Django project setup
 - Docker Compose environment
@@ -605,23 +629,24 @@ Implemented:
 - Environment variable management
 - Basic template structure
 - accounts: User, roles, auth, panel access
-- fleet: models, panel CRUD, AvailabilityService
-- bookings: Customer, Reservation, PriceLine (snapshot), ReservationService, panel CRUD
-- pricing: PriceList, DailyRate, PricingRule, ExtraService (admin)
+- fleet: models, panel CRUD (`/panel/flota/`), category list + **edit** (`/kategorie/<id>/edycja/`), `CarCategory.deposit`, `AvailabilityService`
+- bookings: Customer, Reservation, `PriceLine` snapshot, `ReservationService`, panel CRUD (`/panel/rezerwacje/`, clients under `/klienci/`)
+- bookings: reservation pricing modes (`auto` / `price_list` / `custom`), `PriceSnapshotService.freeze()`, price breakdown on reservation detail
+- pricing: `PriceList`, `DailyRate`, `PricingRule`, `ExtraService`, `PricingService.calculate()`, panel `/panel/cenniki/`
 - dashboard: layout, navigation, bookings metrics on home
 - CI/CD (GitHub Actions)
-- `manage.py seed_demo` for local demo data
+- `manage.py seed_demo` — fleet, customers, default price list, category deposits, sample reservation with price
 
 In progress:
-- (none — next: Sprint 4 pricing)
+- (none)
 
 Not implemented yet:
-- pricing engine (`PricingService` — modele cennika gotowe)
-- payments
-- operations workflows
-- documents system
-- dashboard (metryki)
-- customer-facing website (publiczny kanał)
+- `Rental` model and `ReservationService.convert_to_rental()`
+- payments (`Payment`, `PaymentIntent`, deposit/refund recording; **deposit ≠ revenue**)
+- operations workflows (handover/return protocols)
+- documents system (PDF, invoices)
+- dashboard (full operational metrics beyond current home widgets)
+- customer-facing website (public booking channel)
 - AI customer consultant (chatbot)
 
 ---

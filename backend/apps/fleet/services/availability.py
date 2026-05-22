@@ -58,6 +58,7 @@ class AvailabilityService:
         end_at: datetime,
         *,
         exclude_block_id: int | None = None,
+        exclude_reservation_id: int | None = None,
     ) -> bool:
         """
         Dostepnosc wyliczana — brak pola is_available na Car.
@@ -78,7 +79,10 @@ class AvailabilityService:
             return False
 
         for busy_start, busy_end in get_booking_busy_intervals(
-            car.pk, start_at, end_at
+            car.pk,
+            start_at,
+            end_at,
+            exclude_reservation_id=exclude_reservation_id,
         ):
             if busy_start < end_at and busy_end > start_at:
                 return False

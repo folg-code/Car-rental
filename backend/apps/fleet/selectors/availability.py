@@ -39,18 +39,21 @@ def get_booking_busy_intervals(
     car_id: int,
     start_at: datetime,
     end_at: datetime,
+    *,
+    exclude_reservation_id: int | None = None,
 ) -> list[tuple[datetime, datetime]]:
-    """
-    Przedzialy zajete przez rezerwacje/wynajmy (app bookings).
-
-    Do rozszerzenia w Sprint 3 — na razie pusta lista.
-    """
+    """Przedzialy zajete przez rezerwacje/wynajmy (app bookings)."""
     try:
         from apps.bookings.selectors.availability import (  # noqa: PLC0415
             get_car_busy_intervals,
         )
 
-        return get_car_busy_intervals(car_id, start_at, end_at)
+        return get_car_busy_intervals(
+            car_id,
+            start_at,
+            end_at,
+            exclude_reservation_id=exclude_reservation_id,
+        )
     except ImportError:
         return []
 

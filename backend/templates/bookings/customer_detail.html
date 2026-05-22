@@ -10,7 +10,12 @@
 {% endblock %}
 
 {% block content %}
+{% include "bookings/_nav.html" with active_tab="customers" %}
+
 <div class="flex gap-3 mb-6">
+    <a href="{% url 'bookings:reservation_create' %}?customer={{ customer.pk }}" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">
+        + Rezerwacja
+    </a>
     <a href="{% url 'bookings:customer_edit' customer.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Edytuj</a>
     <a href="{% url 'bookings:customer_delete' customer.pk %}" class="border border-red-200 text-red-700 px-4 py-2 rounded text-sm hover:bg-red-50">Usun</a>
     <a href="{% url 'bookings:customer_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Lista</a>
@@ -55,5 +60,25 @@
         <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ customer.notes }}</p>
     </div>
     {% endif %}
+
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <h2 class="font-medium mb-4">Rezerwacje klienta</h2>
+        {% if customer.reservations.all %}
+        <ul class="space-y-2 text-sm">
+            {% for reservation in customer.reservations.all %}
+            <li class="flex justify-between items-center border-b pb-2">
+                <span>
+                    #{{ reservation.pk }} — {{ reservation.car.registration_number }}
+                    ({{ reservation.start_at|date:"Y-m-d" }} – {{ reservation.end_at|date:"Y-m-d" }})
+                    · {{ reservation.get_status_display }}
+                </span>
+                <a href="{% url 'bookings:reservation_detail' reservation.pk %}" class="text-blue-600 hover:underline">Szczegoly</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-sm">Brak rezerwacji.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

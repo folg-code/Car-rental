@@ -188,6 +188,22 @@ class TestReservationService:
         expired = ReservationService.expire(reservation)
         assert expired.status == ReservationStatus.EXPIRED
 
+    def test_update_confirmed_dates(self, customer: Customer, car: Car) -> None:
+        start, end = _interval()
+        reservation = ReservationService.create(
+            customer_id=customer.pk,
+            car_id=car.pk,
+            start_at=start,
+            end_at=end,
+            status=ReservationStatus.CONFIRMED,
+        )
+        new_end = datetime(2026, 6, 20, 10, 0, tzinfo=UTC)
+        updated = ReservationService.update(
+            reservation,
+            end_at=new_end,
+        )
+        assert updated.end_at == new_end
+
     def test_cannot_cancel_terminal(self, customer: Customer, car: Car) -> None:
         start, end = _interval()
         reservation = ReservationService.create(

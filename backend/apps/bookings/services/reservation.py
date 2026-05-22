@@ -44,6 +44,7 @@ class ReservationService:
             car,
             start_at,
             end_at,
+            exclude_reservation_id=exclude_reservation_id,
         ):
             raise ValidationError(
                 "Pojazd jest niedostepny w wybranym przedziale "
@@ -150,4 +151,47 @@ class ReservationService:
 
         reservation.status = ReservationStatus.EXPIRED
         reservation.save(update_fields=["status", "updated_at"])
+        return reservation
+
+    @staticmethod
+    def update(
+        reservation: Reservation,
+        *,
+        customer_id: int | None = None,
+        car_id: int | None = None,
+        start_at: datetime | None = None,
+        end_at: datetime | None = None,
+        status: str | None = None,
+        notes: str | None = None,
+    ) -> Reservation:
+        ReservationService._assert_can_mutate(reservation)
+
+        if customer_id is not None:
+            reservation.customer_id = customer_id
+        if car_id is not None:
+            reservation.car_id = car_id
+        if start_at is not None:
+            reservation.start_at = start_at
+        if end_at is not None:
+            reservation.end_at = end_at
+        if notes is not None:
+            reservation.notes = notes
+        if status is not None:
+            if status not in ReservationStatus.values:
+                msg = f"Nieprawidlowy status rezerwacji: {status}"
+                raise ValueError(msg)
+            reservation.status = status
+
+        reservation.full_clean()
+        car = Car.objects.get(pk=reservation.car_id)
+
+        if reservation.status in BLOCKING_RESERVATION_STATUSES:
+            ReservationService._assert_available(
+                car=car,
+                start_at=reservation.start_at,
+                end_at=reservation.end_at,
+                exclude_reservation_id=reservation.pk,
+            )
+
+        reservation.save()
         return reservation

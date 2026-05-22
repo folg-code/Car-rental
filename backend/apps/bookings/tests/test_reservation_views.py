@@ -147,6 +147,40 @@ class TestReservationViews:
         assert response.status_code == 200
         assert sample_reservation.customer.last_name.encode() in response.content
 
+    def test_convert_to_rental(
+        self,
+        staff_client,
+        customer: Customer,
+        car: Car,
+        default_price_list,
+    ) -> None:
+        from apps.bookings.services.price_snapshot import PriceSnapshotService
+
+        start = datetime(2026, 10, 1, 10, 0, tzinfo=UTC)
+        end = datetime(2026, 10, 5, 10, 0, tzinfo=UTC)
+        reservation = Reservation.objects.create(
+            customer=customer,
+            car=car,
+            start_at=start,
+            end_at=end,
+            status=ReservationStatus.CONFIRMED,
+        )
+        PriceSnapshotService.freeze(reservation)
+        response = staff_client.post(
+            reverse(
+                "bookings:reservation_convert_to_rental",
+                kwargs={"pk": reservation.pk},
+            ),
+        )
+        assert response.status_code == 302
+        reservation.refresh_from_db()
+        assert reservation.status == ReservationStatus.CONVERTED_TO_RENTAL
+        assert hasattr(reservation, "rental")
+
+    def test_rental_list_for_staff(self, staff_client, db) -> None:
+        response = staff_client.get(reverse("bookings:rental_list"))
+        assert response.status_code == 200
+
     def test_expire_reservation(
         self, staff_client, sample_reservation: Reservation
     ) -> None:

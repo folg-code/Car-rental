@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from apps.bookings.models import Customer, Reservation, ReservationStatus
 from apps.bookings.services.price_snapshot import PriceSnapshotService
+from apps.bookings.services.rental import RentalService
 from apps.fleet.models import Car, CarCategory, CarStatus, FuelType
 from apps.pricing.models import (
     AmountType,
@@ -175,5 +176,9 @@ class Command(BaseCommand):
             )
             PriceSnapshotService.freeze(reservation, extra_codes=["child_seat"])
             self.stdout.write("  Utworzono przykladowa rezerwacje (confirmed + cena)")
+            rental = RentalService.convert_from_reservation(reservation)
+            self.stdout.write(
+                f"  Utworzono przykladowy wynajem #{rental.pk} (zaplanowany)"
+            )
 
         self.stdout.write(self.style.SUCCESS("Seed demo zakonczony."))

@@ -1,0 +1,64 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Wynajmy{% endblock %}
+{% block page_heading %}Wynajmy{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">{{ rentals|length }} wynajmow</p>
+{% endblock %}
+
+{% block content %}
+{% include "bookings/_nav.html" with active_tab="rentals" %}
+
+<form method="get" class="mb-4 flex gap-2 items-center">
+    <label class="text-sm text-gray-600">Status:</label>
+    <select name="status" class="border rounded px-2 py-1 text-sm" onchange="this.form.submit()">
+        <option value="">Wszystkie</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+            <tr>
+                <th class="px-4 py-3">ID</th>
+                <th class="px-4 py-3">Rezerwacja</th>
+                <th class="px-4 py-3">Klient</th>
+                <th class="px-4 py-3">Pojazd</th>
+                <th class="px-4 py-3">Od</th>
+                <th class="px-4 py-3">Do</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            {% for rental in rentals %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium">#{{ rental.pk }}</td>
+                <td class="px-4 py-3">
+                    <a href="{% url 'bookings:reservation_detail' rental.reservation_id %}" class="text-blue-600 hover:underline">
+                        #{{ rental.reservation_id }}
+                    </a>
+                </td>
+                <td class="px-4 py-3">{{ rental.reservation.customer.full_name }}</td>
+                <td class="px-4 py-3">{{ rental.reservation.car.registration_number }}</td>
+                <td class="px-4 py-3">{{ rental.scheduled_start_at|date:"Y-m-d H:i" }}</td>
+                <td class="px-4 py-3">{{ rental.scheduled_end_at|date:"Y-m-d H:i" }}</td>
+                <td class="px-4 py-3">{{ rental.get_status_display }}</td>
+                <td class="px-4 py-3 text-right">
+                    <a href="{% url 'bookings:rental_detail' rental.pk %}" class="text-blue-600 hover:underline">Szczegoly</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                    Brak wynajmow. Utworz wynajem z potwierdzonej rezerwacji.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

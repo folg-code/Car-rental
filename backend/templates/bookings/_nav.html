@@ -6,6 +6,12 @@
         Rezerwacje
     </a>
     <a
+        href="{% url 'bookings:rental_list' %}"
+        class="{% if active_tab == 'rentals' %}font-medium text-gray-900 border-b-2 border-black -mb-3.5 pb-3{% else %}text-gray-500 hover:text-gray-800{% endif %}"
+    >
+        Wynajmy
+    </a>
+    <a
         href="{% url 'bookings:customer_list' %}"
         class="{% if active_tab == 'customers' %}font-medium text-gray-900 border-b-2 border-black -mb-3.5 pb-3{% else %}text-gray-500 hover:text-gray-800{% endif %}"
     >

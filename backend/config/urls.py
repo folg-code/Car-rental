@@ -29,6 +29,7 @@ urlpatterns = [
     path("panel/", include("apps.dashboard.urls")),
     path("panel/flota/", include("apps.fleet.urls")),
     path("panel/rezerwacje/", include("apps.bookings.urls")),
+    path("panel/cenniki/", include("apps.pricing.urls")),
 ]
 
 if settings.DEBUG:

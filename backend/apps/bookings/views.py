@@ -8,7 +8,12 @@ from apps.bookings.forms import CustomerForm, ReservationCancelForm, Reservation
 from apps.bookings.models import Customer, Reservation, ReservationStatus
 from apps.bookings.selectors.customer import get_customer_by_id, list_customers
 from apps.bookings.selectors.reservation import get_reservation_by_id, list_reservations
+from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.bookings.services.reservation import ReservationService
+from apps.pricing.selectors.price_list import (
+    get_price_list_for_date,
+    list_active_extras,
+)
 
 
 def _add_validation_errors_to_form(form, exc: ValidationError) -> None:
@@ -48,11 +53,44 @@ def reservation_detail(request: HttpRequest, pk: int) -> HttpResponse:
     if reservation is None:
         messages.error(request, "Nie znaleziono rezerwacji.")
         return redirect("bookings:reservation_list")
+    price_list = get_price_list_for_date(reservation.start_at.date())
+    available_extras = list_active_extras(price_list) if price_list is not None else []
     return render(
         request,
         "bookings/reservation_detail.html",
-        {"reservation": reservation},
+        {
+            "reservation": reservation,
+            "price_total": PriceSnapshotService.reservation_total(reservation),
+            "can_recalculate_price": PriceSnapshotService.can_recalculate(reservation),
+            "available_extras": available_extras,
+        },
     )
+
+
+@staff_required
+def reservation_recalculate_price(request: HttpRequest, pk: int) -> HttpResponse:
+    reservation = get_reservation_by_id(pk)
+    if reservation is None:
+        messages.error(request, "Nie znaleziono rezerwacji.")
+        return redirect("bookings:reservation_list")
+
+    if not PriceSnapshotService.can_recalculate(reservation):
+        messages.error(request, "Ceny nie mozna przeliczyc w tym statusie.")
+        return redirect("bookings:reservation_detail", pk=pk)
+
+    if request.method == "POST":
+        extra_codes = request.POST.getlist("extra_codes")
+        try:
+            PriceSnapshotService.freeze(
+                reservation,
+                extra_codes=extra_codes,
+                replace=True,
+            )
+        except ValidationError as exc:
+            messages.error(request, exc.messages[0] if exc.messages else str(exc))
+        else:
+            messages.success(request, "Przeliczono rozpis cen.")
+    return redirect("bookings:reservation_detail", pk=pk)
 
 
 @staff_required

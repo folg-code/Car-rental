@@ -67,8 +67,8 @@ class TestDailyRate:
         with pytest.raises(IntegrityError):
             DailyRate.objects.create(
                 price_list=price_list,
-                car_category=category,
-                daily_price=Decimal("200.00"),
+                category=category,
+                amount=Decimal("200.00"),
             )
 
 

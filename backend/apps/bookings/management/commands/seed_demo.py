@@ -1,10 +1,21 @@
 from datetime import timedelta
+from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from apps.bookings.models import Customer, Reservation, ReservationStatus
+from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.fleet.models import Car, CarCategory, CarStatus, FuelType
+from apps.pricing.models import (
+    AmountType,
+    DailyRate,
+    ExtraService,
+    ExtraServiceChargeType,
+    PriceList,
+    PricingRule,
+    PricingRuleType,
+)
 
 
 class Command(BaseCommand):
@@ -96,9 +107,55 @@ class Command(BaseCommand):
             action = "Utworzono" if created else "Istnieje"
             self.stdout.write(f"  {action} klient: {customer.full_name}")
 
+        price_list, _ = PriceList.objects.get_or_create(
+            slug="domyslny-2026",
+            defaults={
+                "name": "Cennik domyslny 2026",
+                "is_default": True,
+                "is_active": True,
+            },
+        )
+        for category, amount in ((kompakt, "120.00"), (suv, "180.00")):
+            DailyRate.objects.get_or_create(
+                price_list=price_list,
+                category=category,
+                defaults={"amount": Decimal(amount)},
+            )
+        PricingRule.objects.get_or_create(
+            price_list=price_list,
+            rule_type=PricingRuleType.WEEKEND_SURCHARGE,
+            name="Doplata weekendowa",
+            defaults={
+                "amount_type": AmountType.PER_DAY,
+                "value": Decimal("25.00"),
+                "priority": 10,
+            },
+        )
+        PricingRule.objects.get_or_create(
+            price_list=price_list,
+            rule_type=PricingRuleType.LONG_RENTAL_DISCOUNT,
+            name="Rabat 7+ dni",
+            defaults={
+                "amount_type": AmountType.PERCENT,
+                "value": Decimal("10"),
+                "min_rental_days": 7,
+                "priority": 20,
+            },
+        )
+        ExtraService.objects.get_or_create(
+            price_list=price_list,
+            code="child_seat",
+            defaults={
+                "name": "Fotelik dzieciecy",
+                "charge_type": ExtraServiceChargeType.PER_RENTAL,
+                "amount": Decimal("40.00"),
+            },
+        )
+        self.stdout.write(f"  Cennik: {price_list.name}")
+
         now = timezone.now()
         if not Reservation.objects.filter(notes="DEMO_SEED").exists():
-            Reservation.objects.create(
+            reservation = Reservation.objects.create(
                 customer=customers[0],
                 car=cars[0],
                 start_at=now + timedelta(days=3),
@@ -106,6 +163,7 @@ class Command(BaseCommand):
                 status=ReservationStatus.CONFIRMED,
                 notes="DEMO_SEED",
             )
-            self.stdout.write("  Utworzono przykladowa rezerwacje (confirmed)")
+            PriceSnapshotService.freeze(reservation, extra_codes=["child_seat"])
+            self.stdout.write("  Utworzono przykladowa rezerwacje (confirmed + cena)")
 
         self.stdout.write(self.style.SUCCESS("Seed demo zakonczony."))

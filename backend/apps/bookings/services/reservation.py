@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.utils import timezone
 
 from apps.bookings.models import (
@@ -9,6 +10,7 @@ from apps.bookings.models import (
     ReservationStatus,
 )
 from apps.bookings.selectors.availability import get_overlapping_reservations
+from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.fleet.models import Car
 from apps.fleet.services.availability import AvailabilityService
 
@@ -90,9 +92,15 @@ class ReservationService:
             )
 
         reservation.save()
+        if status in (
+            ReservationStatus.PENDING_PAYMENT,
+            ReservationStatus.CONFIRMED,
+        ):
+            PriceSnapshotService.freeze(reservation)
         return reservation
 
     @staticmethod
+    @transaction.atomic
     def confirm(reservation: Reservation) -> Reservation:
         ReservationService._assert_can_mutate(reservation)
         if reservation.status not in (
@@ -112,6 +120,7 @@ class ReservationService:
         )
         reservation.status = ReservationStatus.CONFIRMED
         reservation.save(update_fields=["status", "updated_at"])
+        PriceSnapshotService.freeze(reservation)
         return reservation
 
     @staticmethod

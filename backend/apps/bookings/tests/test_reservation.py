@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from decimal import Decimal
 
 import pytest
 from django.core.exceptions import ValidationError
@@ -8,11 +9,28 @@ from apps.bookings.services.reservation import ReservationService
 from apps.fleet.models import AvailabilityBlockType, Car, CarCategory, CarStatus
 from apps.fleet.services.availability import AvailabilityService
 from apps.fleet.services.maintenance import FleetMaintenanceService
+from apps.pricing.models import DailyRate, PriceList
 
 
 @pytest.fixture
 def category(db) -> CarCategory:
     return CarCategory.objects.create(name="SUV", slug="suv")
+
+
+@pytest.fixture(autouse=True)
+def default_price_list(db, category: CarCategory) -> PriceList:
+    price_list = PriceList.objects.create(
+        name="Test cennik rezerwacji",
+        slug="test-rezerwacje",
+        is_default=True,
+        is_active=True,
+    )
+    DailyRate.objects.create(
+        price_list=price_list,
+        category=category,
+        amount=Decimal("100.00"),
+    )
+    return price_list
 
 
 @pytest.fixture

@@ -9,6 +9,11 @@ urlpatterns = [
     path("nowa/", views.reservation_create, name="reservation_create"),
     path("<int:pk>/", views.reservation_detail, name="reservation_detail"),
     path("<int:pk>/edycja/", views.reservation_edit, name="reservation_edit"),
+    path(
+        "<int:pk>/przelicz-cene/",
+        views.reservation_recalculate_price,
+        name="reservation_recalculate_price",
+    ),
     path("<int:pk>/potwierdz/", views.reservation_confirm, name="reservation_confirm"),
     path("<int:pk>/wygas/", views.reservation_expire, name="reservation_expire"),
     path("<int:pk>/anuluj/", views.reservation_cancel, name="reservation_cancel"),

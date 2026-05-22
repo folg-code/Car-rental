@@ -32,7 +32,7 @@
 | 1 | Struktura apps + accounts | ✅ | 100% |
 | 2 | fleet (flota) | ✅ | 100% |
 | 3 | bookings (rezerwacje) | ✅ | 100% |
-| 4 | pricing (cennik + snapshoty) | 🟡 | ~25% |
+| 4 | pricing (cennik + snapshoty) | 🟡 | ~90% |
 | 5 | Rental + payments MVP | ⬜ | 0% |
 | 6 | operations (wydanie/zwrot) | ⬜ | 0% |
 | 7 | documents (PDF, faktury) | ⬜ | 0% |
@@ -310,14 +310,17 @@
 
 ### Logika
 
-- [ ] `PricingService` — stawka dzienna, weekend, święto, rabat długoterminowy
-- [ ] Dodatki: fotelik, dodatkowy kierowca, opłaty jednorazowe
-- [ ] Zamrożenie `PriceLine` przy zapisie rezerwacji
+- [x] `PricingService.calculate()` — doba, weekend, sezon/święta, rabat 7+ dni, extras
+- [x] `PriceSnapshotService.freeze()` — zapis `PriceLine` na rezerwacji
+- [x] Auto-naliczanie przy `confirm` i create (confirmed / pending_payment)
+- [x] Panel: „Oblicz” + rozpis cen na szczegółach rezerwacji
+- [x] `seed_demo` — domyślny cennik + przykładowa rezerwacja z ceną
+- [x] Panel `/panel/cenniki/` — lista, edycja cennika, stawki / reguły / dodatki
 
 ### Testy
 
-- [ ] Scenariusz: kilka dni + weekend + extra
-- [ ] Zmiana cennika **nie zmienia** istniejącej rezerwacji
+- [x] Scenariusz: kilka dni + weekend + extra + rabat długoterminowy
+- [x] Zmiana cennika **nie zmienia** istniejącego snapshotu
 
 **Definition of Done:** rezerwacja ma historyczny rozpis kosztów.
 

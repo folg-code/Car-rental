@@ -1,0 +1,143 @@
+{% extends "base_internal.html" %}
+
+{% block title %}{{ price_list.name }}{% endblock %}
+{% block page_heading %}{{ price_list.name }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">
+    {{ price_list.slug }} · {{ price_list.currency }}
+    {% if price_list.is_default %} · domyslny{% endif %}
+    {% if not price_list.is_active %} · <span class="text-amber-600">nieaktywny</span>{% endif %}
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-3 mb-6">
+    <a href="{% url 'pricing:price_list_edit' price_list.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Edytuj cennik</a>
+    <a href="{% url 'pricing:price_list_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Lista cennikow</a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 mb-6 text-sm">
+    <dl class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <dt class="text-gray-500">Okres</dt>
+        <dd>
+            {% if price_list.valid_from or price_list.valid_to %}
+            {{ price_list.valid_from|date:"Y-m-d"|default:"—" }} – {{ price_list.valid_to|date:"Y-m-d"|default:"—" }}
+            {% else %}bezterminowo{% endif %}
+        </dd>
+        <dt class="text-gray-500">Waluta</dt><dd>{{ price_list.currency }}</dd>
+    </dl>
+    {% if price_list.description %}
+    <p class="mt-3 text-gray-600">{{ price_list.description }}</p>
+    {% endif %}
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Stawki dzienne</h2>
+        {% if price_list.daily_rates.all %}
+        <ul class="space-y-2 text-sm mb-4">
+            {% for rate in price_list.daily_rates.all %}
+            <li class="flex justify-between items-center border-b pb-2">
+                <span>{{ rate.category.name }} — <strong>{{ rate.amount }} {{ price_list.currency }}</strong>/doba</span>
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_rate" />
+                    <input type="hidden" name="item_id" value="{{ rate.pk }}" />
+                    <button type="submit" class="text-red-600 text-xs hover:underline" onclick="return confirm('Usunac stawke?')">Usun</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-sm mb-4">Brak stawek — dodaj ponizej.</p>
+        {% endif %}
+        <form method="post" class="space-y-2 border-t pt-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_rate" />
+            <p class="text-xs text-gray-500 font-medium">Nowa stawka</p>
+            {{ daily_rate_form.category }}
+            {{ daily_rate_form.amount }}
+            <button type="submit" class="bg-gray-900 text-white px-3 py-1.5 rounded text-xs">Dodaj</button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Reguly cenowe</h2>
+        {% if price_list.rules.all %}
+        <ul class="space-y-2 text-sm mb-4">
+            {% for rule in price_list.rules.all %}
+            <li class="flex justify-between items-start border-b pb-2 gap-2">
+                <div>
+                    <span class="font-medium">{{ rule.name }}</span>
+                    <p class="text-gray-500 text-xs">{{ rule.get_rule_type_display }} · {{ rule.get_amount_type_display }}: {{ rule.value }}{% if not rule.is_active %} · wylaczona{% endif %}</p>
+                </div>
+                <form method="post" class="shrink-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_rule" />
+                    <input type="hidden" name="item_id" value="{{ rule.pk }}" />
+                    <button type="submit" class="text-red-600 text-xs hover:underline" onclick="return confirm('Usunac regule?')">Usun</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-sm mb-4">Brak regul.</p>
+        {% endif %}
+        <form method="post" class="space-y-2 border-t pt-4 text-sm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_rule" />
+            <p class="text-xs text-gray-500 font-medium">Nowa regula</p>
+            {{ rule_form.rule_type }}
+            {{ rule_form.name }}
+            {{ rule_form.amount_type }}
+            {{ rule_form.value }}
+            {{ rule_form.valid_from }}
+            {{ rule_form.valid_to }}
+            {{ rule_form.min_rental_days }}
+            {{ rule_form.priority }}
+            <label class="flex items-center gap-2 text-xs">{{ rule_form.is_active }} Aktywna</label>
+            <button type="submit" class="bg-gray-900 text-white px-3 py-1.5 rounded text-xs">Dodaj</button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Uslugi dodatkowe</h2>
+        {% if price_list.extra_services.all %}
+        <ul class="space-y-2 text-sm mb-4">
+            {% for extra in price_list.extra_services.all %}
+            <li class="flex justify-between items-start border-b pb-2 gap-2">
+                <div>
+                    <span class="font-medium">{{ extra.name }}</span>
+                    <p class="text-gray-500 text-xs">{{ extra.code }} · {{ extra.get_charge_type_display }}: {{ extra.amount }} {{ price_list.currency }}</p>
+                </div>
+                <form method="post" class="shrink-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_extra" />
+                    <input type="hidden" name="item_id" value="{{ extra.pk }}" />
+                    <button type="submit" class="text-red-600 text-xs hover:underline" onclick="return confirm('Usunac usluge?')">Usun</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-sm mb-4">Brak uslug dodatkowych.</p>
+        {% endif %}
+        <form method="post" class="space-y-2 border-t pt-4 text-sm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_extra" />
+            <p class="text-xs text-gray-500 font-medium">Nowa usluga</p>
+            {{ extra_form.code }}
+            {{ extra_form.name }}
+            {{ extra_form.charge_type }}
+            {{ extra_form.amount }}
+            {{ extra_form.sort_order }}
+            <label class="flex items-center gap-2 text-xs">{{ extra_form.is_active }} Aktywna</label>
+            <button type="submit" class="bg-gray-900 text-white px-3 py-1.5 rounded text-xs">Dodaj</button>
+        </form>
+    </div>
+</div>
+<style>
+    input, select, textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.4rem 0.6rem; font-size: 0.875rem; }
+    input[type="checkbox"] { width: auto; }
+</style>
+{% endblock %}

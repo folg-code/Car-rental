@@ -13,11 +13,11 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 2 — fleet (w toku / prawie ukonczone) |
-| **Następny krok** | Sprint 3 — bookings (rezerwacje) |
-| **Postęp ogólny** | ~50% (flota: modele + panel + AvailabilityService) |
-| **Ostatnia aktualizacja** | 2026-05-20 |
-| **Branch** | `main` |
+| **Aktualny etap** | Sprint 4 — pricing (kolejny) |
+| **Następny krok** | Sprint 4 — `PriceList`, `PricingService`, `PriceLine` |
+| **Postęp ogólny** | ~60% (Sprint 0–3 zamkniete) |
+| **Ostatnia aktualizacja** | 2026-05-22 |
+| **Branch** | `feature/customer` (lub merge do `main`) |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
 
 ### Legenda postępu sprintu
@@ -30,8 +30,8 @@
 |--------|-------|--------|--------|
 | 0 | Fundament techniczny | ✅ | 100% |
 | 1 | Struktura apps + accounts | ✅ | 100% |
-| 2 | fleet (flota) | 🟡 | ~90% |
-| 3 | bookings (rezerwacje) | ⬜ | 0% |
+| 2 | fleet (flota) | ✅ | 100% |
+| 3 | bookings (rezerwacje) | ✅ | 100% |
 | 4 | pricing (cennik + snapshoty) | ⬜ | 0% |
 | 5 | Rental + payments MVP | ⬜ | 0% |
 | 6 | operations (wydanie/zwrot) | ⬜ | 0% |
@@ -48,9 +48,11 @@
 1. ~~**Integracja Django (Sprint 1a)**~~ ✅
 2. ~~**Accounts (Sprint 1b)**~~ ✅
 3. ~~**Panel wewnętrzny (Sprint 1c + 1d)**~~ ✅
-4. **Sprint 2 — fleet** — dokończenie (~90%)
-5. **Sprint 3–8** — bookings → … → website publiczny
-6. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+4. ~~**Sprint 2 — fleet**~~ ✅
+5. ~~**Sprint 3 — bookings**~~ ✅
+6. **Sprint 4 — pricing** — cennik + snapshoty `PriceLine`
+7. **Sprint 5–8** — rental, payments, operations, documents, website
+8. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ---
 
@@ -58,8 +60,7 @@
 
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
-- [ ] Seed danych demo (kategorie + 2–3 auta) — opcjonalnie
-- [ ] Upload zdjec/dokumentow w panelu (obecnie admin)
+- [ ] Upload zdjec/dokumentow w panelu floty (obecnie admin) — backlog / Sprint 2+
 
 ---
 
@@ -87,10 +88,21 @@
 - [x] Sprint 1b: custom `User`, role, `AUTH_USER_MODEL`, login/logout, `/panel/`
 - [x] `UserService`, selektory, testy auth (8 testów, SQLite w pytest)
 - [x] Sprint 1c: `base_internal.html`, nawigacja panelu, locale PL, `MEDIA_*` / `STATIC_ROOT`
-- [x] Placeholdery URL modułów (`/panel/flota/`, …)
+- [x] Placeholdery URL modułów (`/panel/flota/`, …); `/panel/rezerwacje/` aktywne od Sprint 3
 - [x] 12 testów pytest (auth + panel + settings)
 - [x] CI/CD: GitHub Actions (`ci.yml` na PR, `deploy.yml` na merge do `main`)
 - [x] `Dockerfile.prod`, `docker-compose.prod.yml`, `docs/CICD.md`
+- [x] Sprint 2: fleet — modele, panel `/panel/flota/`, `AvailabilityService`, testy (PR #7)
+- [x] Sprint 3: `Customer` + migracja `bookings.0001_initial`
+- [x] Sprint 3: CRUD klientow `/panel/rezerwacje/klienci/`
+- [x] Sprint 3: `Reservation` + statusy + migracja `bookings.0002_reservation`
+- [x] Sprint 3: `ReservationService` (create, confirm, cancel, expire, update)
+- [x] Sprint 3: integracja dostepnosci z `fleet` (`get_car_busy_intervals`, `exclude_reservation_id`)
+- [x] Sprint 3: CRUD rezerwacji `/panel/rezerwacje/` (lista, formularz, potwierdz, anuluj)
+- [x] Sprint 3: testy bookings (~27: model, serwis, widoki klientow i rezerwacji)
+- [x] Sprint 3: UI „Wygas” rezerwacje + metryki pulpitu (rezerwacje, wolne auta, koniec w 7 dni)
+- [x] Sprint 3: `manage.py seed_demo` (kategorie, 3 auta, 2 klientow, przykladowa rezerwacja)
+- [x] Sprint 3 — **zamkniety** (Definition of Done spelnione)
 
 ---
 
@@ -105,6 +117,9 @@
 | 2026-05-20 | 1 | Naprawiono kodowanie `__init__.py` (UTF-8); usunięto boilerplate Django z pustych modułów |
 | 2026-05-20 | 1a | Integracja Django: `INSTALLED_APPS`, `apps.*` w `AppConfig`, migrate w Docker |
 | 2026-05-20 | 1c | `base_internal.html`, nawigacja, PL locale, MEDIA/STATIC, 12 testów — Sprint 1 zamknięty |
+| 2026-05-20 | 2 | Fleet: modele, panel, AvailabilityService, merge PR #7 |
+| 2026-05-22 | 3 | Bookings: Customer + Reservation, serwisy, panel CRUD, testy |
+| 2026-05-22 | 3 | Domkniecie Sprint 3: wygaszenie UI, seed_demo, metryki pulpitu |
 | | | |
 
 ---
@@ -206,7 +221,7 @@
 
 ---
 
-# Sprint 2 — fleet (flota) 🟡
+# Sprint 2 — fleet (flota) ✅
 
 **Cel:** zarządzanie pojazdami i blokadami dostępności (~15 aut).
 
@@ -235,7 +250,7 @@
 - [x] `AvailabilityService` — dostępność **wyliczana**, bez `is_available`
 - [x] `FleetMaintenanceService`, `DamageService`, `CarService`
 - [x] Selektory (`car`, `availability`)
-- [x] Hook pod `bookings` (pusta lista do Sprint 3)
+- [x] Hook pod `bookings` (`get_booking_busy_intervals` — aktywny od Sprint 3)
 
 ### Testy
 
@@ -247,32 +262,40 @@
 
 ---
 
-# Sprint 3 — bookings (rezerwacje + klienci) ⬜
+# Sprint 3 — bookings (rezerwacje + klienci) ✅
 
 **Cel:** intent rezerwacji z walidacją dostępności.
 
 ### Modele
 
-- [ ] `Customer`
-- [ ] `Reservation` + statusy: draft, pending_payment, confirmed, cancelled, expired, converted_to_rental
+- [x] `Customer` — `bookings.0001_initial`, `CustomerService`, admin
+- [x] `Reservation` + statusy: draft, pending_payment, confirmed, cancelled, expired, converted_to_rental — `bookings.0002_reservation`
 
 ### UI
 
-- [ ] Formularz tworzenia rezerwacji (auto + daty + klient)
-- [ ] Lista rezerwacji z filtrami statusów
-- [ ] Anulowanie / edycja (wg uprawnień)
+- [x] Panel `/panel/rezerwacje/` — lista rezerwacji + filtr statusu
+- [x] Formularz tworzenia/edycji rezerwacji (auto + daty + klient + status)
+- [x] Potwierdzanie i anulowanie (z powodem) na szczegółach rezerwacji
+- [x] CRUD klientow `/panel/rezerwacje/klienci/` (zakładki Rezerwacje | Klienci)
+- [x] UI akcji „Wygas rezerwacje” (`/wygas/` + przycisk na szczegolach)
 
 ### Logika
 
-- [ ] `ReservationService` — create, cancel, expire
-- [ ] Walidacja dostępności przez `AvailabilityService`
+- [x] `ReservationService` — create, confirm, cancel, expire, update
+- [x] `CustomerService`, selektory (`customer`, `reservation`, `availability`)
+- [x] Walidacja dostępności przez `AvailabilityService` + nakładanie rezerwacji
+- [x] Statusy blokujace: pending_payment, confirmed, converted_to_rental; szkic nie blokuje
 
 ### Testy
 
-- [ ] Konflikt dat — błąd
-- [ ] Przejścia statusów
+- [x] Konflikt dat / nakladanie rezerwacji — odrzucenie
+- [x] Przejscia statusow (confirm, cancel, expire)
+- [x] Widoki panelu (klient + rezerwacja)
+- [x] Integracja z blokadami floty
+- [x] Metryki pulpitu (`get_bookings_dashboard_metrics`)
+- [x] `python backend/manage.py seed_demo`
 
-**Definition of Done:** pracownik zakłada rezerwację z poprawną walidacją dostępności.
+**Definition of Done:** pracownik zakłada rezerwację z poprawną walidacją dostępności. — **spełnione**
 
 ---
 
@@ -526,8 +549,8 @@ Sprint 9+ (produkcja)
 | `apps/accounts` — model/auth | ✅ | ✅ |
 | Panel `/panel/` + `base_internal.html` | ✅ | ✅ |
 | Locale PL + MEDIA/STATIC | ✅ | ✅ |
-| `apps/fleet` — modele | ❌ | — |
-| `apps/bookings` | ❌ | — |
+| `apps/fleet` — modele + panel | ✅ | ✅ |
+| `apps/bookings` — Customer, Reservation, panel | ✅ | ✅ |
 | `apps/pricing` | ❌ | — |
 | `apps/payments` | ❌ | — |
 | `apps/operations` | ❌ | — |

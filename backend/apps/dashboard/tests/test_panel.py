@@ -20,6 +20,7 @@ class TestPanelLayout:
         assert b"Panel operacyjny" in response.content
         assert b"Car Rental" in response.content
         assert b"Pulpit" in response.content
+        assert b"Aktywne rezerwacje" in response.content
 
     def test_fleet_list_accessible_for_staff(self, client) -> None:
         UserService.create_user(

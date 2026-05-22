@@ -1,0 +1,14 @@
+<nav class="flex gap-4 mb-6 border-b border-gray-200 pb-3 text-sm">
+    <a
+        href="{% url 'bookings:reservation_list' %}"
+        class="{% if active_tab == 'reservations' %}font-medium text-gray-900 border-b-2 border-black -mb-3.5 pb-3{% else %}text-gray-500 hover:text-gray-800{% endif %}"
+    >
+        Rezerwacje
+    </a>
+    <a
+        href="{% url 'bookings:customer_list' %}"
+        class="{% if active_tab == 'customers' %}font-medium text-gray-900 border-b-2 border-black -mb-3.5 pb-3{% else %}text-gray-500 hover:text-gray-800{% endif %}"
+    >
+        Klienci
+    </a>
+</nav>

@@ -1,0 +1,91 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Rezerwacja #{{ reservation.pk }}{% endblock %}
+{% block page_heading %}Rezerwacja #{{ reservation.pk }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">{{ reservation.get_status_display }}</p>
+{% endblock %}
+
+{% block content %}
+{% include "bookings/_nav.html" with active_tab="reservations" %}
+
+<div class="flex flex-wrap gap-3 mb-6">
+    {% if not reservation.is_terminal %}
+    <a href="{% url 'bookings:reservation_edit' reservation.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Edytuj</a>
+    {% endif %}
+    {% if reservation.status == "draft" or reservation.status == "pending_payment" %}
+    <form method="post" action="{% url 'bookings:reservation_confirm' reservation.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">Potwierdz</button>
+    </form>
+    <form
+        method="post"
+        action="{% url 'bookings:reservation_expire' reservation.pk %}"
+        onsubmit="return confirm('Oznaczyc rezerwacje jako wygasla?')"
+    >
+        {% csrf_token %}
+        <button type="submit" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Wygas</button>
+    </form>
+    {% endif %}
+    {% if reservation.status != "cancelled" and reservation.status != "expired" and reservation.status != "converted_to_rental" %}
+    <a href="{% url 'bookings:reservation_cancel' reservation.pk %}" class="border border-red-200 text-red-700 px-4 py-2 rounded text-sm hover:bg-red-50">Anuluj</a>
+    {% endif %}
+    <a href="{% url 'bookings:reservation_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Lista</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Klient i pojazd</h2>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt class="text-gray-500">Klient</dt>
+            <dd>
+                <a href="{% url 'bookings:customer_detail' reservation.customer.pk %}" class="text-blue-600 hover:underline">
+                    {{ reservation.customer.full_name }}
+                </a>
+            </dd>
+            <dt class="text-gray-500">Pojazd</dt>
+            <dd>{{ reservation.car.make }} {{ reservation.car.model }} ({{ reservation.car.registration_number }})</dd>
+        </dl>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Termin</h2>
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt class="text-gray-500">Od</dt>
+            <dd>{{ reservation.start_at|date:"Y-m-d H:i" }}</dd>
+            <dt class="text-gray-500">Do</dt>
+            <dd>{{ reservation.end_at|date:"Y-m-d H:i" }}</dd>
+            <dt class="text-gray-500">Utworzono</dt>
+            <dd>{{ reservation.created_at|date:"Y-m-d H:i" }}</dd>
+            {% if reservation.created_by %}
+            <dt class="text-gray-500">Autor</dt>
+            <dd>{{ reservation.created_by.username }}</dd>
+            {% endif %}
+        </dl>
+    </div>
+
+    {% if reservation.notes %}
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <h2 class="font-medium mb-4">Notatki</h2>
+        <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ reservation.notes }}</p>
+    </div>
+    {% endif %}
+
+    {% if reservation.status == "expired" %}
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2 border-l-4 border-amber-300">
+        <h2 class="font-medium mb-2 text-amber-800">Wygasla</h2>
+        <p class="text-sm text-gray-600">Rezerwacja nie zostala potwierdzona w terminie.</p>
+    </div>
+    {% endif %}
+
+    {% if reservation.cancellation_reason %}
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2 border-l-4 border-red-300">
+        <h2 class="font-medium mb-2 text-red-800">Anulowanie</h2>
+        <p class="text-sm">{{ reservation.cancellation_reason }}</p>
+        {% if reservation.cancelled_at %}
+        <p class="text-xs text-gray-500 mt-1">{{ reservation.cancelled_at|date:"Y-m-d H:i" }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

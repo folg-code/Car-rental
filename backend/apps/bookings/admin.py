@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.bookings.models import Customer
+from apps.bookings.models import Customer, Reservation
 
 
 @admin.register(Customer)
@@ -25,3 +25,26 @@ class CustomerAdmin(admin.ModelAdmin):
     )
     raw_id_fields = ("user",)
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(Reservation)
+class ReservationAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "customer",
+        "car",
+        "start_at",
+        "end_at",
+        "status",
+        "created_at",
+    )
+    list_filter = ("status",)
+    search_fields = (
+        "customer__last_name",
+        "customer__first_name",
+        "customer__email",
+        "car__registration_number",
+    )
+    raw_id_fields = ("customer", "car", "created_by")
+    readonly_fields = ("created_at", "updated_at", "cancelled_at")
+    date_hierarchy = "start_at"

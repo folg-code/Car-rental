@@ -4,6 +4,8 @@
 {% block page_heading %}Potwierdz usuniecie{% endblock %}
 
 {% block content %}
+{% include "bookings/_nav.html" with active_tab="customers" %}
+
 <div class="bg-white rounded-lg shadow p-6 max-w-md">
     <p class="text-sm mb-4">
         Usunac klienta <strong>{{ customer.full_name }}</strong>?

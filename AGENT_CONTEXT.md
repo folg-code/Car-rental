@@ -604,14 +604,17 @@ Implemented:
 - Ruff + pre-commit setup
 - Environment variable management
 - Basic template structure
+- accounts: User, roles, auth, panel access
+- fleet: models, panel CRUD, AvailabilityService
+- bookings: Customer, Reservation, ReservationService, panel CRUD, availability integration
+- dashboard: layout, navigation, bookings metrics on home
+- CI/CD (GitHub Actions)
+- `manage.py seed_demo` for local demo data
 
 In progress:
-- Initial architecture planning
-- Domain modeling
-- Workflow design
+- (none — next: Sprint 4 pricing)
 
 Not implemented yet:
-- bookings app (full)
 - pricing engine
 - payments
 - operations workflows

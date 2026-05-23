@@ -316,6 +316,8 @@ Not implemented yet:
 
 # operations/
 
+**Product vision:** fully **paperless** field workflow — all protocols electronic; phone/tablet sufficient for complete handover and return (no paper, no separate tools). Roadmap: [`PROJECT_PLAN.md` — Roadmap operations (paperless)](./PROJECT_PLAN.md#roadmap--operations-paperless).
+
 Responsibilities:
 - handover workflows,
 - return workflows,
@@ -335,13 +337,39 @@ Services:
 
 Panel: `/panel/operacje/` — pending handover/return queues; `/wydanie/<id>/`, `/zwrot/<id>/` (mobile forms)
 
+### Target workflow — handover (release)
+
+1. Open rental on phone (operations queue)
+2. Start handover protocol
+3. Enter mileage, fuel level, notes
+4. Add vehicle photos
+5. Mark damages (freeze existing + record new)
+6. Customer finger signature
+7. Generate PDF — **planned** (`documents`)
+8. Auto-send email — **planned** (`documents`)
+9. Auto `Rental` → **active** — **done**
+
+### Target workflow — return
+
+1. Open return (active rental)
+2. Enter mileage, fuel, notes
+3. Compare damages vs handover snapshots — snapshots **done**; rich comparison UI **planned**
+4. Add new damages — **done**
+5. Calculate surcharges (fuel/km/damage per price list) — **planned** (`pricing` + `payments`; notes only today)
+6. Customer signature — **done**
+7. Generate PDF — **planned** (`documents`)
+8. Email to customer — **planned** (`documents`)
+9. Close rental (`returned` / `closed` after settlement) — **partial** (`mark_returned` done; `close` after payments **planned**)
+
 Mobile requirements:
 - touch-friendly forms, `capture="environment"` on photo upload
-- HTMX step workflow — backlog
+- HTMX step-by-step workflow — backlog
 
 Not implemented yet:
-- PDF/email (documents app)
-- automatic surcharge posting to payments
+- PDF generation and email (documents app)
+- automatic surcharge calculation and posting to payments
+- side-by-side damage comparison UI
+- full rental close after financial settlement
 
 ---
 

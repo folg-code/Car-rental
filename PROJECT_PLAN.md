@@ -63,6 +63,7 @@
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
 - [ ] Upload zdjec/dokumentow w panelu floty (obecnie admin) — backlog / Sprint 2+
+- [ ] **Operations paperless** — pelna roadmapa: [Roadmap — operations (paperless)](#roadmap--operations-paperless) (HTMX kroki, PDF, email, doplaty, zamkniecie wynajmu)
 
 ---
 
@@ -414,7 +415,9 @@
 
 # Sprint 6 — operations (wydanie / zwrot) ✅
 
-**Cel:** mobilny workflow na tablecie/telefonie.
+**Cel (MVP):** mobilny workflow na tablecie/telefonie — pierwsza wersja protokołów elektronicznych.
+
+**Cel docelowy (wizja produktu):** **całkowicie paperless workflow** — wszystkie protokoły wyłącznie elektroniczne; telefon lub tablet wystarcza do pełnego procesu wydania i zwrotu auta (bez papieru, skanów ani osobnych narzędzi). Szczegóły kroków: [Roadmap — operations (paperless)](#roadmap--operations-paperless).
 
 ### Modele
 
@@ -440,13 +443,68 @@
 
 **Definition of Done:** pełny cykl wydania i zwrotu z podpisem i zdjęciami. — **spełnione**
 
-> **Backlog (poza MVP Sprint 6):** HTMX krok po kroku, PDF/email (`documents`), auto-naliczenie doplat w `payments`.
+> **Backlog (poza MVP Sprint 6):** patrz [Roadmap — operations (paperless)](#roadmap--operations-paperless).
+
+---
+
+## Roadmap — operations (paperless)
+
+> Stan na 2026-05-20 po Sprint 6 MVP. `[x]` = zaimplementowane; `[ ]` = do zrobienia w kolejnych sprintach (gł. Sprint 7 `documents`, rozszerzenia operations/payments).
+
+### Zasady
+
+- Wszystkie protokoły **elektroniczne** — jedyny kanał w terenie to panel mobilny (`/panel/operacje/`).
+- **Telefon/tablet** obsługuje cały proces (wydanie i zwrot) bez drukowania.
+- PDF i email budowane ze **snapshotów** protokołu (`DamageSnapshot`, dane protokołu) — nie z live `fleet.Damage`.
+- Integracje: PDF/email → `documents`; dopłaty po zwrocie → `pricing` + `payments`.
+
+### Docelowy workflow — wydanie auta
+
+| Krok | Opis | Status |
+|------|------|--------|
+| 1 | Otworzenie wynajmu na telefonie (kolejka „Do wydania”) | [x] |
+| 2 | Rozpoczęcie protokołu wydania | [x] |
+| 3 | Wprowadzenie: przebiegu, poziomu paliwa, uwag | [x] |
+| 4 | Dodanie zdjęć auta (`capture="environment"`) | [x] |
+| 5 | Oznaczenie szkód (snapshot istniejących + nowe z protokołu) | [x] |
+| 6 | Podpis klienta palcem (canvas / upload obrazu podpisu) | [x] |
+| 7 | Wygenerowanie PDF protokołu wydania | [ ] → Sprint 7 (`documents`) |
+| 8 | Automatyczne wysłanie emaila do klienta z PDF | [ ] → Sprint 7 (`documents`) |
+| 9 | Automatyczna zmiana statusu `Rental` → **active** | [x] (`HandoverService` → `RentalService.start`) |
+
+**Backlog UX wydania:** formularz krok po kroku (HTMX), walidacja na każdym kroku, offline-tolerant upload zdjęć (opcjonalnie, później).
+
+### Docelowy workflow — zwrot auta
+
+| Krok | Opis | Status |
+|------|------|--------|
+| 1 | Otworzenie zwrotu (kolejka „Do zwrotu” / wynajem aktywny) | [x] |
+| 2 | Wprowadzenie: przebiegu, paliwa, uwag | [x] |
+| 3 | Porównanie szkód z wydaniem (`DamageSnapshot` z handover vs stan przy zwrocie) | [x] (snapshoty); UI porównania side-by-side — [ ] |
+| 4 | Dodanie nowych szkód | [x] |
+| 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [ ] → `pricing` + `payments` (obecnie: notatki `surcharge_notes`) |
+| 6 | Podpis klienta | [x] |
+| 7 | Generacja PDF protokołu zwrotu | [ ] → Sprint 7 (`documents`) |
+| 8 | Email do klienta z PDF | [ ] → Sprint 7 (`documents`) |
+| 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] częściowo (`mark_returned`); pełne `close` po płatnościach — [ ] |
+
+**Backlog UX zwrotu:** ekran porównania szkód wydanie/zwrot, podgląd dopłat przed podpisem, HTMX kroki.
+
+### Mapowanie na sprinty
+
+| Obszar | Sprint / moduł |
+|--------|----------------|
+| PDF protokołów, szablony, private storage | Sprint 7 — `documents` |
+| Email po wydaniu/zwrocie, `EmailLog` | Sprint 7 — `documents` |
+| HTMX workflow krok po kroku | operations (po 7) |
+| Auto-dopłaty → `Payment` | operations + `payments` + `pricing` |
+| Zamknięcie wynajmu po rozliczeniu | `bookings.RentalService.close` + panel |
 
 ---
 
 # Sprint 7 — documents (PDF, faktury, email) ⬜
 
-**Cel:** artefakty **niemutowalne** — generowane ze snapshotów, nie z live DB.
+**Cel:** artefakty **niemutowalne** — generowane ze snapshotów, nie z live DB. **Kluczowe dla paperless operations:** PDF + email po protokole wydania i zwrotu (patrz [Roadmap — operations (paperless)](#roadmap--operations-paperless)).
 
 ### Modele
 
@@ -455,10 +513,12 @@
 
 ### Funkcje
 
-- [ ] PDF protokołu wydania/zwrotu
+- [ ] PDF protokołu wydania (dane z `HandoverProtocol` + `DamageSnapshot` + zdjęcia)
+- [ ] PDF protokołu zwrotu (dane z `ReturnProtocol` + porównanie snapshotów)
 - [ ] Prywatne storage mediów
-- [ ] Email MVP po wydaniu
-- [ ] Log wysyłek
+- [ ] Email MVP po zakończeniu wydania (PDF w załączniku / link)
+- [ ] Email MVP po zakończeniu zwrotu
+- [ ] Log wysyłek (`EmailLog`)
 
 ### Testy
 

@@ -1,0 +1,71 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Zwrot #{{ rental.pk }}{% endblock %}
+{% block page_heading %}Protokol zwrotu{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">Wydanie: {{ handover.mileage }} km / {{ handover.fuel_level_percent }}% paliwa</p>
+{% endblock %}
+
+{% block content %}
+{% include "operations/_mobile_styles.html" %}
+
+<form method="post" enctype="multipart/form-data" class="max-w-xl mx-auto">
+    {% csrf_token %}
+
+    <div class="op-section">
+        <h2 class="font-medium mb-4">Stan przy zwrocie</h2>
+        <div class="mb-4">
+            <label class="op-label">{{ form.mileage.label }}</label>
+            {{ form.mileage }}
+        </div>
+        <div class="mb-2">
+            <label class="op-label">{{ form.fuel_level_percent.label }}: <span id="fuel-val">{{ form.fuel_level_percent.value }}</span>%</label>
+            {{ form.fuel_level_percent }}
+        </div>
+    </div>
+
+    <div class="op-section">
+        <h2 class="font-medium mb-3">Uszkodzenia</h2>
+        {% if active_damages %}
+        <ul class="text-sm space-y-2 mb-4">
+            {% for d in active_damages %}
+            <li class="border-l-2 border-amber-400 pl-2">{{ d.description }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {{ form.new_damage_description }}
+        {{ form.new_damage_location }}
+        {{ form.new_damage_severity }}
+    </div>
+
+    <div class="op-section">
+        <label class="op-label">Zdjecia</label>
+        <input type="file" name="photos" accept="image/*" capture="environment" multiple class="op-input" />
+    </div>
+
+    <div class="op-section">
+        <h2 class="font-medium mb-3">Podpis i doplaty</h2>
+        {{ form.signer_name }}
+        {{ form.signature_image }}
+        {{ form.surcharge_notes }}
+        {{ form.notes }}
+    </div>
+
+    {% if form.non_field_errors %}
+    <p class="text-red-600 text-sm mb-4">{{ form.non_field_errors.0 }}</p>
+    {% endif %}
+
+    <button type="submit" class="op-btn-primary">Zakoncz zwrot</button>
+    <a href="{% url 'operations:home' %}" class="block text-center text-sm text-gray-500 mt-4">Anuluj</a>
+</form>
+
+<script>
+(function () {
+    const slider = document.querySelector('input[name="fuel_level_percent"]');
+    const label = document.getElementById("fuel-val");
+    if (slider && label) {
+        slider.addEventListener("input", function () { label.textContent = slider.value; });
+    }
+})();
+</script>
+{% endblock %}

@@ -37,7 +37,7 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
     ),
     PanelNavItem(
         label="Operacje",
-        url_name="dashboard:operations",
+        url_name="operations:home",
         section_key="operations",
         icon="clipboard",
         enabled=True,

@@ -7,18 +7,6 @@ app_name = "dashboard"
 urlpatterns = [
     path("", panel_home, name="home"),
     path(
-        "operacje/",
-        module_placeholder,
-        {"module_name": "Operacje"},
-        name="operations",
-    ),
-    path(
-        "platnosci/",
-        module_placeholder,
-        {"module_name": "Platnosci"},
-        name="payments",
-    ),
-    path(
         "dokumenty/",
         module_placeholder,
         {"module_name": "Dokumenty"},

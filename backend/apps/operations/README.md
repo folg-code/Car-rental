@@ -2,7 +2,9 @@
 
 ## Cel aplikacji
 
-**Workflow operacyjny w terenie** — wydanie i zwrot pojazdu: przebieg, paliwo, zdjęcia, podpisy oraz **snapshoty** stanu na moment protokołu. Zoptymalizowane pod urządzenia mobilne.
+**Workflow operacyjny w terenie — paperless.** Wszystkie protokoły wyłącznie elektroniczne; telefon lub tablet wystarcza do pełnego wydania i zwrotu auta. Obejmuje: przebieg, paliwo, zdjęcia, podpisy, **snapshoty** szkód oraz (docelowo) PDF + email bez papieru.
+
+Pełna roadmapa kroków: [`PROJECT_PLAN.md`](../../../PROJECT_PLAN.md#roadmap--operations-paperless) · [`AGENT_CONTEXT.md`](../../../AGENT_CONTEXT.md) — sekcja `operations/`.
 
 ---
 
@@ -36,17 +38,37 @@
 
 ---
 
-## Modele (planowane)
+## Modele (zaimplementowane — Sprint 6 MVP)
 
-`DamageSnapshot` — kopia pól z `Damage` w chwili protokołu; **nie aktualizować** po edycji `fleet.Damage`.
+- `HandoverProtocol`, `ReturnProtocol` — powiazanie 1:1 z `Rental`
+- `ProtocolPhoto`, `Signature` — zdjecia i podpis (upload z `capture="environment"`)
+- `DamageSnapshot` — kopia pol z `Damage` w chwili protokolu; **nie aktualizowac** po edycji `fleet.Damage`
 
 ---
 
-## Serwisy (planowane)
+## Serwisy (zaimplementowane)
 
-- `HandoverService` — complete_handover, attach_photo, capture_signature
-- `ReturnService` — complete_return, calculate_surcharges (wynik → caller zapisuje w `pricing`/`payments`)
-- `DamageSnapshotService` — freeze_damages_for_protocol
+- `HandoverService.complete_handover` — km, paliwo, zdjecia, podpis, snapshot szkod, `RentalService.start`
+- `ReturnService.complete_return` — porownanie paliwa/km, snapshot, `RentalService.mark_returned`
+- `DamageSnapshotService` — freeze aktywnych szkod, snapshot nowych zgloszen
+- Panel: `/panel/operacje/` — kolejka wydan i zwrotow
+
+### Roadmap — docelowe workflow (paperless)
+
+**Wydanie:** otwarcie wynajmu na telefonie → protokół → km / paliwo / uwagi → zdjęcia → szkody → podpis palcem → PDF → email → `Rental` **active**.
+
+**Zwrot:** otwarcie zwrotu → km / paliwo / uwagi → porównanie szkód z wydaniem → nowe szkody → wyliczenie dopłat → podpis → PDF → email → zamknięcie wynajmu.
+
+| Element | Status |
+|---------|--------|
+| Kolejka + formularze mobilne, km/paliwo/uwagi, zdjęcia, szkody, podpis | ✅ MVP (Sprint 6) |
+| `Rental` → active po wydaniu | ✅ |
+| `Rental` → returned po zwrocie | ✅ |
+| PDF + email | ⬜ Sprint 7 (`documents`) |
+| HTMX krok po kroku | ⬜ backlog |
+| Wyliczenie dopłat → `payments` | ⬜ backlog |
+| UI porównania szkód wydanie/zwrot | ⬜ backlog |
+| `close` po rozliczeniu finansowym | ⬜ backlog |
 
 ---
 

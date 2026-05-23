@@ -316,6 +316,8 @@ Not implemented yet:
 
 # operations/
 
+**Product vision:** fully **paperless** field workflow — all protocols electronic; phone/tablet sufficient for complete handover and return (no paper, no separate tools). Roadmap: [`PROJECT_PLAN.md` — Roadmap operations (paperless)](./PROJECT_PLAN.md#roadmap--operations-paperless).
+
 Responsibilities:
 - handover workflows,
 - return workflows,
@@ -323,24 +325,51 @@ Responsibilities:
 - operational photos,
 - snapshots.
 
-Models:
-- HandoverProtocol
-- ReturnProtocol
-- ProtocolPhoto
-- Signature
-- DamageSnapshot
+Models (implemented):
+- HandoverProtocol, ReturnProtocol (1:1 with Rental)
+- ProtocolPhoto, Signature
+- DamageSnapshot — frozen copy of fleet.Damage at protocol time; **never update** when fleet.Damage changes
+
+Services:
+- HandoverService.complete_handover → mileage/fuel, photos, signature, damage snapshots, RentalService.start
+- ReturnService.complete_return → compare handover, new damages, surcharge notes, RentalService.mark_returned
+- DamageSnapshotService
+
+Panel: `/panel/operacje/` — pending handover/return queues; `/wydanie/<id>/`, `/zwrot/<id>/` (mobile forms)
+
+### Target workflow — handover (release)
+
+1. Open rental on phone (operations queue)
+2. Start handover protocol
+3. Enter mileage, fuel level, notes
+4. Add vehicle photos
+5. Mark damages (freeze existing + record new)
+6. Customer finger signature
+7. Generate PDF — **planned** (`documents`)
+8. Auto-send email — **planned** (`documents`)
+9. Auto `Rental` → **active** — **done**
+
+### Target workflow — return
+
+1. Open return (active rental)
+2. Enter mileage, fuel, notes
+3. Compare damages vs handover snapshots — snapshots **done**; rich comparison UI **planned**
+4. Add new damages — **done**
+5. Calculate surcharges (fuel/km/damage per price list) — **planned** (`pricing` + `payments`; notes only today)
+6. Customer signature — **done**
+7. Generate PDF — **planned** (`documents`)
+8. Email to customer — **planned** (`documents`)
+9. Close rental (`returned` / `closed` after settlement) — **partial** (`mark_returned` done; `close` after payments **planned**)
 
 Mobile requirements:
-- touch support,
-- camera upload,
-- responsive UI,
-- tablet support.
+- touch-friendly forms, `capture="environment"` on photo upload
+- HTMX step-by-step workflow — backlog
 
-Photo upload should support:
-
-```html
-<input type="file" accept="image/*" capture="environment">
-```
+Not implemented yet:
+- PDF generation and email (documents app)
+- automatic surcharge calculation and posting to payments
+- side-by-side damage comparison UI
+- full rental close after financial settlement
 
 ---
 
@@ -635,9 +664,9 @@ Critical priorities:
 
 > Sprint tracking: [`PROJECT_PLAN.md`](./PROJECT_PLAN.md) — last updated 2026-05-20.
 
-**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP)
+**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP) · 6 (operations — handover/return)
 
-**Next sprint:** 6 — operations (`HandoverProtocol`, `ReturnProtocol`, mobile workflow).
+**Next sprint:** 7 — documents (PDF protokołów, faktury, email ze snapshotów).
 
 Implemented:
 - Django project setup
@@ -655,6 +684,7 @@ Implemented:
 - bookings: `Rental` model, `RentalService`, `ReservationService.convert_to_rental()`, panel `/panel/rezerwacje/wynajmy/`, rental blocks availability (not `converted_to_rental` reservation)
 - pricing: `PriceList`, `DailyRate`, `PricingRule`, `ExtraService`, `PricingService.calculate()`, panel `/panel/cenniki/`
 - payments: `Payment`, `PaymentIntent`, `PaymentProviderEvent`, `PaymentService`, panel `/panel/platnosci/`, deposit/refund with balance validation, **deposit ≠ revenue**
+- operations: `HandoverProtocol`, `ReturnProtocol`, `ProtocolPhoto`, `Signature`, `DamageSnapshot`, `HandoverService` / `ReturnService`, panel `/panel/operacje/` (mobile-first, `capture="environment"`), handover → `RentalService.start`, return → `mark_returned`, **DamageSnapshot immutable** after fleet `Damage` edits
 - dashboard: layout, navigation, bookings + rental metrics on home
 - CI/CD (GitHub Actions)
 - `manage.py seed_demo` — fleet, customers, price list, sample reservation + rental (scheduled)
@@ -663,7 +693,6 @@ In progress:
 - (none)
 
 Not implemented yet:
-- operations workflows (handover/return protocols, signatures, photos)
 - documents system (PDF, invoices)
 - payment gateway integration (webhooks, online checkout)
 - dashboard (full operational KPIs beyond home widgets)

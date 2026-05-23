@@ -323,24 +323,25 @@ Responsibilities:
 - operational photos,
 - snapshots.
 
-Models:
-- HandoverProtocol
-- ReturnProtocol
-- ProtocolPhoto
-- Signature
-- DamageSnapshot
+Models (implemented):
+- HandoverProtocol, ReturnProtocol (1:1 with Rental)
+- ProtocolPhoto, Signature
+- DamageSnapshot — frozen copy of fleet.Damage at protocol time; **never update** when fleet.Damage changes
+
+Services:
+- HandoverService.complete_handover → mileage/fuel, photos, signature, damage snapshots, RentalService.start
+- ReturnService.complete_return → compare handover, new damages, surcharge notes, RentalService.mark_returned
+- DamageSnapshotService
+
+Panel: `/panel/operacje/` — pending handover/return queues; `/wydanie/<id>/`, `/zwrot/<id>/` (mobile forms)
 
 Mobile requirements:
-- touch support,
-- camera upload,
-- responsive UI,
-- tablet support.
+- touch-friendly forms, `capture="environment"` on photo upload
+- HTMX step workflow — backlog
 
-Photo upload should support:
-
-```html
-<input type="file" accept="image/*" capture="environment">
-```
+Not implemented yet:
+- PDF/email (documents app)
+- automatic surcharge posting to payments
 
 ---
 
@@ -635,9 +636,9 @@ Critical priorities:
 
 > Sprint tracking: [`PROJECT_PLAN.md`](./PROJECT_PLAN.md) — last updated 2026-05-20.
 
-**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP)
+**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP) · 6 (operations — handover/return)
 
-**Next sprint:** 6 — operations (`HandoverProtocol`, `ReturnProtocol`, mobile workflow).
+**Next sprint:** 7 — documents (PDF protokołów, faktury, email ze snapshotów).
 
 Implemented:
 - Django project setup
@@ -655,6 +656,7 @@ Implemented:
 - bookings: `Rental` model, `RentalService`, `ReservationService.convert_to_rental()`, panel `/panel/rezerwacje/wynajmy/`, rental blocks availability (not `converted_to_rental` reservation)
 - pricing: `PriceList`, `DailyRate`, `PricingRule`, `ExtraService`, `PricingService.calculate()`, panel `/panel/cenniki/`
 - payments: `Payment`, `PaymentIntent`, `PaymentProviderEvent`, `PaymentService`, panel `/panel/platnosci/`, deposit/refund with balance validation, **deposit ≠ revenue**
+- operations: `HandoverProtocol`, `ReturnProtocol`, `ProtocolPhoto`, `Signature`, `DamageSnapshot`, `HandoverService` / `ReturnService`, panel `/panel/operacje/` (mobile-first, `capture="environment"`), handover → `RentalService.start`, return → `mark_returned`, **DamageSnapshot immutable** after fleet `Damage` edits
 - dashboard: layout, navigation, bookings + rental metrics on home
 - CI/CD (GitHub Actions)
 - `manage.py seed_demo` — fleet, customers, price list, sample reservation + rental (scheduled)
@@ -663,7 +665,6 @@ In progress:
 - (none)
 
 Not implemented yet:
-- operations workflows (handover/return protocols, signatures, photos)
 - documents system (PDF, invoices)
 - payment gateway integration (webhooks, online checkout)
 - dashboard (full operational KPIs beyond home widgets)

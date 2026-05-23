@@ -11,10 +11,9 @@
 
 <div class="flex flex-wrap gap-3 mb-6">
     {% if rental.status == "scheduled" %}
-    <form method="post" action="{% url 'bookings:rental_start' rental.pk %}">
-        {% csrf_token %}
-        <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">Wydaj pojazd (start)</button>
-    </form>
+    <a href="{% url 'operations:handover_create' rental.pk %}" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">
+        Protokol wydania
+    </a>
     <form
         method="post"
         action="{% url 'bookings:rental_cancel' rental.pk %}"
@@ -26,10 +25,9 @@
     </form>
     {% endif %}
     {% if rental.status == "active" %}
-    <form method="post" action="{% url 'bookings:rental_return' rental.pk %}">
-        {% csrf_token %}
-        <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">Zarejestruj zwrot</button>
-    </form>
+    <a href="{% url 'operations:return_create' rental.pk %}" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">
+        Protokol zwrotu
+    </a>
     {% endif %}
     {% if rental.status == "returned" %}
     <form method="post" action="{% url 'bookings:rental_close' rental.pk %}">

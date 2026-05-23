@@ -1,0 +1,45 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Wydanie #{{ rental.pk }}{% endblock %}
+{% block page_heading %}Protokol wydania — zakonczony{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto space-y-4">
+    <div class="bg-white rounded-lg shadow p-6">
+        <dl class="grid grid-cols-2 gap-2 text-sm">
+            <dt class="text-gray-500">Przebieg</dt><dd>{{ handover.mileage }} km</dd>
+            <dt class="text-gray-500">Paliwo</dt><dd>{{ handover.fuel_level_percent }}%</dd>
+            <dt class="text-gray-500">Zakonczono</dt><dd>{{ handover.completed_at|date:"Y-m-d H:i" }}</dd>
+        </dl>
+        {% if handover.notes %}
+        <p class="mt-4 text-sm"><span class="text-gray-500">Uwagi:</span> {{ handover.notes }}</p>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-3">Snapshot uszkodzen ({{ handover.damage_snapshots.count }})</h2>
+        <ul class="text-sm space-y-2">
+            {% for snap in handover.damage_snapshots.all %}
+            <li class="{% if snap.is_new_at_protocol %}text-amber-800{% endif %}">
+                {% if snap.is_new_at_protocol %}[NOWE]{% endif %}
+                {{ snap.location|default:"—" }}: {{ snap.description }}
+            </li>
+            {% empty %}
+            <li class="text-gray-500">Brak zarejestrowanych uszkodzen.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if handover.signature %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <p class="text-sm text-gray-500">Podpis: {{ handover.signature.signer_name }}</p>
+        <img src="{{ handover.signature.image.url }}" alt="Podpis" class="mt-2 max-h-40 rounded border" />
+    </div>
+    {% endif %}
+
+    <div class="flex flex-wrap gap-2">
+        <a href="{% url 'bookings:rental_detail' rental.pk %}" class="border px-4 py-2 rounded text-sm">Wynajem</a>
+        <a href="{% url 'operations:home' %}" class="text-sm text-gray-500 hover:underline">Operacje</a>
+    </div>
+</div>
+{% endblock %}

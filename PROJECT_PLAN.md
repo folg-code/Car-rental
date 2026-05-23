@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 6 — operations (wydanie / zwrot) |
-| **Następny krok** | `HandoverProtocol`, `ReturnProtocol`, workflow mobilny |
-| **Postęp ogólny** | ~72% (Sprint 0–5 zamkniete) |
+| **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
+| **Następny krok** | `Document`, PDF protokołów ze snapshotów, `EmailLog` |
+| **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -34,7 +34,7 @@
 | 3 | bookings (rezerwacje) | ✅ | 100% |
 | 4 | pricing (cennik + snapshoty) | ✅ | 100% |
 | 5 | Rental + payments MVP | ✅ | 100% |
-| 6 | operations (wydanie/zwrot) | ⬜ | 0% |
+| 6 | operations (wydanie/zwrot) | ✅ | 100% |
 | 7 | documents (PDF, faktury) | ⬜ | 0% |
 | 8 | dashboard + website | ⬜ | 0% |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
@@ -52,8 +52,9 @@
 5. ~~**Sprint 3 — bookings**~~ ✅
 6. ~~**Sprint 4 — pricing**~~ ✅ — cennik, snapshoty, tryb ceny na rezerwacji, kaucja na kategorii
 7. ~~**Sprint 5 — rental + payments**~~ ✅ — wynajem operacyjny, rejestracja platnosci (reczna)
-8. **Sprint 6–8** — operations, documents, website
-9. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+8. ~~**Sprint 6 — operations**~~ ✅ — protokoly wydania/zwrotu, snapshoty szkod
+9. **Sprint 7–8** — documents, website
+10. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ---
 
@@ -120,6 +121,13 @@
 - [x] Sprint 5: kaucja ≠ przychod (`REVENUE_PAYMENT_TYPES`, selektory salda)
 - [x] Sprint 5: testy bookings (~45) + payments (10)
 - [x] Sprint 5 — **zamkniety** (Definition of Done spelnione)
+- [x] Sprint 6: `HandoverProtocol`, `ReturnProtocol`, `ProtocolPhoto`, `Signature`, `DamageSnapshot` + `operations.0001_initial`
+- [x] Sprint 6: `HandoverService` / `ReturnService` + `DamageSnapshotService` (immutability)
+- [x] Sprint 6: panel `/panel/operacje/` (kolejka, formularze mobile, `capture="environment"`)
+- [x] Sprint 6: wydanie → `RentalService.start`, zwrot → `mark_returned`; linki z widoku wynajmu
+- [x] Sprint 6: usunieto placeholdery `dashboard` dla `/panel/operacje/` i `/panel/platnosci/` (konflikt URL)
+- [x] Sprint 6: testy operations (7: serwis + widoki + snapshot)
+- [x] Sprint 6 — **zamkniety** (Definition of Done spelnione)
 
 ---
 
@@ -143,6 +151,8 @@
 | 2026-05-20 | 5 | Rental: model, serwis, panel, integracja dostepnosci, `seed_demo` z wynajmem |
 | 2026-05-20 | 5 | Payments: `PaymentService`, panel platnosci per wynajem, regula kaucja ≠ przychod |
 | 2026-05-20 | 5 | Domkniecie Sprint 5 — migracje `bookings.0005`, `payments.0001` |
+| 2026-05-20 | 6 | Operations: protokoly, snapshoty szkod, panel mobilny, integracja z wynajmem |
+| 2026-05-20 | 6 | Domkniecie Sprint 6 — migracja `operations.0001`, fix routingu vs dashboard |
 | | | |
 
 ---
@@ -402,32 +412,35 @@
 
 ---
 
-# Sprint 6 — operations (wydanie / zwrot) ⬜
+# Sprint 6 — operations (wydanie / zwrot) ✅
 
 **Cel:** mobilny workflow na tablecie/telefonie.
 
 ### Modele
 
-- [ ] `HandoverProtocol`, `ReturnProtocol`
-- [ ] `ProtocolPhoto`, `Signature`
-- [ ] `DamageSnapshot` — zamrożenie stanu uszkodzeń
+- [x] `HandoverProtocol`, `ReturnProtocol`
+- [x] `ProtocolPhoto`, `Signature`
+- [x] `DamageSnapshot` — zamrożenie stanu uszkodzeń
 
 ### UI (mobile-first)
 
-- [ ] Formularze touch-friendly
-- [ ] Upload zdjęć: `capture="environment"`
-- [ ] HTMX — partial updates kroków workflow
+- [x] Formularze touch-friendly (`/panel/operacje/wydanie/`, `/zwrot/`)
+- [x] Upload zdjęć: `capture="environment"`
+- [ ] HTMX — partial updates kroków workflow — **backlog**
 
 ### Logika
 
-- [ ] `HandoverService` — km, paliwo, zdjęcia, podpis, snapshot uszkodzeń
-- [ ] `ReturnService` — porównanie, nowe szkody, dopłaty
+- [x] `HandoverService` — km, paliwo, zdjęcia, podpis, snapshot uszkodzeń, `RentalService.start`
+- [x] `ReturnService` — porównanie paliwa/km, nowe szkody, notatki doplat, `mark_returned`
+- [ ] Automatyczne doplaty → `payments` — **backlog** (obecnie notatki w protokole)
 
 ### Testy
 
-- [ ] Protokół niezmienny po edycji `Damage` w flocie
+- [x] Protokół niezmienny po edycji `Damage` w flocie
 
-**Definition of Done:** pełny cykl wydania i zwrotu z podpisem i zdjęciami.
+**Definition of Done:** pełny cykl wydania i zwrotu z podpisem i zdjęciami. — **spełnione**
+
+> **Backlog (poza MVP Sprint 6):** HTMX krok po kroku, PDF/email (`documents`), auto-naliczenie doplat w `payments`.
 
 ---
 
@@ -607,7 +620,7 @@ Sprint 9+ (produkcja)
 | `apps/bookings` — Reservation, `Rental`, `PriceLine`, tryb ceny | ✅ | ✅ |
 | `apps/pricing` — cennik, panel, `PricingService` | ✅ | ✅ |
 | `apps/payments` — Payment, panel, kaucja ≠ przychod | ✅ | ✅ |
-| `apps/operations` | ❌ | — |
+| `apps/operations` — protokoly, panel mobilny | ✅ | ✅ |
 | `apps/documents` | ❌ | — |
 | `apps/dashboard` — pełny szkielet | ✅ | ✅ |
 | `apps/website` | ✅ | ✅ |

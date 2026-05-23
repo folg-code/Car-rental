@@ -36,17 +36,22 @@
 
 ---
 
-## Modele (planowane)
+## Modele (zaimplementowane — Sprint 6 MVP)
 
-`DamageSnapshot` — kopia pól z `Damage` w chwili protokołu; **nie aktualizować** po edycji `fleet.Damage`.
+- `HandoverProtocol`, `ReturnProtocol` — powiazanie 1:1 z `Rental`
+- `ProtocolPhoto`, `Signature` — zdjecia i podpis (upload z `capture="environment"`)
+- `DamageSnapshot` — kopia pol z `Damage` w chwili protokolu; **nie aktualizowac** po edycji `fleet.Damage`
 
 ---
 
-## Serwisy (planowane)
+## Serwisy (zaimplementowane)
 
-- `HandoverService` — complete_handover, attach_photo, capture_signature
-- `ReturnService` — complete_return, calculate_surcharges (wynik → caller zapisuje w `pricing`/`payments`)
-- `DamageSnapshotService` — freeze_damages_for_protocol
+- `HandoverService.complete_handover` — km, paliwo, zdjecia, podpis, snapshot szkod, `RentalService.start`
+- `ReturnService.complete_return` — porownanie paliwa/km, snapshot, `RentalService.mark_returned`
+- `DamageSnapshotService` — freeze aktywnych szkod, snapshot nowych zgloszen
+- Panel: `/panel/operacje/` — kolejka wydan i zwrotow
+
+Planowane pozniej: PDF/email (`documents`), HTMX kroki, automatyczne doplaty w `payments`
 
 ---
 

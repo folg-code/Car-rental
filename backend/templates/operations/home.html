@@ -1,0 +1,63 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Operacje{% endblock %}
+{% block page_heading %}Operacje w terenie{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">Wydanie i zwrot pojazdu</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-medium mb-4">Do wydania</h2>
+        <ul class="space-y-3">
+            {% for rental in pending_handover %}
+            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div>
+                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
+                    <p class="text-sm text-gray-500">
+                        {{ rental.reservation.customer.full_name }} ·
+                        {{ rental.reservation.car.registration_number }}
+                    </p>
+                    <p class="text-xs text-gray-400">{{ rental.scheduled_start_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <a
+                    href="{% url 'operations:handover_create' rental.pk %}"
+                    class="bg-black text-white px-4 py-3 rounded-lg text-sm font-medium shrink-0"
+                >
+                    Wydaj
+                </a>
+            </li>
+            {% empty %}
+            <li class="text-gray-500 text-sm">Brak wynajmow do wydania.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-medium mb-4">Do zwrotu</h2>
+        <ul class="space-y-3">
+            {% for rental in pending_return %}
+            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div>
+                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
+                    <p class="text-sm text-gray-500">
+                        {{ rental.reservation.customer.full_name }} ·
+                        {{ rental.reservation.car.registration_number }}
+                    </p>
+                    <p class="text-xs text-gray-400">Plan zwrotu: {{ rental.scheduled_end_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <a
+                    href="{% url 'operations:return_create' rental.pk %}"
+                    class="bg-black text-white px-4 py-3 rounded-lg text-sm font-medium shrink-0"
+                >
+                    Zwrot
+                </a>
+            </li>
+            {% empty %}
+            <li class="text-gray-500 text-sm">Brak aktywnych wynajmow do zwrotu.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

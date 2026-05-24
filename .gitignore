@@ -6,6 +6,7 @@ db.sqlite3
 node_modules
 staticfiles
 media
+private_documents
 dist
 .pytest_cache
 .mypy_cache

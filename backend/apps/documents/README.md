@@ -11,7 +11,7 @@
 - Modele: `Document`, `DocumentTemplate`, `EmailLog`, `Invoice`, `InvoiceItem`
 - `DocumentService` — generuj PDF protokołu / umowy z przekazanych DTO/snapshotów
 - `InvoiceService` — wystawienie faktury na podstawie `PriceLine` / ustalonych pozycji (nie przeliczanie cennika)
-- Prywatne `MEDIA` / storage, szyfrowane PDF (wg wymagań produkcyjnych)
+- Prywatne storage: `PrivateDocumentStorage` → `private_documents/` (poza publicznym `MEDIA_ROOT`); pobieranie tylko przez autoryzowany widok (Task 7.8)
 - `EmailService` — wysyłka z załącznikiem, log w `EmailLog`
 - Selektory: dokumenty po wynajmie/kliencie, status wysyłki
 - Szablony HTML → PDF (WeasyPrint / wkhtml / wybrana technologia — decyzja implementacyjna)

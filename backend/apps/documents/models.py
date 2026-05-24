@@ -3,8 +3,13 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.storage import storages
 from django.core.validators import MinValueValidator
 from django.db import models
+
+
+def private_document_storage():
+    return storages["private_documents"]
 
 
 class DocumentType(models.TextChoices):
@@ -32,10 +37,7 @@ def document_upload_path(instance: "Document", filename: str) -> str:
 
     when = instance.generated_at or timezone.now()
     date_part = when.strftime("%Y/%m")
-    return (
-        f"documents/private/{instance.document_type}/{date_part}/"
-        f"{instance.uuid}_{filename}"
-    )
+    return f"{instance.document_type}/{date_part}/{instance.uuid}_{filename}"
 
 
 class DocumentTemplate(models.Model):
@@ -113,7 +115,10 @@ class Document(models.Model):
         blank=True,
         related_name="document_files",
     )
-    file = models.FileField(upload_to=document_upload_path)
+    file = models.FileField(
+        upload_to=document_upload_path,
+        storage=private_document_storage,
+    )
     content_type = models.CharField(max_length=100, default="application/pdf")
     file_hash = models.CharField(
         max_length=64,

@@ -41,7 +41,13 @@
 - `EmailLog` — log wysylek (pending / sent / failed)
 - `Invoice`, `InvoiceItem` — faktura oddzielona od `Payment`; pozycje z `PriceLine` (opcjonalnie)
 
-## Serwisy (planowane — Task 7.3+)
+## Serwisy (zaimplementowane — Task 7.3)
+
+- `PdfRenderer` — HTML (Django templates) → PDF przez WeasyPrint
+- Szablony: `documents/pdf/handover_protocol.html`, `return_protocol.html`, `invoice.html`
+- `constants.py` — domyslne sciezki szablonow; seed w migracji `0004_seed_document_templates`
+
+## Serwisy (planowane — Task 7.4+)
 
 - `DocumentService.generate_handover_pdf(snapshot_data)`
 - `InvoiceService.create_from_price_lines(...)`

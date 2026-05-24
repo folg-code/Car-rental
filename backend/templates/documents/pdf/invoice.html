@@ -1,0 +1,36 @@
+{% extends "documents/pdf/base_pdf.html" %}
+
+{% block title %}Faktura{% endblock %}
+
+{% block content %}
+<h1>Faktura {{ invoice_number }}</h1>
+<p class="meta">Data wystawienia: {{ issue_date|date:"Y-m-d" }}</p>
+
+<h2>Nabywca</h2>
+<table>
+    <tr><th>Klient</th><td>{{ customer_name }}</td></tr>
+    <tr><th>Wynajem</th><td>#{{ rental_id }}</td></tr>
+</table>
+
+<h2>Pozycje</h2>
+<table>
+    <tr>
+        <th>Opis</th>
+        <th>Ilosc</th>
+        <th>Cena jedn.</th>
+        <th>Suma</th>
+    </tr>
+    {% for item in items %}
+    <tr>
+        <td>{{ item.description }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.unit_price }} {{ currency }}</td>
+        <td>{{ item.line_total }} {{ currency }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <th colspan="3">Razem</th>
+        <th>{{ total_amount }} {{ currency }}</th>
+    </tr>
+</table>
+{% endblock %}

@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
-| **Następny krok** | Task 7.3 — PDF renderer (WeasyPrint + szablony HTML) |
+| **Następny krok** | Task 7.4 — DTO snapshotów protokołów |
 | **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
@@ -130,6 +130,7 @@
 - [x] Sprint 6: testy operations (7: serwis + widoki + snapshot)
 - [x] Sprint 6 — **zamkniety** (Definition of Done spelnione)
 - [x] Sprint 7 / Task 7.1: modele `documents` + `documents.0001_initial` + admin + 6 testow
+- [x] Sprint 7 / Task 7.3: `PdfRenderer` (WeasyPrint), szablony PDF, seed szablonow `0004`, 3 testy renderera
 
 ---
 
@@ -513,7 +514,7 @@
 |----|------|------|--------|
 | **7.1** | Modele domeny | `Document`, `DocumentTemplate`, `EmailLog`, `Invoice`, `InvoiceItem`; migracja; admin; testy modeli | ✅ |
 | **7.2** | Private storage | `PrivateDocumentStorage`, `upload_to` pod `documents/private/`; ustawienia | ✅ |
-| **7.3** | PDF renderer | Szablony HTML + `PdfRenderer` (WeasyPrint); zależność w `pyproject.toml` | ⬜ |
+| **7.3** | PDF renderer | Szablony HTML + `PdfRenderer` (WeasyPrint); zależność w `pyproject.toml` | ✅ |
 | **7.4** | DTO snapshotów | `HandoverDocumentData` / `ReturnDocumentData` — pakiet danych z protokołu (bez live `Damage`) | ⬜ |
 | **7.5** | `DocumentService` | `generate_handover_pdf`, `generate_return_pdf` → nowy `Document` + hash pliku | ⬜ |
 | **7.6** | Hook operations | Po `complete_handover` / `complete_return` — wywołanie generacji PDF | ⬜ |

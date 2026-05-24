@@ -13,6 +13,7 @@ dependencies = [
     "django-environ",
     "gunicorn>=23.0",
     "Pillow>=10.0",
+    "weasyprint>=63.0",
 ]
 
 [project.optional-dependencies]

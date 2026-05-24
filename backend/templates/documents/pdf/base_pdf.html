@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dokument{% endblock %}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 11pt;
+            color: #111;
+            line-height: 1.4;
+        }
+        h1 {
+            font-size: 16pt;
+            margin: 0 0 0.5em;
+        }
+        h2 {
+            font-size: 12pt;
+            margin: 1.2em 0 0.4em;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 0.2em;
+        }
+        .meta {
+            color: #444;
+            font-size: 10pt;
+            margin-bottom: 1.5em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5em 0 1em;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #f5f5f5;
+            width: 35%;
+        }
+        .damages li {
+            margin-bottom: 0.35em;
+        }
+        .damages .new {
+            font-weight: bold;
+        }
+        .signature img {
+            max-height: 80px;
+            max-width: 240px;
+        }
+        .footer {
+            margin-top: 2em;
+            font-size: 9pt;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+    <p class="footer">Wygenerowano elektronicznie — Car Rental Operations Platform</p>
+</body>
+</html>

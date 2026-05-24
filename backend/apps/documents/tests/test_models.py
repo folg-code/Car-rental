@@ -18,12 +18,15 @@ from apps.documents.models import (
 
 @pytest.fixture
 def handover_template(db) -> DocumentTemplate:
-    return DocumentTemplate.objects.create(
-        name="Protokol wydania v1",
+    obj, _created = DocumentTemplate.objects.get_or_create(
         slug="handover-v1",
-        document_type=DocumentType.HANDOVER_PROTOCOL_PDF,
-        template_path="documents/pdf/handover_protocol.html",
+        defaults={
+            "name": "Protokol wydania v1",
+            "document_type": DocumentType.HANDOVER_PROTOCOL_PDF,
+            "template_path": "documents/pdf/handover_protocol.html",
+        },
     )
+    return obj
 
 
 @pytest.fixture

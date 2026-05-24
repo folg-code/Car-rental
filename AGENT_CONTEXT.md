@@ -650,7 +650,7 @@ Critical priorities:
 - Avoid microservices
 - Avoid GraphQL unless strongly justified
 - Avoid repository pattern abstractions over Django ORM
-- Avoid unnecessary Celery/Redis usage in early stages
+- Avoid unnecessary Celery/Redis usage in early stages *(MVP: sync email w Sprint 7; plan async: [`docs/DOCKER.md`](docs/DOCKER.md) — Celery + Redis dla powiadomień klient/pracownik, Sprint 9+)*
 - Prefer server-rendered workflows
 - Prefer PostgreSQL as the primary source of truth
 - Prefer explicit domain services

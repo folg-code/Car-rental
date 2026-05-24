@@ -625,12 +625,24 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 - [ ] Deploy VPS: Docker Compose + Gunicorn + Caddy/Nginx
 - [ ] Backup PostgreSQL + media + offsite
 - [ ] Test odtworzenia z backupu
+- [ ] **Celery + Redis** — kolejka powiadomień (klient + pracownik); szczegóły: [`docs/DOCKER.md`](docs/DOCKER.md)
+
+### Powiadomienia asynchroniczne (Celery + Redis)
+
+> MVP (Sprint 7): email do klienta **synchronicznie** w `EmailService`. Docelowo: taski w tle.
+
+- [ ] Serwisy Docker: `redis`, `celery`, opcjonalnie `celery-beat`
+- [ ] Task: wysyłka emaila z PDF protokołu (`documents`)
+- [ ] Task: alerty dla pracowników — kolejka operacji, nadchodzące zwroty, nieopłacone wynajmy (`dashboard`)
+- [ ] Task: przypomnienia dla klienta — zbliżający się zwrot, potwierdzenie rezerwacji
+- [ ] Retry + monitoring (`EmailLog`, dead-letter / admin retry)
+- [ ] Testy: `CELERY_TASK_ALWAYS_EAGER` w pytest
 
 ### Rozszerzenia biznesowe
 
 - [ ] Zaawansowany dynamic pricing
 - [ ] Raporty finansowe (przychód vs kaucje vs faktury)
-- [ ] Powiadomienia SMS/push
+- [ ] Powiadomienia SMS/push (po Celery — adapter obok email)
 - [ ] Wielojęzyczność UI
 - [ ] Chat AI — eskalacja do człowieka, analityka konwersji (jeśli nie w Sprint 8b)
 

@@ -25,6 +25,35 @@ services:
     depends_on:
       - db
 
+  # --- Planowane (Sprint 9+): Celery + Redis — powiadomienia async ---
+  # Klient: email z PDF protokołu, przypomnienia o zwrocie.
+  # Pracownik: alerty o wydaniach/zwrotach, nieopłaconych wynajmach (dashboard).
+  # Szczegóły: docs/DOCKER.md
+  #
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
+  #
+  # celery:
+  #   build: .
+  #   command: celery -A config worker -l info
+  #   env_file:
+  #     - .env.docker
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   volumes:
+  #     - .:/app
+  #
+  # celery-beat:
+  #   build: .
+  #   command: celery -A config beat -l info
+  #   env_file:
+  #     - .env.docker
+  #   depends_on:
+  #     - redis
+
   tailwind:
     image: node:20
 

@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
-| **Następny krok** | Task 7.5 — `DocumentService` (generacja PDF + zapis `Document`) |
+| **Następny krok** | Task 7.6 — auto-generacja PDF po protokole wydania/zwrotu |
 | **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
@@ -516,7 +516,7 @@
 | **7.2** | Private storage | `PrivateDocumentStorage`, `upload_to` pod `documents/private/`; ustawienia | ✅ |
 | **7.3** | PDF renderer | Szablony HTML + `PdfRenderer` (WeasyPrint); zależność w `pyproject.toml` | ✅ |
 | **7.4** | DTO snapshotów | `HandoverDocumentData` / `ReturnDocumentData` — pakiet danych z protokołu (bez live `Damage`) | ✅ |
-| **7.5** | `DocumentService` | `generate_handover_pdf`, `generate_return_pdf` → nowy `Document` + hash pliku | ⬜ |
+| **7.5** | `DocumentService` | `generate_handover_pdf`, `generate_return_pdf` → nowy `Document` + hash pliku | ✅ |
 | **7.6** | Hook operations | Po `complete_handover` / `complete_return` — wywołanie generacji PDF | ⬜ |
 | **7.7** | `EmailService` | Wysyłka z załącznikiem, `EmailLog`, szablony email (wydanie/zwrot) | ⬜ |
 | **7.8** | Panel documents | Lista/pobranie PDF per wynajem; link z wynajmu i protokołu | ⬜ |

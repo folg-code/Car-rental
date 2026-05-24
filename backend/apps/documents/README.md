@@ -41,17 +41,16 @@
 - `EmailLog` — log wysylek (pending / sent / failed)
 - `Invoice`, `InvoiceItem` — faktura oddzielona od `Payment`; pozycje z `PriceLine` (opcjonalnie)
 
-## Serwisy (zaimplementowane — Task 7.3)
+## Serwisy (zaimplementowane)
 
+- `DocumentService.generate_handover_pdf` / `generate_return_pdf` — PDF → `Document` (private storage, SHA-256, wersjonowanie)
 - `PdfRenderer` — HTML (Django templates) → PDF przez WeasyPrint
 - `HandoverDocumentData` / `ReturnDocumentData` — zamrozone DTO ze snapshotow protokolu (`selectors/protocol_data.py`)
 - Szablony: `documents/pdf/handover_protocol.html`, `return_protocol.html`, `invoice.html`
 - `constants.py` — domyslne sciezki szablonow; seed w migracji `0004_seed_document_templates`
 
-## Serwisy (planowane — Task 7.5+)
+## Serwisy (planowane — Task 7.6+)
 
-- `DocumentService.generate_handover_pdf(snapshot_data)`
-- `InvoiceService.create_from_price_lines(...)`
 - `EmailService.send_document(...)`
 - Wszystkie metody generujące przyjmują **komplet danych** w argumencie — brak cichego odczytu live DB dla pól historycznych
 

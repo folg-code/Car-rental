@@ -11,7 +11,7 @@
 - Modele: `Document`, `DocumentTemplate`, `EmailLog`, `Invoice`, `InvoiceItem`
 - `DocumentService` — generuj PDF protokołu / umowy z przekazanych DTO/snapshotów
 - `InvoiceService` — wystawienie faktury na podstawie `PriceLine` / ustalonych pozycji (nie przeliczanie cennika)
-- Prywatne storage: `PrivateDocumentStorage` → `private_documents/` (poza publicznym `MEDIA_ROOT`); pobieranie tylko przez autoryzowany widok (Task 7.8)
+- Prywatne storage: `PrivateDocumentStorage` → `private_documents/` (poza publicznym `MEDIA_ROOT`); pobieranie przez autoryzowany widok panelu (`/panel/dokumenty/<uuid>/pobierz/`)
 - `EmailService` — wysyłka z załącznikiem, log w `EmailLog`
 - Selektory: dokumenty po wynajmie/kliencie, status wysyłki
 - Szablony HTML → PDF (WeasyPrint / wkhtml / wybrana technologia — decyzja implementacyjna)
@@ -55,7 +55,14 @@
 - Szablony: `documents/email/handover_*`, `return_*`
 - **Docelowo (Sprint 9+):** wysyłka przez Celery task — [`docs/DOCKER.md`](../../../docs/DOCKER.md)
 
-## Serwisy (planowane — Task 7.8+)
+## Panel (Task 7.8 — zaimplementowane)
+
+- `/panel/dokumenty/` — lista wszystkich dokumentów
+- `/panel/dokumenty/wynajem/<id>/` — dokumenty per wynajem
+- `/panel/dokumenty/<uuid>/pobierz/` — autoryzowany download PDF (`FileResponse`, brak publicznego URL)
+- Linki z widoku wynajmu oraz protokołów wydania/zwrotu
+
+## Serwisy (planowane — Task 7.9+)
 - Wszystkie metody generujące przyjmują **komplet danych** w argumencie — brak cichego odczytu live DB dla pól historycznych
 
 ---

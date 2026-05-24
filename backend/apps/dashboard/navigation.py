@@ -51,7 +51,7 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
     ),
     PanelNavItem(
         label="Dokumenty",
-        url_name="dashboard:documents",
+        url_name="documents:home",
         section_key="documents",
         icon="file",
         enabled=True,

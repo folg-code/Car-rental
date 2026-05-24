@@ -191,6 +191,16 @@ STORAGES = {
     },
 }
 
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL",
+    default="noreply@car-rental.local",
+)
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 # --- Szkic podzialu dev / prod (rozszerzyc o osobne moduly settings przy deploy) ---
 # Dev:  DEBUG=True,  ALLOWED_HOSTS=localhost,127.0.0.1
 # Prod: DEBUG=False, ALLOWED_HOSTS=<domena>, SECURE_SSL_REDIRECT=True, SESSION_COOKIE_SECURE=True

@@ -1,0 +1,14 @@
+Witaj {{ customer_name }},
+
+W zalaczeniu przesylamy protokol zwrotu pojazdu.
+
+Wynajem: #{{ rental_id }}
+Pojazd: {{ car_label }} ({{ registration_number }})
+Przebieg przy zwrocie: {{ mileage }} km
+Paliwo: {{ fuel_level_percent }}%
+{% if surcharge_notes %}
+Uwagi do doplat: {{ surcharge_notes }}
+{% endif %}
+
+Pozdrawiamy,
+Car Rental

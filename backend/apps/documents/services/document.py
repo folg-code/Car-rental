@@ -13,6 +13,7 @@ from apps.documents.selectors.protocol_data import (
     build_handover_document_data,
     build_return_document_data,
 )
+from apps.documents.services.email import EmailService
 from apps.documents.services.pdf_renderer import PdfRenderer
 from apps.operations.models import HandoverProtocol, ReturnProtocol
 
@@ -85,6 +86,10 @@ class DocumentService:
         filename = f"{filename_stem}_v{version}.pdf"
         document.file.save(filename, ContentFile(pdf_bytes), save=False)
         document.save()
+        EmailService.send_document_email(
+            document.pk,
+            sent_by_id=generated_by_id,
+        )
         return document
 
     @staticmethod

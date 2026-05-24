@@ -49,9 +49,12 @@
 - Szablony: `documents/pdf/handover_protocol.html`, `return_protocol.html`, `invoice.html`
 - `constants.py` — domyslne sciezki szablonow; seed w migracji `0004_seed_document_templates`
 
-## Serwisy (planowane — Task 7.6+)
+## Serwisy (zaimplementowane — Task 7.7)
 
-- `EmailService.send_document(...)`
+- `EmailService.send_document_email` — PDF w zalaczniku, `EmailLog` (sent/failed), `retry_email`
+- Szablony: `documents/email/handover_*`, `return_*`
+
+## Serwisy (planowane — Task 7.8+)
 - Wszystkie metody generujące przyjmują **komplet danych** w argumencie — brak cichego odczytu live DB dla pól historycznych
 
 ---

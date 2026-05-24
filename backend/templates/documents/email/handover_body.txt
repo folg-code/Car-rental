@@ -1,0 +1,11 @@
+Witaj {{ customer_name }},
+
+W zalaczeniu przesylamy protokol wydania pojazdu.
+
+Wynajem: #{{ rental_id }}
+Pojazd: {{ car_label }} ({{ registration_number }})
+Przebieg przy wydaniu: {{ mileage }} km
+Paliwo: {{ fuel_level_percent }}%
+
+Pozdrawiamy,
+Car Rental

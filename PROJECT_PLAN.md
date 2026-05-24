@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
-| **Następny krok** | Task 7.7 — `EmailService` (wysyłka PDF do klienta) |
+| **Następny krok** | Task 7.8 — panel documents (lista/pobranie PDF) |
 | **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
@@ -471,7 +471,7 @@
 | 5 | Oznaczenie szkód (snapshot istniejących + nowe z protokołu) | [x] |
 | 6 | Podpis klienta palcem (canvas / upload obrazu podpisu) | [x] |
 | 7 | Wygenerowanie PDF protokołu wydania | [x] |
-| 8 | Automatyczne wysłanie emaila do klienta z PDF | [ ] → Sprint 7 (`documents`) |
+| 8 | Automatyczne wysłanie emaila do klienta z PDF | [x] |
 | 9 | Automatyczna zmiana statusu `Rental` → **active** | [x] (`HandoverService` → `RentalService.start`) |
 
 **Backlog UX wydania:** formularz krok po kroku (HTMX), walidacja na każdym kroku, offline-tolerant upload zdjęć (opcjonalnie, później).
@@ -487,7 +487,7 @@
 | 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [ ] → `pricing` + `payments` (obecnie: notatki `surcharge_notes`) |
 | 6 | Podpis klienta | [x] |
 | 7 | Generacja PDF protokołu zwrotu | [x] |
-| 8 | Email do klienta z PDF | [ ] → Sprint 7 (`documents`) |
+| 8 | Email do klienta z PDF | [x] |
 | 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] częściowo (`mark_returned`); pełne `close` po płatnościach — [ ] |
 
 **Backlog UX zwrotu:** ekran porównania szkód wydanie/zwrot, podgląd dopłat przed podpisem, HTMX kroki.
@@ -518,7 +518,7 @@
 | **7.4** | DTO snapshotów | `HandoverDocumentData` / `ReturnDocumentData` — pakiet danych z protokołu (bez live `Damage`) | ✅ |
 | **7.5** | `DocumentService` | `generate_handover_pdf`, `generate_return_pdf` → nowy `Document` + hash pliku | ✅ |
 | **7.6** | Hook operations | Po `complete_handover` / `complete_return` — wywołanie generacji PDF | ✅ |
-| **7.7** | `EmailService` | Wysyłka z załącznikiem, `EmailLog`, szablony email (wydanie/zwrot) | ⬜ |
+| **7.7** | `EmailService` | Wysyłka z załącznikiem, `EmailLog`, szablony email (wydanie/zwrot) | ✅ |
 | **7.8** | Panel documents | Lista/pobranie PDF per wynajem; link z wynajmu i protokołu | ⬜ |
 | **7.9** | `InvoiceService` MVP | Faktura z `PriceLine` (bez przeliczania cennika); PDF faktury | ⬜ |
 | **7.10** | Testy integracyjne | PDF niezmienny po edycji `fleet.Damage`; email failure → `EmailLog` | ⬜ |
@@ -533,9 +533,9 @@
 - [ ] PDF protokołu wydania (dane z `HandoverProtocol` + `DamageSnapshot` + zdjęcia)
 - [ ] PDF protokołu zwrotu (dane z `ReturnProtocol` + porównanie snapshotów)
 - [ ] Prywatne storage mediów
-- [ ] Email MVP po zakończeniu wydania (PDF w załączniku / link)
-- [ ] Email MVP po zakończeniu zwrotu
-- [ ] Log wysyłek (`EmailLog`)
+- [x] Email MVP po zakończeniu wydania (PDF w załączniku)
+- [x] Email MVP po zakończeniu zwrotu
+- [x] Log wysyłek (`EmailLog`)
 
 ### Testy (7.10)
 

@@ -65,7 +65,7 @@ Pełna roadmapa kroków: [`PROJECT_PLAN.md`](../../../PROJECT_PLAN.md#roadmap--o
 | `Rental` → active po wydaniu | ✅ |
 | `Rental` → returned po zwrocie | ✅ |
 | PDF po protokole | ✅ auto (`DocumentService` w `complete_handover` / `complete_return`) |
-| Email do klienta | ⬜ Task 7.7 (`documents`) |
+| Email do klienta | ✅ auto po PDF (`EmailService`) |
 | HTMX krok po kroku | ⬜ backlog |
 | Wyliczenie dopłat → `payments` | ⬜ backlog |
 | UI porównania szkód wydanie/zwrot | ⬜ backlog |

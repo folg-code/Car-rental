@@ -34,13 +34,14 @@
 
 ---
 
-## Modele (planowane)
+## Modele (zaimplementowane — Sprint 7 / Task 7.1)
 
-`Document` — metadane pliku, hash, powiązanie z `Rental`; treść binarna w storage, nie w polach tekstowych modelu operacyjnego.
+- `DocumentTemplate` — szablon HTML → PDF (slug, `template_path`)
+- `Document` — plik PDF, hash, powiazania (`Rental`, protokoly, `Invoice`); **niemutowalny** po utworzeniu
+- `EmailLog` — log wysylek (pending / sent / failed)
+- `Invoice`, `InvoiceItem` — faktura oddzielona od `Payment`; pozycje z `PriceLine` (opcjonalnie)
 
----
-
-## Serwisy (planowane)
+## Serwisy (planowane — Task 7.3+)
 
 - `DocumentService.generate_handover_pdf(snapshot_data)`
 - `InvoiceService.create_from_price_lines(...)`

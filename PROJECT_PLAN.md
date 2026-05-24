@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
-| **Następny krok** | `Document`, PDF protokołów ze snapshotów, `EmailLog` |
+| **Następny krok** | Task 7.2 — private storage + Task 7.3 PDF renderer |
 | **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
@@ -35,7 +35,7 @@
 | 4 | pricing (cennik + snapshoty) | ✅ | 100% |
 | 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
-| 7 | documents (PDF, faktury) | ⬜ | 0% |
+| 7 | documents (PDF, faktury) | 🟡 | ~10% |
 | 8 | dashboard + website | ⬜ | 0% |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
@@ -129,6 +129,7 @@
 - [x] Sprint 6: usunieto placeholdery `dashboard` dla `/panel/operacje/` i `/panel/platnosci/` (konflikt URL)
 - [x] Sprint 6: testy operations (7: serwis + widoki + snapshot)
 - [x] Sprint 6 — **zamkniety** (Definition of Done spelnione)
+- [x] Sprint 7 / Task 7.1: modele `documents` + `documents.0001_initial` + admin + 6 testow
 
 ---
 
@@ -502,16 +503,31 @@
 
 ---
 
-# Sprint 7 — documents (PDF, faktury, email) ⬜
+# Sprint 7 — documents (PDF, faktury, email) 🟡
 
 **Cel:** artefakty **niemutowalne** — generowane ze snapshotów, nie z live DB. **Kluczowe dla paperless operations:** PDF + email po protokole wydania i zwrotu (patrz [Roadmap — operations (paperless)](#roadmap--operations-paperless)).
 
-### Modele
+### Taski (kolejność implementacji)
 
-- [ ] `Document`, `DocumentTemplate`, `EmailLog`
-- [ ] `Invoice`, `InvoiceItem` (oddzielone od `Payment`)
+| ID | Task | Opis | Status |
+|----|------|------|--------|
+| **7.1** | Modele domeny | `Document`, `DocumentTemplate`, `EmailLog`, `Invoice`, `InvoiceItem`; migracja; admin; testy modeli | ✅ |
+| **7.2** | Private storage | `PrivateDocumentStorage`, `upload_to` pod `documents/private/`; ustawienia | ⬜ |
+| **7.3** | PDF renderer | Szablony HTML + `PdfRenderer` (WeasyPrint); zależność w `pyproject.toml` | ⬜ |
+| **7.4** | DTO snapshotów | `HandoverDocumentData` / `ReturnDocumentData` — pakiet danych z protokołu (bez live `Damage`) | ⬜ |
+| **7.5** | `DocumentService` | `generate_handover_pdf`, `generate_return_pdf` → nowy `Document` + hash pliku | ⬜ |
+| **7.6** | Hook operations | Po `complete_handover` / `complete_return` — wywołanie generacji PDF | ⬜ |
+| **7.7** | `EmailService` | Wysyłka z załącznikiem, `EmailLog`, szablony email (wydanie/zwrot) | ⬜ |
+| **7.8** | Panel documents | Lista/pobranie PDF per wynajem; link z wynajmu i protokołu | ⬜ |
+| **7.9** | `InvoiceService` MVP | Faktura z `PriceLine` (bez przeliczania cennika); PDF faktury | ⬜ |
+| **7.10** | Testy integracyjne | PDF niezmienny po edycji `fleet.Damage`; email failure → `EmailLog` | ⬜ |
 
-### Funkcje
+### Modele (7.1)
+
+- [x] `Document`, `DocumentTemplate`, `EmailLog`
+- [x] `Invoice`, `InvoiceItem` (oddzielone od `Payment`)
+
+### Funkcje (7.3–7.9)
 
 - [ ] PDF protokołu wydania (dane z `HandoverProtocol` + `DamageSnapshot` + zdjęcia)
 - [ ] PDF protokołu zwrotu (dane z `ReturnProtocol` + porównanie snapshotów)
@@ -520,7 +536,7 @@
 - [ ] Email MVP po zakończeniu zwrotu
 - [ ] Log wysyłek (`EmailLog`)
 
-### Testy
+### Testy (7.10)
 
 - [ ] PDF nie zmienia się po zmianie danych operacyjnych
 

@@ -44,10 +44,11 @@
 ## Serwisy (zaimplementowane — Task 7.3)
 
 - `PdfRenderer` — HTML (Django templates) → PDF przez WeasyPrint
+- `HandoverDocumentData` / `ReturnDocumentData` — zamrozone DTO ze snapshotow protokolu (`selectors/protocol_data.py`)
 - Szablony: `documents/pdf/handover_protocol.html`, `return_protocol.html`, `invoice.html`
 - `constants.py` — domyslne sciezki szablonow; seed w migracji `0004_seed_document_templates`
 
-## Serwisy (planowane — Task 7.4+)
+## Serwisy (planowane — Task 7.5+)
 
 - `DocumentService.generate_handover_pdf(snapshot_data)`
 - `InvoiceService.create_from_price_lines(...)`

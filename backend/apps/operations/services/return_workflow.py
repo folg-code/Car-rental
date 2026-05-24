@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from apps.bookings.models import Rental, RentalStatus
 from apps.bookings.services.rental import RentalService
+from apps.documents.services.document import DocumentService
 from apps.fleet.models import Car
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import ProtocolPhoto, ReturnProtocol, Signature
@@ -153,4 +154,9 @@ class ReturnService:
         car.save(update_fields=["mileage"])
 
         RentalService.mark_returned(rental, at=return_protocol.completed_at)
+
+        DocumentService.generate_return_pdf(
+            return_protocol.pk,
+            generated_by_id=performed_by_id,
+        )
         return return_protocol

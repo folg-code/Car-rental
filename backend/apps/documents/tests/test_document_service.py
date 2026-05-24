@@ -100,12 +100,20 @@ class TestDocumentService:
         self,
         completed_handover: HandoverProtocol,
     ) -> None:
+        assert (
+            Document.objects.filter(
+                handover_protocol=completed_handover,
+                document_type=DocumentType.HANDOVER_PROTOCOL_PDF,
+            ).count()
+            == 1
+        )
+
         doc = DocumentService.generate_handover_pdf(completed_handover.pk)
         assert doc.pk is not None
         assert doc.document_type == DocumentType.HANDOVER_PROTOCOL_PDF
         assert doc.handover_protocol_id == completed_handover.pk
         assert doc.rental_id == completed_handover.rental_id
-        assert doc.version == 1
+        assert doc.version == 2
         assert len(doc.file_hash) == 64
         assert doc.file_size_bytes > 0
         assert doc.file.name.endswith(".pdf")
@@ -117,23 +125,24 @@ class TestDocumentService:
         self,
         completed_handover: HandoverProtocol,
     ) -> None:
-        first = DocumentService.generate_handover_pdf(completed_handover.pk)
+        first = DocumentService.regenerate_handover_pdf(completed_handover.pk)
         second = DocumentService.regenerate_handover_pdf(completed_handover.pk)
         assert first.pk != second.pk
-        assert second.version == 2
+        assert first.version == 2
+        assert second.version == 3
         assert (
             Document.objects.filter(
                 handover_protocol=completed_handover,
                 document_type=DocumentType.HANDOVER_PROTOCOL_PDF,
             ).count()
-            == 2
+            == 3
         )
 
     def test_pdf_hash_stable_after_fleet_damage_edit(
         self,
         completed_handover: HandoverProtocol,
     ) -> None:
-        first = DocumentService.generate_handover_pdf(completed_handover.pk)
+        first = DocumentService.regenerate_handover_pdf(completed_handover.pk)
         snap = completed_handover.damage_snapshots.first()
         assert snap is not None
         damage = snap.source_damage
@@ -155,10 +164,18 @@ class TestDocumentService:
             signer_name="Jan Kowalski",
             signature_image=_tiny_image("ret.png"),
         )
+        assert (
+            Document.objects.filter(
+                return_protocol=return_protocol,
+                document_type=DocumentType.RETURN_PROTOCOL_PDF,
+            ).count()
+            == 1
+        )
+
         doc = DocumentService.generate_return_pdf(return_protocol.pk)
         assert doc.document_type == DocumentType.RETURN_PROTOCOL_PDF
         assert doc.return_protocol_id == return_protocol.pk
-        assert doc.version == 1
+        assert doc.version == 2
 
     def test_rejects_incomplete_handover(self, scheduled_rental) -> None:
         handover = HandoverProtocol.objects.create(

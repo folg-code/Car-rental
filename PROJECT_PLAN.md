@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
-| **Następny krok** | Task 7.6 — auto-generacja PDF po protokole wydania/zwrotu |
+| **Następny krok** | Task 7.7 — `EmailService` (wysyłka PDF do klienta) |
 | **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
@@ -470,7 +470,7 @@
 | 4 | Dodanie zdjęć auta (`capture="environment"`) | [x] |
 | 5 | Oznaczenie szkód (snapshot istniejących + nowe z protokołu) | [x] |
 | 6 | Podpis klienta palcem (canvas / upload obrazu podpisu) | [x] |
-| 7 | Wygenerowanie PDF protokołu wydania | [ ] → Sprint 7 (`documents`) |
+| 7 | Wygenerowanie PDF protokołu wydania | [x] |
 | 8 | Automatyczne wysłanie emaila do klienta z PDF | [ ] → Sprint 7 (`documents`) |
 | 9 | Automatyczna zmiana statusu `Rental` → **active** | [x] (`HandoverService` → `RentalService.start`) |
 
@@ -486,7 +486,7 @@
 | 4 | Dodanie nowych szkód | [x] |
 | 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [ ] → `pricing` + `payments` (obecnie: notatki `surcharge_notes`) |
 | 6 | Podpis klienta | [x] |
-| 7 | Generacja PDF protokołu zwrotu | [ ] → Sprint 7 (`documents`) |
+| 7 | Generacja PDF protokołu zwrotu | [x] |
 | 8 | Email do klienta z PDF | [ ] → Sprint 7 (`documents`) |
 | 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] częściowo (`mark_returned`); pełne `close` po płatnościach — [ ] |
 
@@ -517,7 +517,7 @@
 | **7.3** | PDF renderer | Szablony HTML + `PdfRenderer` (WeasyPrint); zależność w `pyproject.toml` | ✅ |
 | **7.4** | DTO snapshotów | `HandoverDocumentData` / `ReturnDocumentData` — pakiet danych z protokołu (bez live `Damage`) | ✅ |
 | **7.5** | `DocumentService` | `generate_handover_pdf`, `generate_return_pdf` → nowy `Document` + hash pliku | ✅ |
-| **7.6** | Hook operations | Po `complete_handover` / `complete_return` — wywołanie generacji PDF | ⬜ |
+| **7.6** | Hook operations | Po `complete_handover` / `complete_return` — wywołanie generacji PDF | ✅ |
 | **7.7** | `EmailService` | Wysyłka z załącznikiem, `EmailLog`, szablony email (wydanie/zwrot) | ⬜ |
 | **7.8** | Panel documents | Lista/pobranie PDF per wynajem; link z wynajmu i protokołu | ⬜ |
 | **7.9** | `InvoiceService` MVP | Faktura z `PriceLine` (bez przeliczania cennika); PDF faktury | ⬜ |

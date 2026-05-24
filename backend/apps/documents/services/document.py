@@ -97,7 +97,11 @@ class DocumentService:
             HandoverProtocol.objects.select_related(
                 "rental",
                 "rental__reservation",
+                "rental__reservation__customer",
+                "rental__reservation__car",
+                "signature",
             )
+            .prefetch_related("damage_snapshots")
             .filter(pk=handover_id)
             .first()
         )
@@ -121,7 +125,12 @@ class DocumentService:
             ReturnProtocol.objects.select_related(
                 "rental",
                 "rental__reservation",
+                "rental__reservation__customer",
+                "rental__reservation__car",
+                "handover",
+                "signature",
             )
+            .prefetch_related("damage_snapshots")
             .filter(pk=return_protocol_id)
             .first()
         )

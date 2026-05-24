@@ -8,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
+from apps.documents.models import Document, DocumentType
 from apps.fleet.models import Car, CarCategory, CarStatus
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import DamageSnapshot, HandoverProtocol
@@ -120,6 +121,14 @@ class TestHandoverService:
         assert scheduled_rental.status == RentalStatus.ACTIVE
         assert scheduled_rental.reservation.car.mileage == 10_200
 
+        pdf = Document.objects.filter(
+            handover_protocol=handover,
+            document_type=DocumentType.HANDOVER_PROTOCOL_PDF,
+        ).first()
+        assert pdf is not None
+        assert pdf.version == 1
+        assert len(pdf.file_hash) == 64
+
     def test_handover_rejects_lower_mileage(self, scheduled_rental) -> None:
         with pytest.raises(ValidationError, match="Przebieg"):
             HandoverService.complete_handover(
@@ -156,3 +165,10 @@ class TestReturnService:
         assert ret.is_completed
         assert scheduled_rental.status == RentalStatus.RETURNED
         assert "paliwa" in ret.surcharge_notes.lower() or ret.surcharge_notes
+
+        pdf = Document.objects.filter(
+            return_protocol=ret,
+            document_type=DocumentType.RETURN_PROTOCOL_PDF,
+        ).first()
+        assert pdf is not None
+        assert pdf.version == 1

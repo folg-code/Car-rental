@@ -4,12 +4,13 @@ import pytest
 from django.utils import timezone
 
 from apps.bookings.models import Customer, Reservation, ReservationStatus
-from apps.bookings.selectors.dashboard import get_bookings_dashboard_metrics
+from apps.dashboard.selectors.metrics import get_dashboard_metrics
+from apps.dashboard.services.metrics import DashboardMetricsService
 from apps.fleet.models import Car, CarCategory, CarStatus
 
 
 @pytest.mark.django_db
-class TestBookingsDashboardMetrics:
+class TestDashboardMetrics:
     def test_metrics_with_confirmed_reservation(self) -> None:
         cat = CarCategory.objects.create(name="Test", slug="test-dash")
         car = Car.objects.create(
@@ -29,12 +30,19 @@ class TestBookingsDashboardMetrics:
         Reservation.objects.create(
             customer=customer,
             car=car,
-            start_at=now,
+            start_at=now - timedelta(hours=1),
             end_at=now + timedelta(days=5),
             status=ReservationStatus.CONFIRMED,
         )
 
-        metrics = get_bookings_dashboard_metrics()
-        assert metrics["active_reservations"] == 1
-        assert metrics["free_cars"] == 0
-        assert metrics["upcoming_returns"] == 1
+        metrics = get_dashboard_metrics(as_of=now)
+        assert metrics.active_reservations == 1
+        assert metrics.free_cars == 0
+        assert metrics.upcoming_returns == 1
+
+    def test_service_delegates_to_selector(self) -> None:
+        metrics = DashboardMetricsService.get_home_metrics()
+        assert metrics.active_reservations >= 0
+        assert metrics.active_rentals >= 0
+        assert metrics.free_cars >= 0
+        assert metrics.upcoming_returns >= 0

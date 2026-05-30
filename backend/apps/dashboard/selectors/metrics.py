@@ -1,4 +1,7 @@
-from datetime import timedelta
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 
 from django.utils import timezone
 
@@ -13,9 +16,19 @@ from apps.bookings.models import (
 from apps.fleet.models import Car, CarStatus
 
 
-def get_bookings_dashboard_metrics() -> dict[str, int]:
-    """Metryki bookings na pulpicie (rezerwacje + wynajmy)."""
-    now = timezone.now()
+@dataclass(frozen=True, slots=True)
+class DashboardMetrics:
+    """Podstawowe KPI pulpitu operacyjnego (Sprint 3 / task 8.1)."""
+
+    active_reservations: int
+    active_rentals: int
+    free_cars: int
+    upcoming_returns: int
+
+
+def get_dashboard_metrics(*, as_of: datetime | None = None) -> DashboardMetrics:
+    """Agreguje metryki bookings i floty na pulpit wewnętrzny."""
+    now = as_of or timezone.now()
     week_ahead = now + timedelta(days=7)
 
     active_reservations = Reservation.objects.filter(
@@ -59,9 +72,9 @@ def get_bookings_dashboard_metrics() -> dict[str, int]:
         ).count()
     )
 
-    return {
-        "active_reservations": active_reservations,
-        "active_rentals": active_rentals,
-        "free_cars": free_cars,
-        "upcoming_returns": upcoming_returns,
-    }
+    return DashboardMetrics(
+        active_reservations=active_reservations,
+        active_rentals=active_rentals,
+        free_cars=free_cars,
+        upcoming_returns=upcoming_returns,
+    )

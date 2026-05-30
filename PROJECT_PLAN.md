@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
-| **Następny krok** | Task 7.10 — testy integracyjne immutability PDF |
-| **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
+| **Aktualny etap** | Sprint 7 — documents (zamknięty) |
+| **Następny krok** | Sprint 8 — dashboard KPI + website |
+| **Postęp ogólny** | ~82% (Sprint 0–7 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -35,7 +35,7 @@
 | 4 | pricing (cennik + snapshoty) | ✅ | 100% |
 | 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
-| 7 | documents (PDF, faktury) | 🟡 | ~10% |
+| 7 | documents (PDF, faktury) | ✅ | 100% |
 | 8 | dashboard + website | ⬜ | 0% |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
@@ -504,7 +504,7 @@
 
 ---
 
-# Sprint 7 — documents (PDF, faktury, email) 🟡
+# Sprint 7 — documents (PDF, faktury, email) ✅
 
 **Cel:** artefakty **niemutowalne** — generowane ze snapshotów, nie z live DB. **Kluczowe dla paperless operations:** PDF + email po protokole wydania i zwrotu (patrz [Roadmap — operations (paperless)](#roadmap--operations-paperless)).
 
@@ -521,7 +521,7 @@
 | **7.7** | `EmailService` | Wysyłka z załącznikiem, `EmailLog`, szablony email (wydanie/zwrot) | ✅ |
 | **7.8** | Panel documents | Lista/pobranie PDF per wynajem; link z wynajmu i protokołu | ✅ |
 | **7.9** | `InvoiceService` MVP | Faktura z `PriceLine` (bez przeliczania cennika); PDF faktury | ✅ |
-| **7.10** | Testy integracyjne | PDF niezmienny po edycji `fleet.Damage`; email failure → `EmailLog` | ⬜ |
+| **7.10** | Testy integracyjne | PDF niezmienny po edycji `fleet.Damage`; email failure → `EmailLog` | ✅ |
 
 ### Modele (7.1)
 
@@ -539,7 +539,8 @@
 
 ### Testy (7.10)
 
-- [ ] PDF nie zmienia się po zmianie danych operacyjnych
+- [x] PDF nie zmienia się po zmianie danych operacyjnych (`fleet.Damage`, `PriceLine`)
+- [x] Email failure → `EmailLog` (FAILED), protokol i PDF bez rollbacku
 
 **Definition of Done:** PDF i faktura po zamknięciu wynajmu; dokumenty w private storage.
 

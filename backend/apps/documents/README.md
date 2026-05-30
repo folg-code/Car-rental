@@ -69,7 +69,13 @@
 - `InvoiceService.generate_pdf` / `create_issue_and_generate_pdf`
 - `DocumentService.generate_invoice_pdf` — PDF faktury w private storage (bez auto-email)
 
-## Serwisy (planowane — Task 7.10+)
+## Testy integracyjne (Task 7.10 — zaimplementowane)
+
+- `tests/test_integration.py` — pelny przeplyw handover/return → PDF → email
+- PDF v1 niemutowalny po edycji `fleet.Damage` (plik i hash)
+- Regeneracja PDF ze snapshotow — ten sam hash co oryginal
+- Awaria SMTP / brak email klienta → `EmailLog` FAILED, wynajem i dokument zachowane
+- Faktura PDF niemutowalna po edycji `PriceLine`
 - Wszystkie metody generujące przyjmują **komplet danych** w argumencie — brak cichego odczytu live DB dla pól historycznych
 
 ---

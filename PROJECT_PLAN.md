@@ -13,11 +13,11 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 7 — documents (zamknięty) |
-| **Następny krok** | Sprint 8 — dashboard KPI + website |
+| **Aktualny etap** | Sprint 8 — dashboard + website |
+| **Następny krok** | Task 8.1 — selektory KPI w `dashboard` |
 | **Postęp ogólny** | ~82% (Sprint 0–7 zamknięte) |
-| **Ostatnia aktualizacja** | 2026-05-20 |
-| **Branch** | `feature/customer` (lub merge do `main`) |
+| **Ostatnia aktualizacja** | 2026-05-30 |
+| **Branch** | `feature/documents` (merge do `main` przed Sprint 8) |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
 
 ### Legenda postępu sprintu
@@ -36,7 +36,7 @@
 | 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
 | 7 | documents (PDF, faktury) | ✅ | 100% |
-| 8 | dashboard + website | ⬜ | 0% |
+| 8 | dashboard + website | 🟡 | ~10% |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Produkcja i integracje | ⬜ | backlog |
@@ -53,8 +53,9 @@
 6. ~~**Sprint 4 — pricing**~~ ✅ — cennik, snapshoty, tryb ceny na rezerwacji, kaucja na kategorii
 7. ~~**Sprint 5 — rental + payments**~~ ✅ — wynajem operacyjny, rejestracja platnosci (reczna)
 8. ~~**Sprint 6 — operations**~~ ✅ — protokoly wydania/zwrotu, snapshoty szkod
-9. **Sprint 7–8** — documents, website
-10. **Sprint 8b — Chat AI** — po podstawowym `website` (lub MVP FAQ wcześniej) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+9. ~~**Sprint 7 — documents**~~ ✅
+10. **Sprint 8** — dashboard KPI + website (taski 8.1–8.14)
+11. **Sprint 8b — Chat AI** — po podstawowym `website` (Task 8.8+) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ---
 
@@ -131,6 +132,8 @@
 - [x] Sprint 6 — **zamkniety** (Definition of Done spelnione)
 - [x] Sprint 7 / Task 7.1: modele `documents` + `documents.0001_initial` + admin + 6 testow
 - [x] Sprint 7 / Task 7.3: `PdfRenderer` (WeasyPrint), szablony PDF, seed szablonow `0004`, 3 testy renderera
+- [x] Sprint 7: `DocumentService`, `EmailService`, `InvoiceService`, panel `/panel/dokumenty/`, testy integracyjne (7.1–7.10)
+- [x] Sprint 7 — **zamknięty** (Definition of Done spelnione)
 
 ---
 
@@ -156,6 +159,9 @@
 | 2026-05-20 | 5 | Domkniecie Sprint 5 — migracje `bookings.0005`, `payments.0001` |
 | 2026-05-20 | 6 | Operations: protokoly, snapshoty szkod, panel mobilny, integracja z wynajmem |
 | 2026-05-20 | 6 | Domkniecie Sprint 6 — migracja `operations.0001`, fix routingu vs dashboard |
+| 2026-05-30 | 7 | Documents: PDF protokolow, email, faktury, panel dokumentow, testy integracyjne |
+| 2026-05-30 | 7 | Domkniecie Sprint 7 — `feature/documents` gotowy do merge |
+| 2026-05-30 | 8 | Plan Sprint 8: taski 8.1–8.14 (dashboard KPI + website publiczna) |
 | | | |
 
 ---
@@ -530,12 +536,13 @@
 
 ### Funkcje (7.3–7.9)
 
-- [ ] PDF protokołu wydania (dane z `HandoverProtocol` + `DamageSnapshot` + zdjęcia)
-- [ ] PDF protokołu zwrotu (dane z `ReturnProtocol` + porównanie snapshotów)
-- [ ] Prywatne storage mediów
+- [x] PDF protokołu wydania (dane z `HandoverProtocol` + `DamageSnapshot` + zdjęcia)
+- [x] PDF protokołu zwrotu (dane z `ReturnProtocol` + porównanie snapshotów)
+- [x] Prywatne storage mediów
 - [x] Email MVP po zakończeniu wydania (PDF w załączniku)
 - [x] Email MVP po zakończeniu zwrotu
 - [x] Log wysyłek (`EmailLog`)
+- [x] `InvoiceService` MVP + PDF faktury
 
 ### Testy (7.10)
 
@@ -546,26 +553,57 @@
 
 ---
 
-# Sprint 8 — dashboard + website ⬜
+# Sprint 8 — dashboard + website 🟡
 
-**Cel:** widoczność operacji + kanał rezerwacji dla klienta.
+**Cel:** widoczność operacji dla właściciela + kanał rezerwacji dla klienta.
 
-### dashboard
+> **Stan wyjściowy:** podstawowe metryki bookings na pulpicie (Sprint 3) — `get_bookings_dashboard_metrics()` w `bookings/selectors/dashboard.py`. Sprint 8 przenosi agregację do `dashboard`, rozszerza KPI i buduje `website`.
 
-- [ ] Aktywne wynajmy
-- [ ] Wolne auta (z `AvailabilityService`)
-- [ ] Nadchodzące zwroty
-- [ ] Nieopłacone wynajmy
-- [ ] Alerty: wygasające ubezpieczenie, przeglądy (jeśli dane w `fleet`)
+### Taski (kolejność implementacji)
 
-### website
+| ID | Task | Opis | Status |
+|----|------|------|--------|
+| **8.1** | Selektory KPI | `dashboard/selectors/metrics.py` — centralizacja metryk; migracja z `bookings.selectors.dashboard` | ⬜ |
+| **8.2** | Wolne auta (`AvailabilityService`) | KPI „wolne auta” przez `fleet.AvailabilityService` (as_of=now), nie heurystyka busy | ⬜ |
+| **8.3** | Nieopłacone wynajmy | Selektor wynajmów z saldem do zapłaty (`payments` summary) | ⬜ |
+| **8.4** | Przychód okresu | KPI przychodu miesiąca — tylko `REVENUE_PAYMENT_TYPES` (kaucja ≠ przychód) | ⬜ |
+| **8.5** | Alerty fleet | Wygasające OC/przeglądy z `CarDocument` (np. 30 dni) | ⬜ |
+| **8.6** | UI pulpitu | Rozszerzenie `panel.html` — widgety KPI, alerty, skróty do kolejek operacji/płatności | ⬜ |
+| **8.7** | Testy dashboard | pytest selektorów KPI + widoku panelu | ⬜ |
+| **8.8** | Infrastruktura website | `website/urls.py`, `base_public.html`, landing `/` (zastąpienie placeholder `config.views.home`) | ⬜ |
+| **8.9** | Katalog floty publiczny | `/flota/` — lista kategorii i aut (selektory `fleet`, bez logiki w szablonie) | ⬜ |
+| **8.10** | Wyszukiwarka dostępności | Formularz dat → `AvailabilityService` → lista wolnych aut | ⬜ |
+| **8.11** | Orientacyjna wycena | Kalkulator ceny read-only (`PricingService`) — bez zapisu rezerwacji | ⬜ |
+| **8.12** | Rezerwacja online | `PublicBookingOrchestrator` + formularz → `ReservationService` + snapshot ceny | ⬜ |
+| **8.13** | Strony informacyjne | Regulamin, kontakt, FAQ (szablony `website`) | ⬜ |
+| **8.14** | Testy website | pytest widoków publicznych + orchestratora rezerwacji | ⬜ |
 
+### Dashboard (8.1–8.7)
+
+- [x] Podstawowe widgety (Sprint 3): aktywne rezerwacje/wynajmy, wolne auta (heurystyka), zwroty w 7 dni
+- [ ] `DashboardMetricsService` — zbiorcze KPI (dzisiaj / tydzień / miesiąc)
+- [ ] Wolne auta z `AvailabilityService`
+- [ ] Nieopłacone wynajmy (saldo z `payments`)
+- [ ] Przychód miesiąca (bez kaucji)
+- [ ] Alerty: wygasające ubezpieczenie, przeglądy (`CarDocument`)
+- [ ] Skróty: kolejka operacji (`/panel/operacje/`), ostatnie płatności
+
+### Website (8.8–8.14)
+
+- [ ] Layout publiczny oddzielony od `/panel/`
 - [ ] Publiczna lista floty
 - [ ] Wyszukiwanie dostępności (daty)
-- [ ] Formularz rezerwacji online
-- [ ] (Opcjonalnie) portal klienta — historia, pobranie dokumentów
+- [ ] Orientacyjna wycena (read-only)
+- [ ] Formularz rezerwacji online (zapis przez serwisy domenowe)
+- [ ] Strony statyczne (regulamin, kontakt)
 
-**Definition of Done:** właściciel widzi stan firmy; klient może złożyć rezerwację online.
+### Opcjonalnie (backlog w Sprint 8 / 8b)
+
+- [ ] Portal klienta — historia rezerwacji, pobranie dokumentów (wymaga auth `customer`)
+- [ ] HTMX partial refresh widgetów pulpitu
+- [ ] Inicjacja płatności online na stronie (wymaga bramki — Sprint 9+)
+
+**Definition of Done:** właściciel widzi pełny stan firmy na pulpicie (KPI + alerty); klient może wyszukać auto, zobaczyć orientacyjną cenę i złożyć rezerwację online.
 
 ---
 
@@ -711,9 +749,9 @@ Sprint 9+ (produkcja)
 | `apps/pricing` — cennik, panel, `PricingService` | ✅ | ✅ |
 | `apps/payments` — Payment, panel, kaucja ≠ przychod | ✅ | ✅ |
 | `apps/operations` — protokoly, panel mobilny | ✅ | ✅ |
-| `apps/documents` | ❌ | — |
-| `apps/dashboard` — pełny szkielet | ✅ | ✅ |
-| `apps/website` | ✅ | ✅ |
+| `apps/documents` | ✅ | ✅ |
+| `apps/dashboard` | ✅ | 🟡 (podstawowe KPI — pełny Sprint 8) |
+| `apps/website` | 🟡 | ⬜ (szkielet app — brak widoków) |
 | Chat AI konsultant | ❌ | — (plan: Sprint 8b) |
 | `docs/AI_CONSULTANT.md` | ✅ | — |
 

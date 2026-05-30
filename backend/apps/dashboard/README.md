@@ -4,6 +4,8 @@
 
 **Panel operacyjny wewnętrzny** — agregacja metryk, alerty, skróty do workflow. Czyta dane z innych aplikacji przez selektory; **nie jest właścicielem** danych domenowych.
 
+Plan sprintu: [`../../../PROJECT_PLAN.md`](../../../PROJECT_PLAN.md) — Sprint 8, taski **8.1–8.7**.
+
 ---
 
 ## Co robi (IN scope)
@@ -15,6 +17,26 @@
 - Selektory **agregujące** — tylko read, bez mutacji encji bookings/fleet
 - HTMX: fragmenty tabel, odświeżanie widgetów
 - Ochrona dostępu: role z `accounts` (manager, owner, employee)
+
+---
+
+## Sprint 8 — taski implementacji
+
+| ID | Task | Pliki (plan) | Status |
+|----|------|--------------|--------|
+| **8.1** | Selektory KPI | `selectors/metrics.py` — migracja z `bookings.selectors.dashboard` | ⬜ |
+| **8.2** | Wolne auta | `AvailabilityService.is_car_available` / agregacja floty | ⬜ |
+| **8.3** | Nieopłacone wynajmy | selektor cross-app z `payments.get_rental_payment_summary` | ⬜ |
+| **8.4** | Przychód okresu | agregacja `Payment` (`REVENUE_PAYMENT_TYPES` only) | ⬜ |
+| **8.5** | Alerty fleet | `CarDocument.valid_until` wygasające w N dni | ⬜ |
+| **8.6** | UI pulpitu | `templates/dashboard/panel.html` — widgety + alerty + skróty | ⬜ |
+| **8.7** | Testy | `tests/test_metrics.py`, rozszerzenie `test_panel.py` | ⬜ |
+
+### Stan wyjściowy (Sprint 3)
+
+- `bookings/selectors/dashboard.py` — `get_bookings_dashboard_metrics()` (4 widgety)
+- `dashboard/views.py` — `panel_home` renderuje podstawowe metryki
+- Task **8.1** przenosi logikę do `dashboard` i rozszerza KPI
 
 ---
 
@@ -43,7 +65,7 @@ Brak duplikacji `Car`, `Reservation`, `Payment`.
 
 ---
 
-## Serwisy (planowane)
+## Serwisy (planowane — Sprint 8)
 
 - `DashboardMetricsService` — zbiorcze KPI na dziś / tydzień / miesiąc
 - `AlertService` — lista alertów do wyświetlenia (czyta selektory cross-app)

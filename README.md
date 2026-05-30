@@ -528,10 +528,17 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 4 | Pricing (cenniki, reguły, snapshoty) | ✅ |
 | 5 | Rental + Payments MVP | ✅ |
 | 6 | Operations (wydanie/zwrot, snapshoty, podpisy) | ✅ |
-| 7 | Documents (PDF, email, private storage) | ✅ |
-| 8 | Dashboard KPI + Website publiczna | Planned |
+| 7 | Documents (PDF, email, faktury, private storage) | ✅ |
+| 8 | Dashboard KPI + Website publiczna | 🟡 |
 | 8b | AI Chatbot — konsultant klienta | Planned |
 | 9+ | Produkcja: Celery/Redis, bramka płatności, HTTPS | Backlog |
+
+### Sprint 8 — taski (szczegóły w [`PROJECT_PLAN.md`](PROJECT_PLAN.md))
+
+| ID | Moduł | Task |
+|----|-------|------|
+| 8.1–8.7 | dashboard | KPI, alerty fleet, nieopłacone wynajmy, przychód, UI pulpitu, testy |
+| 8.8–8.14 | website | layout publiczny, katalog floty, wyszukiwarka, wycena, rezerwacja online, testy |
 
 Szczegóły: [`PROJECT_PLAN.md`](PROJECT_PLAN.md)
 

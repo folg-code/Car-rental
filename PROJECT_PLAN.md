@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
-| **Następny krok** | Task 7.9 — `InvoiceService` MVP |
+| **Następny krok** | Task 7.10 — testy integracyjne immutability PDF |
 | **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
@@ -520,7 +520,7 @@
 | **7.6** | Hook operations | Po `complete_handover` / `complete_return` — wywołanie generacji PDF | ✅ |
 | **7.7** | `EmailService` | Wysyłka z załącznikiem, `EmailLog`, szablony email (wydanie/zwrot) | ✅ |
 | **7.8** | Panel documents | Lista/pobranie PDF per wynajem; link z wynajmu i protokołu | ✅ |
-| **7.9** | `InvoiceService` MVP | Faktura z `PriceLine` (bez przeliczania cennika); PDF faktury | ⬜ |
+| **7.9** | `InvoiceService` MVP | Faktura z `PriceLine` (bez przeliczania cennika); PDF faktury | ✅ |
 | **7.10** | Testy integracyjne | PDF niezmienny po edycji `fleet.Damage`; email failure → `EmailLog` | ⬜ |
 
 ### Modele (7.1)

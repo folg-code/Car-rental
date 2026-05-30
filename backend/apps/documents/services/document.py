@@ -9,6 +9,10 @@ from django.db import transaction
 from apps.documents.constants import DEFAULT_TEMPLATE_PATHS
 from apps.documents.dto.protocol import HandoverDocumentData, ReturnDocumentData
 from apps.documents.models import Document, DocumentTemplate, DocumentType
+from apps.documents.selectors.invoice_data import (
+    build_invoice_document_data,
+    get_invoice_by_id,
+)
 from apps.documents.selectors.protocol_data import (
     build_handover_document_data,
     build_return_document_data,
@@ -46,12 +50,15 @@ class DocumentService:
         *,
         handover_protocol_id: int | None = None,
         return_protocol_id: int | None = None,
+        invoice_id: int | None = None,
     ) -> int:
         qs = Document.objects.filter(document_type=document_type)
         if handover_protocol_id is not None:
             qs = qs.filter(handover_protocol_id=handover_protocol_id)
         if return_protocol_id is not None:
             qs = qs.filter(return_protocol_id=return_protocol_id)
+        if invoice_id is not None:
+            qs = qs.filter(invoice_id=invoice_id)
         return qs.count() + 1
 
     @staticmethod
@@ -68,6 +75,8 @@ class DocumentService:
         generated_by_id: int | None,
         handover_protocol_id: int | None = None,
         return_protocol_id: int | None = None,
+        invoice_id: int | None = None,
+        send_email: bool = True,
     ) -> Document:
         file_hash = DocumentService._sha256_hex(pdf_bytes)
         document = Document(
@@ -77,6 +86,7 @@ class DocumentService:
             customer_id=customer_id,
             handover_protocol_id=handover_protocol_id,
             return_protocol_id=return_protocol_id,
+            invoice_id=invoice_id,
             file_hash=file_hash,
             file_size_bytes=len(pdf_bytes),
             version=version,
@@ -86,10 +96,11 @@ class DocumentService:
         filename = f"{filename_stem}_v{version}.pdf"
         document.file.save(filename, ContentFile(pdf_bytes), save=False)
         document.save()
-        EmailService.send_document_email(
-            document.pk,
-            sent_by_id=generated_by_id,
-        )
+        if send_email:
+            EmailService.send_document_email(
+                document.pk,
+                sent_by_id=generated_by_id,
+            )
         return document
 
     @staticmethod
@@ -234,4 +245,41 @@ class DocumentService:
         return DocumentService.generate_return_pdf(
             return_protocol_id,
             generated_by_id=generated_by_id,
+        )
+
+    @staticmethod
+    @transaction.atomic
+    def generate_invoice_pdf(
+        invoice_id: int,
+        *,
+        generated_by_id: int | None = None,
+    ) -> Document:
+        invoice = get_invoice_by_id(invoice_id)
+        if invoice is None:
+            raise ValidationError(f"Faktura {invoice_id} nie istnieje.")
+
+        data = build_invoice_document_data(invoice)
+        template_path, template = DocumentService._resolve_template(
+            DocumentType.INVOICE_PDF
+        )
+        pdf_bytes = PdfRenderer.render_template(
+            template_path,
+            data.as_template_context(),
+        )
+        version = DocumentService._next_version(
+            DocumentType.INVOICE_PDF,
+            invoice_id=invoice.pk,
+        )
+        return DocumentService._store_pdf(
+            pdf_bytes=pdf_bytes,
+            document_type=DocumentType.INVOICE_PDF,
+            template=template,
+            rental_id=invoice.rental_id,
+            customer_id=invoice.customer_id,
+            title=f"Faktura {invoice.invoice_number}",
+            version=version,
+            filename_stem=f"faktura_{invoice.invoice_number.replace('/', '_')}",
+            generated_by_id=generated_by_id,
+            invoice_id=invoice.pk,
+            send_email=False,
         )

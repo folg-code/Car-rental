@@ -62,7 +62,14 @@
 - `/panel/dokumenty/<uuid>/pobierz/` — autoryzowany download PDF (`FileResponse`, brak publicznego URL)
 - Linki z widoku wynajmu oraz protokołów wydania/zwrotu
 
-## Serwisy (planowane — Task 7.9+)
+## Serwisy (zaimplementowane — Task 7.9)
+
+- `InvoiceService.create_from_rental` — pozycje z `PriceLine` (bez przeliczania cennika)
+- `InvoiceService.issue` — szkic → wystawiona
+- `InvoiceService.generate_pdf` / `create_issue_and_generate_pdf`
+- `DocumentService.generate_invoice_pdf` — PDF faktury w private storage (bez auto-email)
+
+## Serwisy (planowane — Task 7.10+)
 - Wszystkie metody generujące przyjmują **komplet danych** w argumencie — brak cichego odczytu live DB dla pól historycznych
 
 ---

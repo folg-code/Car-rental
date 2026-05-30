@@ -48,8 +48,8 @@ Pełna roadmapa kroków: [`PROJECT_PLAN.md`](../../../PROJECT_PLAN.md#roadmap--o
 
 ## Serwisy (zaimplementowane)
 
-- `HandoverService.complete_handover` — km, paliwo, zdjecia, podpis, snapshot szkod, `RentalService.start`
-- `ReturnService.complete_return` — porownanie paliwa/km, snapshot, `RentalService.mark_returned`
+- `HandoverService.complete_handover` — km, paliwo, zdjecia, podpis, snapshot szkod, `RentalService.start`, **auto PDF** (`DocumentService`)
+- `ReturnService.complete_return` — porownanie paliwa/km, snapshot, `RentalService.mark_returned`, **auto PDF** (`DocumentService`)
 - `DamageSnapshotService` — freeze aktywnych szkod, snapshot nowych zgloszen
 - Panel: `/panel/operacje/` — kolejka wydan i zwrotow
 
@@ -64,7 +64,8 @@ Pełna roadmapa kroków: [`PROJECT_PLAN.md`](../../../PROJECT_PLAN.md#roadmap--o
 | Kolejka + formularze mobilne, km/paliwo/uwagi, zdjęcia, szkody, podpis | ✅ MVP (Sprint 6) |
 | `Rental` → active po wydaniu | ✅ |
 | `Rental` → returned po zwrocie | ✅ |
-| PDF + email | ⬜ Sprint 7 (`documents`) |
+| PDF po protokole | ✅ auto (`DocumentService` w `complete_handover` / `complete_return`) |
+| Email do klienta | ✅ auto po PDF (`EmailService`) |
 | HTMX krok po kroku | ⬜ backlog |
 | Wyliczenie dopłat → `payments` | ⬜ backlog |
 | UI porównania szkód wydanie/zwrot | ⬜ backlog |

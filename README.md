@@ -528,7 +528,7 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 4 | Pricing (cenniki, reguły, snapshoty) | ✅ |
 | 5 | Rental + Payments MVP | ✅ |
 | 6 | Operations (wydanie/zwrot, snapshoty, podpisy) | ✅ |
-| 7 | Documents (PDF, email, private storage) | 🟡 |
+| 7 | Documents (PDF, email, private storage) | ✅ |
 | 8 | Dashboard KPI + Website publiczna | Planned |
 | 8b | AI Chatbot — konsultant klienta | Planned |
 | 9+ | Produkcja: Celery/Redis, bramka płatności, HTTPS | Backlog |

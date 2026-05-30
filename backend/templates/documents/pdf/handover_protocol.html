@@ -1,0 +1,50 @@
+{% extends "documents/pdf/base_pdf.html" %}
+
+{% block title %}Protokol wydania pojazdu{% endblock %}
+
+{% block content %}
+<h1>Protokol wydania pojazdu</h1>
+<p class="meta">
+    Wynajem #{{ rental_id }} · {{ completed_at|date:"Y-m-d H:i" }}
+</p>
+
+<h2>Dane wynajmu</h2>
+<table>
+    <tr><th>Klient</th><td>{{ customer_name }}</td></tr>
+    <tr><th>Pojazd</th><td>{{ car_label }}</td></tr>
+    <tr><th>Nr rejestracyjny</th><td>{{ registration_number }}</td></tr>
+</table>
+
+<h2>Stan pojazdu przy wydaniu</h2>
+<table>
+    <tr><th>Przebieg</th><td>{{ mileage }} km</td></tr>
+    <tr><th>Poziom paliwa</th><td>{{ fuel_level_percent }}%</td></tr>
+    {% if notes %}
+    <tr><th>Uwagi</th><td>{{ notes }}</td></tr>
+    {% endif %}
+</table>
+
+<h2>Uszkodzenia (snapshot)</h2>
+<ul class="damages">
+    {% for damage in damages %}
+    <li class="{% if damage.is_new %}new{% endif %}">
+        {% if damage.is_new %}[NOWE] {% endif %}
+        {% if damage.location %}{{ damage.location }}: {% endif %}
+        {{ damage.description }}
+        ({{ damage.severity }})
+    </li>
+    {% empty %}
+    <li>Brak zarejestrowanych uszkodzen.</li>
+    {% endfor %}
+</ul>
+
+{% if signature_name %}
+<h2>Podpis klienta</h2>
+<div class="signature">
+    <p>{{ signature_name }}</p>
+    {% if signature_uri %}
+    <img src="{{ signature_uri }}" alt="Podpis klienta" />
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from apps.bookings.models import Rental, RentalStatus
 from apps.bookings.services.rental import RentalService
+from apps.documents.services.document import DocumentService
 from apps.fleet.models import Car
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import HandoverProtocol, ProtocolPhoto, Signature
@@ -110,4 +111,9 @@ class HandoverService:
         car.save(update_fields=["mileage"])
 
         RentalService.start(rental, at=handover.completed_at)
+
+        DocumentService.generate_handover_pdf(
+            handover.pk,
+            generated_by_id=performed_by_id,
+        )
         return handover

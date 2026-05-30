@@ -5,6 +5,10 @@ from django.shortcuts import redirect, render
 
 from apps.accounts.permissions import staff_required
 from apps.bookings.selectors.rental import get_rental_by_id
+from apps.documents.selectors.document import (
+    get_handover_protocol_document,
+    get_return_protocol_document,
+)
 from apps.operations.forms import HandoverProtocolForm, ReturnProtocolForm
 from apps.operations.selectors.protocol import (
     get_handover_for_rental,
@@ -125,7 +129,11 @@ def handover_detail(request: HttpRequest, rental_id: int) -> HttpResponse:
     return render(
         request,
         "operations/handover_detail.html",
-        {"rental": rental, "handover": handover},
+        {
+            "rental": rental,
+            "handover": handover,
+            "document": get_handover_protocol_document(handover.pk),
+        },
     )
 
 
@@ -203,5 +211,6 @@ def return_detail(request: HttpRequest, rental_id: int) -> HttpResponse:
             "rental": rental,
             "return_protocol": return_protocol,
             "handover": return_protocol.handover,
+            "document": get_return_protocol_document(return_protocol.pk),
         },
     )

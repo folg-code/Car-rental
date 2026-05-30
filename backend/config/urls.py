@@ -32,6 +32,7 @@ urlpatterns = [
     path("panel/cenniki/", include("apps.pricing.urls")),
     path("panel/platnosci/", include("apps.payments.urls")),
     path("panel/operacje/", include("apps.operations.urls")),
+    path("panel/dokumenty/", include("apps.documents.urls")),
 ]
 
 if settings.DEBUG:

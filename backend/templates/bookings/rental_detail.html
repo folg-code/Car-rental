@@ -113,6 +113,37 @@
         <p class="text-xs text-gray-500">Kaucja nie wlicza sie do przychodu.</p>
     </div>
 
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <div class="flex justify-between items-start mb-4">
+            <h2 class="font-medium">Dokumenty PDF</h2>
+            <a href="{% url 'documents:rental' rental.pk %}" class="text-sm text-blue-600 hover:underline">
+                Wszystkie dokumenty →
+            </a>
+        </div>
+        {% if documents %}
+        <ul class="text-sm space-y-2">
+            {% for document in documents %}
+            <li class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2 last:border-0">
+                <span>
+                    {{ document.get_document_type_display }}
+                    <span class="text-gray-500">· v{{ document.version }} · {{ document.generated_at|date:"Y-m-d H:i" }}</span>
+                </span>
+                <a
+                    href="{% url 'documents:download' document.uuid %}"
+                    class="text-blue-600 hover:underline font-medium"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    Pobierz PDF
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-sm text-gray-500">Brak wygenerowanych dokumentow dla tego wynajmu.</p>
+        {% endif %}
+    </div>
+
     {% if rental.cancellation_reason %}
     <div class="bg-white rounded-lg shadow p-6 lg:col-span-2 border-l-4 border-red-300">
         <h2 class="font-medium mb-2 text-red-800">Anulowanie</h2>

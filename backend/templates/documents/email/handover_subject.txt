@@ -1,0 +1,1 @@
+Protokol wydania pojazdu — wynajem #{{ rental_id }}

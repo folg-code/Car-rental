@@ -2,6 +2,8 @@
 
 Repozytorium: [folg-code/Car-rental](https://github.com/folg-code/Car-rental)
 
+> Stack Docker (dev/prod, plan Celery + Redis): [`DOCKER.md`](./DOCKER.md)
+
 ## Przegląd
 
 | Workflow | Kiedy | Co robi |

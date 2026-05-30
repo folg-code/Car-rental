@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 7 — documents (PDF, faktury, email) |
-| **Następny krok** | `Document`, PDF protokołów ze snapshotów, `EmailLog` |
-| **Postęp ogólny** | ~78% (Sprint 0–6 zamkniete) |
+| **Aktualny etap** | Sprint 7 — documents (zamknięty) |
+| **Następny krok** | Sprint 8 — dashboard KPI + website |
+| **Postęp ogólny** | ~82% (Sprint 0–7 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-05-20 |
 | **Branch** | `feature/customer` (lub merge do `main`) |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -35,7 +35,7 @@
 | 4 | pricing (cennik + snapshoty) | ✅ | 100% |
 | 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
-| 7 | documents (PDF, faktury) | ⬜ | 0% |
+| 7 | documents (PDF, faktury) | ✅ | 100% |
 | 8 | dashboard + website | ⬜ | 0% |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
@@ -129,6 +129,8 @@
 - [x] Sprint 6: usunieto placeholdery `dashboard` dla `/panel/operacje/` i `/panel/platnosci/` (konflikt URL)
 - [x] Sprint 6: testy operations (7: serwis + widoki + snapshot)
 - [x] Sprint 6 — **zamkniety** (Definition of Done spelnione)
+- [x] Sprint 7 / Task 7.1: modele `documents` + `documents.0001_initial` + admin + 6 testow
+- [x] Sprint 7 / Task 7.3: `PdfRenderer` (WeasyPrint), szablony PDF, seed szablonow `0004`, 3 testy renderera
 
 ---
 
@@ -468,8 +470,8 @@
 | 4 | Dodanie zdjęć auta (`capture="environment"`) | [x] |
 | 5 | Oznaczenie szkód (snapshot istniejących + nowe z protokołu) | [x] |
 | 6 | Podpis klienta palcem (canvas / upload obrazu podpisu) | [x] |
-| 7 | Wygenerowanie PDF protokołu wydania | [ ] → Sprint 7 (`documents`) |
-| 8 | Automatyczne wysłanie emaila do klienta z PDF | [ ] → Sprint 7 (`documents`) |
+| 7 | Wygenerowanie PDF protokołu wydania | [x] |
+| 8 | Automatyczne wysłanie emaila do klienta z PDF | [x] |
 | 9 | Automatyczna zmiana statusu `Rental` → **active** | [x] (`HandoverService` → `RentalService.start`) |
 
 **Backlog UX wydania:** formularz krok po kroku (HTMX), walidacja na każdym kroku, offline-tolerant upload zdjęć (opcjonalnie, później).
@@ -484,8 +486,8 @@
 | 4 | Dodanie nowych szkód | [x] |
 | 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [ ] → `pricing` + `payments` (obecnie: notatki `surcharge_notes`) |
 | 6 | Podpis klienta | [x] |
-| 7 | Generacja PDF protokołu zwrotu | [ ] → Sprint 7 (`documents`) |
-| 8 | Email do klienta z PDF | [ ] → Sprint 7 (`documents`) |
+| 7 | Generacja PDF protokołu zwrotu | [x] |
+| 8 | Email do klienta z PDF | [x] |
 | 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] częściowo (`mark_returned`); pełne `close` po płatnościach — [ ] |
 
 **Backlog UX zwrotu:** ekran porównania szkód wydanie/zwrot, podgląd dopłat przed podpisem, HTMX kroki.
@@ -502,27 +504,43 @@
 
 ---
 
-# Sprint 7 — documents (PDF, faktury, email) ⬜
+# Sprint 7 — documents (PDF, faktury, email) ✅
 
 **Cel:** artefakty **niemutowalne** — generowane ze snapshotów, nie z live DB. **Kluczowe dla paperless operations:** PDF + email po protokole wydania i zwrotu (patrz [Roadmap — operations (paperless)](#roadmap--operations-paperless)).
 
-### Modele
+### Taski (kolejność implementacji)
 
-- [ ] `Document`, `DocumentTemplate`, `EmailLog`
-- [ ] `Invoice`, `InvoiceItem` (oddzielone od `Payment`)
+| ID | Task | Opis | Status |
+|----|------|------|--------|
+| **7.1** | Modele domeny | `Document`, `DocumentTemplate`, `EmailLog`, `Invoice`, `InvoiceItem`; migracja; admin; testy modeli | ✅ |
+| **7.2** | Private storage | `PrivateDocumentStorage`, `upload_to` pod `documents/private/`; ustawienia | ✅ |
+| **7.3** | PDF renderer | Szablony HTML + `PdfRenderer` (WeasyPrint); zależność w `pyproject.toml` | ✅ |
+| **7.4** | DTO snapshotów | `HandoverDocumentData` / `ReturnDocumentData` — pakiet danych z protokołu (bez live `Damage`) | ✅ |
+| **7.5** | `DocumentService` | `generate_handover_pdf`, `generate_return_pdf` → nowy `Document` + hash pliku | ✅ |
+| **7.6** | Hook operations | Po `complete_handover` / `complete_return` — wywołanie generacji PDF | ✅ |
+| **7.7** | `EmailService` | Wysyłka z załącznikiem, `EmailLog`, szablony email (wydanie/zwrot) | ✅ |
+| **7.8** | Panel documents | Lista/pobranie PDF per wynajem; link z wynajmu i protokołu | ✅ |
+| **7.9** | `InvoiceService` MVP | Faktura z `PriceLine` (bez przeliczania cennika); PDF faktury | ✅ |
+| **7.10** | Testy integracyjne | PDF niezmienny po edycji `fleet.Damage`; email failure → `EmailLog` | ✅ |
 
-### Funkcje
+### Modele (7.1)
+
+- [x] `Document`, `DocumentTemplate`, `EmailLog`
+- [x] `Invoice`, `InvoiceItem` (oddzielone od `Payment`)
+
+### Funkcje (7.3–7.9)
 
 - [ ] PDF protokołu wydania (dane z `HandoverProtocol` + `DamageSnapshot` + zdjęcia)
 - [ ] PDF protokołu zwrotu (dane z `ReturnProtocol` + porównanie snapshotów)
 - [ ] Prywatne storage mediów
-- [ ] Email MVP po zakończeniu wydania (PDF w załączniku / link)
-- [ ] Email MVP po zakończeniu zwrotu
-- [ ] Log wysyłek (`EmailLog`)
+- [x] Email MVP po zakończeniu wydania (PDF w załączniku)
+- [x] Email MVP po zakończeniu zwrotu
+- [x] Log wysyłek (`EmailLog`)
 
-### Testy
+### Testy (7.10)
 
-- [ ] PDF nie zmienia się po zmianie danych operacyjnych
+- [x] PDF nie zmienia się po zmianie danych operacyjnych (`fleet.Damage`, `PriceLine`)
+- [x] Email failure → `EmailLog` (FAILED), protokol i PDF bez rollbacku
 
 **Definition of Done:** PDF i faktura po zamknięciu wynajmu; dokumenty w private storage.
 
@@ -608,12 +626,24 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 - [ ] Deploy VPS: Docker Compose + Gunicorn + Caddy/Nginx
 - [ ] Backup PostgreSQL + media + offsite
 - [ ] Test odtworzenia z backupu
+- [ ] **Celery + Redis** — kolejka powiadomień (klient + pracownik); szczegóły: [`docs/DOCKER.md`](docs/DOCKER.md)
+
+### Powiadomienia asynchroniczne (Celery + Redis)
+
+> MVP (Sprint 7): email do klienta **synchronicznie** w `EmailService`. Docelowo: taski w tle.
+
+- [ ] Serwisy Docker: `redis`, `celery`, opcjonalnie `celery-beat`
+- [ ] Task: wysyłka emaila z PDF protokołu (`documents`)
+- [ ] Task: alerty dla pracowników — kolejka operacji, nadchodzące zwroty, nieopłacone wynajmy (`dashboard`)
+- [ ] Task: przypomnienia dla klienta — zbliżający się zwrot, potwierdzenie rezerwacji
+- [ ] Retry + monitoring (`EmailLog`, dead-letter / admin retry)
+- [ ] Testy: `CELERY_TASK_ALWAYS_EAGER` w pytest
 
 ### Rozszerzenia biznesowe
 
 - [ ] Zaawansowany dynamic pricing
 - [ ] Raporty finansowe (przychód vs kaucje vs faktury)
-- [ ] Powiadomienia SMS/push
+- [ ] Powiadomienia SMS/push (po Celery — adapter obok email)
 - [ ] Wielojęzyczność UI
 - [ ] Chat AI — eskalacja do człowieka, analityka konwersji (jeśli nie w Sprint 8b)
 

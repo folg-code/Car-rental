@@ -1,0 +1,78 @@
+{% extends "documents/pdf/base_pdf.html" %}
+
+{% block title %}Protokol zwrotu pojazdu{% endblock %}
+
+{% block content %}
+<h1>Protokol zwrotu pojazdu</h1>
+<p class="meta">
+    Wynajem #{{ rental_id }} · {{ completed_at|date:"Y-m-d H:i" }}
+</p>
+
+<h2>Dane wynajmu</h2>
+<table>
+    <tr><th>Klient</th><td>{{ customer_name }}</td></tr>
+    <tr><th>Pojazd</th><td>{{ car_label }}</td></tr>
+    <tr><th>Nr rejestracyjny</th><td>{{ registration_number }}</td></tr>
+</table>
+
+<h2>Porownanie stanu</h2>
+<table>
+    <tr>
+        <th></th>
+        <th>Wydanie</th>
+        <th>Zwrot</th>
+    </tr>
+    <tr>
+        <th>Przebieg</th>
+        <td>{{ handover_mileage }} km</td>
+        <td>{{ mileage }} km</td>
+    </tr>
+    <tr>
+        <th>Poziom paliwa</th>
+        <td>{{ handover_fuel_level_percent }}%</td>
+        <td>{{ fuel_level_percent }}%</td>
+    </tr>
+    {% if mileage_driven is not None %}
+    <tr>
+        <th>Przejechane</th>
+        <td colspan="2">{{ mileage_driven }} km</td>
+    </tr>
+    {% endif %}
+</table>
+
+{% if notes or surcharge_notes %}
+<h2>Uwagi</h2>
+<table>
+    {% if notes %}
+    <tr><th>Protokol zwrotu</th><td>{{ notes }}</td></tr>
+    {% endif %}
+    {% if surcharge_notes %}
+    <tr><th>Doplaty</th><td>{{ surcharge_notes }}</td></tr>
+    {% endif %}
+</table>
+{% endif %}
+
+<h2>Uszkodzenia przy zwrocie (snapshot)</h2>
+<ul class="damages">
+    {% for damage in damages %}
+    <li class="{% if damage.is_new %}new{% endif %}">
+        {% if damage.is_new %}[NOWE] {% endif %}
+        {% if damage.location %}{{ damage.location }}: {% endif %}
+        {{ damage.description }}
+        ({{ damage.severity }})
+    </li>
+    {% empty %}
+    <li>Brak zarejestrowanych uszkodzen.</li>
+    {% endfor %}
+</ul>
+
+{% if signature_name %}
+<h2>Podpis klienta</h2>
+<div class="signature">
+    <p>{{ signature_name }}</p>
+    {% if signature_uri %}
+    <img src="{{ signature_uri }}" alt="Podpis klienta" />
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

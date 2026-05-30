@@ -11,7 +11,7 @@
 - Modele: `Document`, `DocumentTemplate`, `EmailLog`, `Invoice`, `InvoiceItem`
 - `DocumentService` — generuj PDF protokołu / umowy z przekazanych DTO/snapshotów
 - `InvoiceService` — wystawienie faktury na podstawie `PriceLine` / ustalonych pozycji (nie przeliczanie cennika)
-- Prywatne `MEDIA` / storage, szyfrowane PDF (wg wymagań produkcyjnych)
+- Prywatne storage: `PrivateDocumentStorage` → `private_documents/` (poza publicznym `MEDIA_ROOT`); pobieranie przez autoryzowany widok panelu (`/panel/dokumenty/<uuid>/pobierz/`)
 - `EmailService` — wysyłka z załącznikiem, log w `EmailLog`
 - Selektory: dokumenty po wynajmie/kliencie, status wysyłki
 - Szablony HTML → PDF (WeasyPrint / wkhtml / wybrana technologia — decyzja implementacyjna)
@@ -34,17 +34,48 @@
 
 ---
 
-## Modele (planowane)
+## Modele (zaimplementowane — Sprint 7 / Task 7.1)
 
-`Document` — metadane pliku, hash, powiązanie z `Rental`; treść binarna w storage, nie w polach tekstowych modelu operacyjnego.
+- `DocumentTemplate` — szablon HTML → PDF (slug, `template_path`)
+- `Document` — plik PDF, hash, powiazania (`Rental`, protokoly, `Invoice`); **niemutowalny** po utworzeniu
+- `EmailLog` — log wysylek (pending / sent / failed)
+- `Invoice`, `InvoiceItem` — faktura oddzielona od `Payment`; pozycje z `PriceLine` (opcjonalnie)
 
----
+## Serwisy (zaimplementowane)
 
-## Serwisy (planowane)
+- `DocumentService.generate_handover_pdf` / `generate_return_pdf` — PDF → `Document` (private storage, SHA-256, wersjonowanie)
+- `PdfRenderer` — HTML (Django templates) → PDF przez WeasyPrint
+- `HandoverDocumentData` / `ReturnDocumentData` — zamrozone DTO ze snapshotow protokolu (`selectors/protocol_data.py`)
+- Szablony: `documents/pdf/handover_protocol.html`, `return_protocol.html`, `invoice.html`
+- `constants.py` — domyslne sciezki szablonow; seed w migracji `0004_seed_document_templates`
 
-- `DocumentService.generate_handover_pdf(snapshot_data)`
-- `InvoiceService.create_from_price_lines(...)`
-- `EmailService.send_document(...)`
+## Serwisy (zaimplementowane — Task 7.7)
+
+- `EmailService.send_document_email` — PDF w zalaczniku, `EmailLog` (sent/failed), `retry_email`
+- Szablony: `documents/email/handover_*`, `return_*`
+- **Docelowo (Sprint 9+):** wysyłka przez Celery task — [`docs/DOCKER.md`](../../../docs/DOCKER.md)
+
+## Panel (Task 7.8 — zaimplementowane)
+
+- `/panel/dokumenty/` — lista wszystkich dokumentów
+- `/panel/dokumenty/wynajem/<id>/` — dokumenty per wynajem
+- `/panel/dokumenty/<uuid>/pobierz/` — autoryzowany download PDF (`FileResponse`, brak publicznego URL)
+- Linki z widoku wynajmu oraz protokołów wydania/zwrotu
+
+## Serwisy (zaimplementowane — Task 7.9)
+
+- `InvoiceService.create_from_rental` — pozycje z `PriceLine` (bez przeliczania cennika)
+- `InvoiceService.issue` — szkic → wystawiona
+- `InvoiceService.generate_pdf` / `create_issue_and_generate_pdf`
+- `DocumentService.generate_invoice_pdf` — PDF faktury w private storage (bez auto-email)
+
+## Testy integracyjne (Task 7.10 — zaimplementowane)
+
+- `tests/test_integration.py` — pelny przeplyw handover/return → PDF → email
+- PDF v1 niemutowalny po edycji `fleet.Damage` (plik i hash)
+- Regeneracja PDF ze snapshotow — ten sam hash co oryginal
+- Awaria SMTP / brak email klienta → `EmailLog` FAILED, wynajem i dokument zachowane
+- Faktura PDF niemutowalna po edycji `PriceLine`
 - Wszystkie metody generujące przyjmują **komplet danych** w argumencie — brak cichego odczytu live DB dla pól historycznych
 
 ---

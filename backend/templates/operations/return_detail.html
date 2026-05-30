@@ -26,6 +26,20 @@
         </ul>
     </div>
 
-    <a href="{% url 'bookings:rental_detail' rental.pk %}" class="border px-4 py-2 rounded text-sm inline-block">Wynajem</a>
+    <div class="flex flex-wrap gap-2">
+        {% if document %}
+        <a
+            href="{% url 'documents:download' document.uuid %}"
+            class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800"
+            target="_blank"
+            rel="noopener"
+        >
+            Pobierz PDF protokolu
+        </a>
+        <a href="{% url 'documents:rental' rental.pk %}" class="border px-4 py-2 rounded text-sm">Wszystkie dokumenty</a>
+        {% endif %}
+        <a href="{% url 'bookings:rental_detail' rental.pk %}" class="border px-4 py-2 rounded text-sm">Wynajem</a>
+        <a href="{% url 'operations:home' %}" class="text-sm text-gray-500 hover:underline self-center">Operacje</a>
+    </div>
 </div>
 {% endblock %}

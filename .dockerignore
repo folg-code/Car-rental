@@ -1,0 +1,11 @@
+.venv
+node_modules
+.git
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+media
+private_documents
+staticfiles
+db.sqlite3

@@ -172,6 +172,35 @@ STATIC_ROOT = ROOT_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = ROOT_DIR / "media"
 
+# Generated PDFs / invoices — outside public MEDIA_ROOT (not served in DEBUG static())
+DOCUMENTS_PRIVATE_ROOT = ROOT_DIR / "private_documents"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": MEDIA_ROOT,
+            "base_url": MEDIA_URL,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "private_documents": {
+        "BACKEND": "apps.documents.storage.PrivateDocumentStorage",
+    },
+}
+
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL",
+    default="noreply@car-rental.local",
+)
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 # --- Szkic podzialu dev / prod (rozszerzyc o osobne moduly settings przy deploy) ---
 # Dev:  DEBUG=True,  ALLOWED_HOSTS=localhost,127.0.0.1
 # Prod: DEBUG=False, ALLOWED_HOSTS=<domena>, SECURE_SSL_REDIRECT=True, SESSION_COOKIE_SECURE=True

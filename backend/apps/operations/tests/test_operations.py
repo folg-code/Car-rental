@@ -2,12 +2,15 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
+from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 
 from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
+from apps.documents.models import Document, DocumentType, EmailStatus
 from apps.fleet.models import Car, CarCategory, CarStatus
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import DamageSnapshot, HandoverProtocol
@@ -105,9 +108,14 @@ class TestDamageSnapshotImmutability:
 
 @pytest.mark.django_db
 class TestHandoverService:
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="noreply@test.car-rental.local",
+    )
     def test_complete_handover_activates_rental(self, scheduled_rental) -> None:
         from apps.bookings.models import RentalStatus
 
+        mail.outbox.clear()
         handover = HandoverService.complete_handover(
             scheduled_rental.pk,
             mileage=10_200,
@@ -119,6 +127,20 @@ class TestHandoverService:
         assert handover.is_completed
         assert scheduled_rental.status == RentalStatus.ACTIVE
         assert scheduled_rental.reservation.car.mileage == 10_200
+
+        pdf = Document.objects.filter(
+            handover_protocol=handover,
+            document_type=DocumentType.HANDOVER_PROTOCOL_PDF,
+        ).first()
+        assert pdf is not None
+        assert pdf.version == 1
+        assert len(pdf.file_hash) == 64
+
+        email_log = pdf.email_logs.filter(status=EmailStatus.SENT).first()
+        assert email_log is not None
+        assert email_log.recipient_email == "jan@ops.test"
+        assert len(mail.outbox) == 1
+        assert len(mail.outbox[0].attachments) == 1
 
     def test_handover_rejects_lower_mileage(self, scheduled_rental) -> None:
         with pytest.raises(ValidationError, match="Przebieg"):
@@ -133,9 +155,14 @@ class TestHandoverService:
 
 @pytest.mark.django_db
 class TestReturnService:
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="noreply@test.car-rental.local",
+    )
     def test_complete_return_marks_rental_returned(self, scheduled_rental) -> None:
         from apps.bookings.models import RentalStatus
 
+        mail.outbox.clear()
         HandoverService.complete_handover(
             scheduled_rental.pk,
             mileage=10_000,
@@ -156,3 +183,13 @@ class TestReturnService:
         assert ret.is_completed
         assert scheduled_rental.status == RentalStatus.RETURNED
         assert "paliwa" in ret.surcharge_notes.lower() or ret.surcharge_notes
+
+        pdf = Document.objects.filter(
+            return_protocol=ret,
+            document_type=DocumentType.RETURN_PROTOCOL_PDF,
+        ).first()
+        assert pdf is not None
+        assert pdf.version == 1
+        assert pdf.email_logs.filter(status=EmailStatus.SENT).exists()
+        assert len(mail.outbox) == 2
+        assert mail.outbox[-1].to == ["jan@ops.test"]

@@ -7,4 +7,5 @@ app_name = "website"
 urlpatterns = [
     path("", views.landing, name="home"),
     path("flota/", views.fleet_list, name="fleet_list"),
+    path("flota/dostepnosc/", views.availability_search, name="availability_search"),
 ]

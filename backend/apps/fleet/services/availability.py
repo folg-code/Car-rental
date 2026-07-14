@@ -103,3 +103,26 @@ class AvailabilityService:
             for car in Car.objects.filter(status=CarStatus.ACTIVE).iterator()
             if AvailabilityService.is_car_available(car, as_of, interval_end)
         )
+
+    @staticmethod
+    def list_available_cars(
+        start_at: datetime,
+        end_at: datetime,
+        *,
+        category_id: int | None = None,
+    ) -> list[Car]:
+        """Auta ACTIVE wolne w calym przedziale [start_at, end_at)."""
+        AvailabilityService.validate_interval(start_at, end_at)
+        cars = (
+            Car.objects.filter(status=CarStatus.ACTIVE)
+            .select_related("category")
+            .prefetch_related("images")
+            .order_by("make", "model")
+        )
+        if category_id is not None:
+            cars = cars.filter(category_id=category_id)
+        return [
+            car
+            for car in cars
+            if AvailabilityService.is_car_available(car, start_at, end_at)
+        ]

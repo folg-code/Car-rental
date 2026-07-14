@@ -15,8 +15,14 @@
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
             <a
-                href="{% url 'website:fleet_list' %}"
+                href="{% url 'website:availability_search' %}"
                 class="inline-flex items-center rounded-lg bg-white px-5 py-3 text-sm font-medium text-gray-900 hover:bg-gray-100"
+            >
+                Sprawdz dostepnosc
+            </a>
+            <a
+                href="{% url 'website:fleet_list' %}"
+                class="inline-flex items-center rounded-lg border border-gray-600 px-5 py-3 text-sm font-medium text-white hover:bg-gray-800"
             >
                 Przegladaj flote
             </a>

@@ -73,6 +73,53 @@ class TestAvailabilityService:
         now = timezone.now()
         assert AvailabilityService.count_available_cars_at(now) == 1
 
+    def test_list_available_cars_returns_free_car(self, car: Car) -> None:
+        start = datetime(2026, 6, 1, 10, 0, tzinfo=UTC)
+        end = datetime(2026, 6, 5, 10, 0, tzinfo=UTC)
+        cars = AvailabilityService.list_available_cars(start, end)
+        assert len(cars) == 1
+        assert cars[0].pk == car.pk
+
+    def test_list_available_cars_excludes_blocked_car(self, car: Car) -> None:
+        start = datetime(2026, 6, 1, 10, 0, tzinfo=UTC)
+        end = datetime(2026, 6, 5, 10, 0, tzinfo=UTC)
+        FleetMaintenanceService.create_availability_block(
+            car_id=car.pk,
+            start_at=datetime(2026, 6, 2, 0, 0, tzinfo=UTC),
+            end_at=datetime(2026, 6, 4, 0, 0, tzinfo=UTC),
+            reason="Serwis",
+            block_type=AvailabilityBlockType.SERVICE,
+        )
+        assert AvailabilityService.list_available_cars(start, end) == []
+
+    def test_list_available_cars_filters_by_category(
+        self, category: CarCategory, car: Car
+    ) -> None:
+        other = CarCategory.objects.create(name="SUV", slug="suv-avail")
+        Car.objects.create(
+            category=other,
+            registration_number="WW99999",
+            make="Skoda",
+            model="Kodiaq",
+            year=2023,
+            status=CarStatus.ACTIVE,
+        )
+        start = datetime(2026, 6, 1, 10, 0, tzinfo=UTC)
+        end = datetime(2026, 6, 5, 10, 0, tzinfo=UTC)
+        cars = AvailabilityService.list_available_cars(
+            start,
+            end,
+            category_id=category.pk,
+        )
+        assert len(cars) == 1
+        assert cars[0].pk == car.pk
+
+    def test_list_available_cars_rejects_invalid_interval(self, car: Car) -> None:
+        start = datetime(2026, 6, 5, 10, 0, tzinfo=UTC)
+        end = datetime(2026, 6, 1, 10, 0, tzinfo=UTC)
+        with pytest.raises(ValidationError):
+            AvailabilityService.list_available_cars(start, end)
+
 
 @pytest.mark.django_db
 class TestOverlappingBlocks:

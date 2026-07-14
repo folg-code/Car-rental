@@ -12,8 +12,8 @@ class AccountLoginView(LoginView):
         user = self.request.user
         if isinstance(user, User) and user.is_staff_member:
             return reverse("dashboard:home")
-        return reverse("home")
+        return reverse("website:home")
 
 
 class AccountLogoutView(LogoutView):
-    next_page = reverse_lazy("home")
+    next_page = reverse_lazy("website:home")

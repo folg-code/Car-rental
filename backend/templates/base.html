@@ -14,7 +14,7 @@
 <body class="bg-gray-100">
 
     <nav class="bg-black text-white p-4 flex justify-between items-center">
-        <a href="{% url 'home' %}" class="font-semibold">Car Rental</a>
+        <a href="{% url 'website:home' %}" class="font-semibold">Car Rental</a>
         <div class="flex items-center gap-4 text-sm">
             {% if user.is_authenticated %}
                 <span>{{ user.username }}</span>

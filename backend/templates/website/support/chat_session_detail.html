@@ -1,0 +1,33 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Czat AI — sesja #{{ session.pk }}{% endblock %}
+{% block page_heading %}Sesja czatu #{{ session.pk }}{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">
+    Klucz: {{ session.session_key|truncatechars:12 }} ·
+    {% if session.user %}{{ session.user.username }}{% else %}anonimowa{% endif %}
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'website_support:session_list' %}" class="text-sm text-gray-600 hover:underline">
+        ← Wszystkie sesje
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 space-y-4 max-w-3xl">
+    {% for message in messages %}
+    <div class="{% if message.role == 'user' %}text-right{% endif %}">
+        <p class="text-xs text-gray-400 mb-1">
+            {{ message.get_role_display }} · {{ message.created_at|date:"Y-m-d H:i" }}
+        </p>
+        <div class="inline-block max-w-[90%] rounded-lg px-4 py-2 text-sm {% if message.role == 'user' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-800{% endif %}">
+            {{ message.content|linebreaksbr }}
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-gray-500 text-sm">Brak wiadomosci w tej sesji.</p>
+    {% endfor %}
+</div>
+{% endblock %}

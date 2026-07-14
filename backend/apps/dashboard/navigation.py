@@ -56,4 +56,11 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
         icon="file",
         enabled=True,
     ),
+    PanelNavItem(
+        label="Czat AI",
+        url_name="website_support:session_list",
+        section_key="website_support",
+        icon="chat",
+        enabled=True,
+    ),
 )

@@ -176,6 +176,7 @@ LLM_API_KEY = env("LLM_API_KEY", default="")
 LLM_MODEL = env("LLM_MODEL", default="gpt-4o-mini")
 LLM_MAX_TOKENS = env.int("LLM_MAX_TOKENS", default=1024)
 CHAT_RATE_LIMIT_PER_HOUR = env.int("CHAT_RATE_LIMIT_PER_HOUR", default=30)
+CHAT_MESSAGE_RETENTION_DAYS = env.int("CHAT_MESSAGE_RETENTION_DAYS", default=90)
 
 CACHES = {
     "default": {

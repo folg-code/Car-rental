@@ -25,6 +25,7 @@ urlpatterns = [
     ),
     path("panel/operacje/", include("apps.operations.urls")),
     path("panel/dokumenty/", include("apps.documents.urls")),
+    path("panel/asystent/", include(("apps.website.panel_urls", "website_support"))),
 ]
 
 if settings.DEBUG:

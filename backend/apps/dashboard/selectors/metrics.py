@@ -13,6 +13,7 @@ from apps.bookings.models import (
     Reservation,
     ReservationStatus,
 )
+from apps.dashboard.selectors.unpaid_rentals import count_unpaid_rentals
 from apps.fleet.services.availability import AvailabilityService
 
 
@@ -24,6 +25,7 @@ class DashboardMetrics:
     active_rentals: int
     free_cars: int
     upcoming_returns: int
+    unpaid_rentals: int
 
 
 def get_dashboard_metrics(*, as_of: datetime | None = None) -> DashboardMetrics:
@@ -56,9 +58,12 @@ def get_dashboard_metrics(*, as_of: datetime | None = None) -> DashboardMetrics:
         ).count()
     )
 
+    unpaid_rentals = count_unpaid_rentals()
+
     return DashboardMetrics(
         active_reservations=active_reservations,
         active_rentals=active_rentals,
         free_cars=free_cars,
         upcoming_returns=upcoming_returns,
+        unpaid_rentals=unpaid_rentals,
     )

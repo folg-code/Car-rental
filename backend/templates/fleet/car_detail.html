@@ -7,14 +7,94 @@
 {% endblock %}
 
 {% block content %}
-<div class="flex gap-3 mb-6">
+<div class="flex flex-wrap gap-3 mb-6">
     <a href="{% url 'fleet:car_edit' car.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Edytuj</a>
+    <a href="{% url 'fleet:image_upload' car.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">+ Zdjecie</a>
+    <a href="{% url 'fleet:document_upload' car.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">+ Dokument</a>
     <a href="{% url 'fleet:block_create' car.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">+ Blokada</a>
     <a href="{% url 'fleet:damage_create' car.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">+ Uszkodzenie</a>
     <a href="{% url 'fleet:car_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Lista</a>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-medium">Zdjecia</h2>
+            <a href="{% url 'fleet:image_upload' car.pk %}" class="text-sm text-gray-600 hover:underline">+ Dodaj</a>
+        </div>
+        {% if car.images.all %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {% for image in car.images.all %}
+            <div class="border rounded-lg overflow-hidden">
+                <img src="{{ image.image.url }}" alt="{{ image.caption|default:car.registration_number }}" class="w-full h-32 object-cover">
+                <div class="p-2 text-xs space-y-2">
+                    {% if image.is_primary %}
+                    <span class="inline-block bg-teal-100 text-teal-800 px-2 py-0.5 rounded">Glowne</span>
+                    {% else %}
+                    <form method="post" action="{% url 'fleet:image_set_primary' car.pk image.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="text-gray-600 hover:underline">Ustaw jako glowne</button>
+                    </form>
+                    {% endif %}
+                    {% if image.caption %}<p class="text-gray-500">{{ image.caption }}</p>{% endif %}
+                    <a href="{% url 'fleet:image_delete' car.pk image.pk %}" class="text-red-600 hover:underline">Usun</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm">Brak zdjec. Dodaj zdjecie, aby pojawilo sie w katalogu publicznym.</p>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-medium">Dokumenty (OC, przeglad, inne)</h2>
+            <a href="{% url 'fleet:document_upload' car.pk %}" class="text-sm text-gray-600 hover:underline">+ Dodaj</a>
+        </div>
+        {% if car.documents.all %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="text-left text-gray-500 border-b">
+                    <tr>
+                        <th class="pb-2 pr-4">Typ</th>
+                        <th class="pb-2 pr-4">Wazny do</th>
+                        <th class="pb-2 pr-4">Notatka</th>
+                        <th class="pb-2">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in car.documents.all %}
+                    <tr class="border-b border-gray-100">
+                        <td class="py-2 pr-4">{{ doc.get_document_type_display }}</td>
+                        <td class="py-2 pr-4">
+                            {% if doc.valid_until %}
+                                {% if doc.valid_until < today %}
+                                <span class="text-red-700 font-medium">{{ doc.valid_until|date:"Y-m-d" }} (wygasl)</span>
+                                {% elif doc.valid_until <= expiry_horizon %}
+                                <span class="text-amber-700 font-medium">{{ doc.valid_until|date:"Y-m-d" }} (wkrotce)</span>
+                                {% else %}
+                                {{ doc.valid_until|date:"Y-m-d" }}
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td class="py-2 pr-4 text-gray-500">{{ doc.notes|default:"—" }}</td>
+                        <td class="py-2 whitespace-nowrap">
+                            <a href="{{ doc.file.url }}" class="text-gray-700 hover:underline mr-3" target="_blank" rel="noopener">Pobierz</a>
+                            <a href="{% url 'fleet:document_delete' car.pk doc.pk %}" class="text-red-600 hover:underline">Usun</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm">Brak dokumentow.</p>
+        {% endif %}
+    </div>
+
     <div class="bg-white rounded-lg shadow p-6">
         <h2 class="font-medium mb-4">Dane pojazdu</h2>
         <dl class="grid grid-cols-2 gap-2 text-sm">

@@ -5,6 +5,9 @@ from apps.fleet.models import (
     AvailabilityBlockType,
     Car,
     CarCategory,
+    CarDocument,
+    CarDocumentType,
+    CarImage,
     Damage,
     DamageSeverity,
 )
@@ -76,3 +79,50 @@ class DamageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["severity"].initial = DamageSeverity.MINOR
+
+
+class CarImageForm(forms.ModelForm):
+    class Meta:
+        model = CarImage
+        fields = ["image", "caption", "is_primary"]
+        widgets = {
+            "image": forms.ClearableFileInput(
+                attrs={"accept": "image/jpeg,image/png,image/webp,image/gif"}
+            ),
+            "caption": forms.TextInput(
+                attrs={"class": "w-full border rounded px-3 py-2"}
+            ),
+        }
+
+
+class CarDocumentForm(forms.ModelForm):
+    class Meta:
+        model = CarDocument
+        fields = [
+            "document_type",
+            "file",
+            "valid_from",
+            "valid_until",
+            "notes",
+        ]
+        widgets = {
+            "document_type": forms.Select(
+                attrs={"class": "w-full border rounded px-3 py-2"}
+            ),
+            "file": forms.ClearableFileInput(
+                attrs={"accept": ".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*"}
+            ),
+            "valid_from": forms.DateInput(
+                attrs={"type": "date", "class": "w-full border rounded px-3 py-2"}
+            ),
+            "valid_until": forms.DateInput(
+                attrs={"type": "date", "class": "w-full border rounded px-3 py-2"}
+            ),
+            "notes": forms.TextInput(
+                attrs={"class": "w-full border rounded px-3 py-2"}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["document_type"].initial = CarDocumentType.INSURANCE

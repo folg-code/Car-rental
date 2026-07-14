@@ -23,6 +23,9 @@ def list_payments(
         "rental__reservation",
         "rental__reservation__customer",
         "rental__reservation__car",
+        "reservation",
+        "reservation__customer",
+        "reservation__car",
         "recorded_by",
     ).order_by("-paid_at", "-pk")
     if rental_id is not None:

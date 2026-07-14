@@ -95,6 +95,7 @@ Stare backupy (katalogi) są usuwane automatycznie po przekroczeniu retencji.
 
 ```cron
 0 3 * * * cd /opt/car-rental && ./scripts/backup.sh >> /var/log/car-rental-backup.log 2>&1
+0 4 * * * cd /opt/car-rental && docker compose -f docker-compose.prod.yml run --rm web python backend/manage.py purge_chat_messages >> /var/log/car-rental-chat-purge.log 2>&1
 ```
 
 ### Offsite (zalecane)

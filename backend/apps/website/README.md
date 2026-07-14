@@ -77,7 +77,10 @@ Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).
 - `services/chat_tool_router.py` — heurystyki (mock provider) → tool calls
 - Tooli: `search_available_cars`, `estimate_price`, `get_my_reservation_status`, `get_faq_snippet`
 
-### Chat AI (opcjonalnie)
+### Chat AI (opcjonalnie — poza MVP 8b)
+
+- Retencja: `purge_chat_messages` + cron (patrz [`docs/DEPLOY.md`](../../../docs/DEPLOY.md))
+- Panel support: `/panel/asystent/` — lista sesji + podgląd wiadomości
 
 ## Serwisy (planowane)
 

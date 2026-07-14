@@ -13,8 +13,8 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 8b — Chat AI Faza B ✅ (tool calls) |
-| **Następny krok** | Sprint 9+ backlog lub 8b rozszerzenia (retencja, panel support) |
+| **Aktualny etap** | Sprint 8b — zamknięty ✅ |
+| **Następny krok** | Sprint 9+ backlog (bramka prod, SMS, raporty) |
 | **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -38,7 +38,7 @@
 | 7 | documents (PDF, faktury) | ✅ | 100% |
 | 8 | dashboard + website | ✅ | 100% |
 | 9 | Produkcja i płatności online | ✅ | 100% |
-| 8b | Chat AI — konsultant klienta | ✅ | 90% |
+| 8b | Chat AI — konsultant klienta | ✅ | 100% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Rozszerzenia (raporty, SMS, i18n) | ⬜ | backlog |
 
@@ -673,8 +673,8 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 - [x] Tool `estimate_price` → `PricingService` (disclaimer: orientacyjnie)
 - [x] Tool `get_my_reservation_status` — tylko zalogowany `customer`
 - [x] Deep link do formularza rezerwacji z parametrami dat/auto
-- [ ] Retencja wiadomości / polityka czyszczenia
-- [ ] (Opcjonalnie) panel wewnętrzny: podgląd rozmów dla supportu
+- [x] Retencja wiadomości / polityka czyszczenia
+- [x] Panel wewnętrzny: podgląd rozmów dla supportu (`/panel/asystent/`)
 
 ### Bezpieczeństwo
 
@@ -825,7 +825,7 @@ Sprint 9+ (rozszerzenia)
 | `apps/documents` | ✅ | ✅ |
 | `apps/dashboard` | ✅ | ✅ (KPI + alerty fleet, taski 8.1–8.7) |
 | `apps/website` | ✅ | ✅ (8.8–8.14) |
-| Chat AI konsultant | ❌ | — (plan: Sprint 8b) |
+| Chat AI konsultant | ✅ | Sprint 8b |
 | `docs/AI_CONSULTANT.md` | ✅ | — |
 
 ---

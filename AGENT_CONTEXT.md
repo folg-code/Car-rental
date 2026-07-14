@@ -666,9 +666,7 @@ Critical priorities:
 
 **Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP) · 6 (operations — handover/return) · 7 (documents — PDF, email, faktury) · **8 (dashboard KPI + website publiczna)**
 
-**In progress:** brak — Sprint 8 zamknięty.
-
-**Next:** Sprint 8b (Chat AI) lub Sprint 9+ (produkcja, bramka płatności).
+**Next:** Sprint **9** — płatności online + Celery + deploy (taski 9.1–9.10). Opcjonalnie równolegle: Sprint 8b (Chat AI).
 
 Implemented:
 - Django project setup

@@ -531,7 +531,8 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 7 | Documents (PDF, email, faktury, private storage) | ✅ |
 | 8 | Dashboard KPI + Website publiczna | ✅ |
 | 8b | AI Chatbot — konsultant klienta | Planned |
-| 9+ | Produkcja: Celery/Redis, bramka płatności, HTTPS | Backlog |
+| 9 | Produkcja i płatności online | 🟡 |
+| 9+ | Rozszerzenia (raporty, SMS, i18n) | Backlog |
 
 ### Sprint 8 — taski (szczegóły w [`PROJECT_PLAN.md`](PROJECT_PLAN.md))
 
@@ -540,6 +541,14 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 8.1–8.7 | dashboard | KPI, alerty fleet, nieopłacone wynajmy, przychód, UI pulpitu, testy | ✅ |
 | 8.8–8.11 | website | layout, katalog floty, wyszukiwarka, wycena | ✅ |
 | 8.12–8.14 | website | rezerwacja online, strony informacyjne, testy | ✅ |
+
+### Sprint 9 — taski (szczegóły w [`PROJECT_PLAN.md`](PROJECT_PLAN.md))
+
+| ID | Moduł | Task |
+|----|-------|------|
+| 9.1–9.6 | payments + website | intent dla rezerwacji, adapter bramki, webhook, płatność online, confirm |
+| 9.7–9.9 | infra | Celery/Redis, email async, deploy HTTPS + backup |
+| 9.10 | payments | testy flow płatności |
 
 Szczegóły: [`PROJECT_PLAN.md`](PROJECT_PLAN.md)
 

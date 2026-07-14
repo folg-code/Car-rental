@@ -65,7 +65,7 @@
 
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
-- [ ] **SMTP produkcyjny** — konfiguracja `EMAIL_*` w `.env` (Gmail/SendGrid) — po mailach rezerwacji ✅
+- [x] **SMTP** — konfiguracja `EMAIL_*` w settings + `.env.example` / `DEPLOY.md`
 - [ ] Upload zdjec/dokumentow w panelu floty (obecnie admin) — backlog / Sprint 2+
 - [ ] **Operations paperless** — pelna roadmapa: [Roadmap — operations (paperless)](#roadmap--operations-paperless) (HTMX kroki, PDF, email, doplaty, zamkniecie wynajmu)
 

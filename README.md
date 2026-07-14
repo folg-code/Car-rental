@@ -411,6 +411,17 @@ Aplikacja dostępna pod `http://localhost:8000`.
 | `POSTGRES_USER` | Użytkownik bazy | `rental` |
 | `POSTGRES_PASSWORD` | Hasło bazy | (generuj) |
 | `POSTGRES_HOST` | Host bazy | `db` |
+| `PUBLIC_SITE_BASE_URL` | Bazowy URL w linkach email | `http://localhost:8000` |
+| `DEFAULT_FROM_EMAIL` | Nadawca emaili | `noreply@car-rental.local` |
+| `EMAIL_BACKEND` | Backend Django (`console` / `smtp`) | `console` w dev |
+| `EMAIL_HOST` | Serwer SMTP | `smtp.gmail.com` |
+| `EMAIL_PORT` | Port SMTP | `587` |
+| `EMAIL_HOST_USER` | Login SMTP | — |
+| `EMAIL_HOST_PASSWORD` | Hasło SMTP (np. hasło aplikacji) | — |
+| `EMAIL_USE_TLS` | STARTTLS | `True` |
+
+**Dev (Docker):** maile trafiają do logów (`docker compose logs web celery`).  
+**Prod / test na skrzynkę:** ustaw `EMAIL_BACKEND=smtp` i dane SMTP w `.env.production` lub `.env.docker` (patrz [`docs/DEPLOY.md`](docs/DEPLOY.md)).
 
 ---
 

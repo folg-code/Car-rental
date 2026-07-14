@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 from django.utils import timezone
@@ -70,4 +71,5 @@ class TestDashboardMetrics:
         assert metrics.free_cars >= 0
         assert metrics.upcoming_returns >= 0
         assert metrics.unpaid_rentals >= 0
+        assert metrics.month_revenue >= Decimal("0")
         assert metrics.expiring_fleet_documents >= 0

@@ -14,6 +14,7 @@ from apps.payments.selectors.payment import (
     get_rental_deposit_balance,
     get_rental_payment_summary,
     get_rental_revenue_total,
+    get_revenue_total_in_period,
     rental_has_balance_due,
 )
 from apps.payments.services.payment import PaymentService
@@ -134,6 +135,18 @@ class TestPaymentService:
         )
         assert get_rental_balance_due(rental.pk) == Decimal("0")
         assert rental_has_balance_due(rental.pk) is False
+
+    def test_revenue_total_in_period_excludes_deposit(self, rental) -> None:
+        paid_at = datetime(2026, 8, 10, 12, 0, tzinfo=UTC)
+        PaymentService.record_rental_fee(
+            rental_id=rental.pk,
+            amount=Decimal("400.00"),
+            paid_at=paid_at,
+        )
+        PaymentService.record_deposit(rental_id=rental.pk, paid_at=paid_at)
+        start = datetime(2026, 8, 1, 0, 0, tzinfo=UTC)
+        end = datetime(2026, 8, 31, 23, 59, tzinfo=UTC)
+        assert get_revenue_total_in_period(start, end) == Decimal("400.00")
 
     def test_revenue_types_constant(self) -> None:
         assert PaymentType.DEPOSIT not in REVENUE_PAYMENT_TYPES

@@ -1,7 +1,19 @@
+from __future__ import annotations
+
+from datetime import date
+
 from django.shortcuts import render
 
 from apps.accounts.permissions import staff_required
+from apps.dashboard.selectors.fleet_alerts import list_fleet_expiry_alerts
+from apps.dashboard.selectors.unpaid_rentals import list_unpaid_rentals
 from apps.dashboard.services.metrics import DashboardMetricsService
+from apps.operations.selectors.protocol import (
+    list_rentals_pending_handover,
+    list_rentals_pending_return,
+)
+
+DASHBOARD_QUEUE_LIMIT = 5
 
 
 @staff_required
@@ -10,7 +22,20 @@ def panel_home(request):
     return render(
         request,
         "dashboard/panel.html",
-        {"metrics": metrics},
+        {
+            "metrics": metrics,
+            "today": date.today(),
+            "unpaid_rentals_queue": list_unpaid_rentals(limit=DASHBOARD_QUEUE_LIMIT),
+            "fleet_document_alerts": list_fleet_expiry_alerts(
+                limit=DASHBOARD_QUEUE_LIMIT
+            ),
+            "pending_handover": list(
+                list_rentals_pending_handover()[:DASHBOARD_QUEUE_LIMIT]
+            ),
+            "pending_return": list(
+                list_rentals_pending_return()[:DASHBOARD_QUEUE_LIMIT]
+            ),
+        },
     )
 
 

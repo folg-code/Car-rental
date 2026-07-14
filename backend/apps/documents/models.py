@@ -123,7 +123,7 @@ class Document(models.Model):
     file_hash = models.CharField(
         max_length=64,
         blank=True,
-        help_text="SHA-256 hex skrotu pliku.",
+        help_text="SHA-256 hex skrotu kanonicznej tresci HTML dokumentu.",
     )
     file_size_bytes = models.PositiveIntegerField(default=0)
     version = models.PositiveSmallIntegerField(default=1)

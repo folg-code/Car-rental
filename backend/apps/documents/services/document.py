@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import hashlib
+from typing import Any
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
+from django.template.loader import render_to_string
 
 from apps.documents.constants import DEFAULT_TEMPLATE_PATHS
 from apps.documents.dto.protocol import HandoverDocumentData, ReturnDocumentData
@@ -26,6 +28,20 @@ class DocumentService:
     @staticmethod
     def _sha256_hex(content: bytes) -> str:
         return hashlib.sha256(content).hexdigest()
+
+    @staticmethod
+    def _content_hash_from_html(html: str) -> str:
+        """Hash kanonicznej tresci HTML — stabilny miedzy renderami WeasyPrint."""
+        return DocumentService._sha256_hex(html.encode("utf-8"))
+
+    @staticmethod
+    def _render_template(
+        template_name: str,
+        context: dict[str, Any],
+    ) -> tuple[str, bytes]:
+        html = render_to_string(template_name, context)
+        pdf_bytes = PdfRenderer.html_to_pdf(html)
+        return html, pdf_bytes
 
     @staticmethod
     def _resolve_template(document_type: str) -> tuple[str, DocumentTemplate | None]:
@@ -65,6 +81,7 @@ class DocumentService:
     def _store_pdf(
         *,
         pdf_bytes: bytes,
+        html_content: str,
         document_type: str,
         template: DocumentTemplate | None,
         rental_id: int,
@@ -78,7 +95,7 @@ class DocumentService:
         invoice_id: int | None = None,
         send_email: bool = True,
     ) -> Document:
-        file_hash = DocumentService._sha256_hex(pdf_bytes)
+        file_hash = DocumentService._content_hash_from_html(html_content)
         document = Document(
             document_type=document_type,
             template=template,
@@ -171,7 +188,7 @@ class DocumentService:
         template_path, template = DocumentService._resolve_template(
             DocumentType.HANDOVER_PROTOCOL_PDF
         )
-        pdf_bytes = PdfRenderer.render_template(
+        pdf_bytes, html_content = DocumentService._render_template(
             template_path,
             data.as_template_context(),
         )
@@ -181,6 +198,7 @@ class DocumentService:
         )
         return DocumentService._store_pdf(
             pdf_bytes=pdf_bytes,
+            html_content=html_content,
             document_type=DocumentType.HANDOVER_PROTOCOL_PDF,
             template=template,
             rental_id=data.rental_id,
@@ -203,7 +221,7 @@ class DocumentService:
         template_path, template = DocumentService._resolve_template(
             DocumentType.RETURN_PROTOCOL_PDF
         )
-        pdf_bytes = PdfRenderer.render_template(
+        pdf_bytes, html_content = DocumentService._render_template(
             template_path,
             data.as_template_context(),
         )
@@ -213,6 +231,7 @@ class DocumentService:
         )
         return DocumentService._store_pdf(
             pdf_bytes=pdf_bytes,
+            html_content=html_content,
             document_type=DocumentType.RETURN_PROTOCOL_PDF,
             template=template,
             rental_id=data.rental_id,
@@ -262,7 +281,7 @@ class DocumentService:
         template_path, template = DocumentService._resolve_template(
             DocumentType.INVOICE_PDF
         )
-        pdf_bytes = PdfRenderer.render_template(
+        pdf_bytes, html_content = DocumentService._render_template(
             template_path,
             data.as_template_context(),
         )
@@ -272,6 +291,7 @@ class DocumentService:
         )
         return DocumentService._store_pdf(
             pdf_bytes=pdf_bytes,
+            html_content=html_content,
             document_type=DocumentType.INVOICE_PDF,
             template=template,
             rental_id=invoice.rental_id,

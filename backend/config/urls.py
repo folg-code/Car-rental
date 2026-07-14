@@ -13,6 +13,7 @@ from django.urls import include, path
 urlpatterns = [
     path("", include("apps.website.urls")),
     path("admin/", admin.site.urls),
+    path("konto/", include(("apps.website.portal_urls", "customer_portal"))),
     path("konto/", include("apps.accounts.urls")),
     path("panel/", include("apps.dashboard.urls")),
     path("panel/flota/", include("apps.fleet.urls")),

@@ -16,7 +16,7 @@ Chat AI: Sprint **8b** — [`../../../docs/AI_CONSULTANT.md`](../../../docs/AI_C
 - Wyszukiwanie dostępności (daty) — `fleet.AvailabilityService`
 - Formularz rezerwacji — orkiestracja: `PricingService` → `ReservationService`
 - Inicjacja płatności online — `PublicPaymentOrchestrator` → `PaymentGatewayService` (task **9.5** ✅)
-- Portal klienta (zalogowany `customer`): historia rezerwacji, pobranie dokumentów (linki `documents`) — backlog Sprint 8
+- Portal klienta (zalogowany `customer`): historia rezerwacji, pobranie dokumentów — `/konto/` ✅
 - SEO-friendly strony statyczne (regulamin, kontakt) — szablony w tej app
 - Rate limiting / podstawowa ochrona formularzy publicznych
 
@@ -85,7 +85,7 @@ Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).
 ## Serwisy (planowane)
 
 - `PublicBookingOrchestrator` — jeden punkt wejścia: search → quote → reserve (Task **8.12**)
-- Opcjonalnie `CustomerPortalService` — lista dokumentów do pobrania (selektory `documents` + auth)
+- Opcjonalnie `CustomerPortalService` — lista dokumentów do pobrania (selektory `documents` + auth) ✅
 - `ConsultantChatService` — Sprint 8b Faza A ✅ — orchestracja czatu (FAQ-only)
 - `adapters/llm.py` — Sprint 8b Faza A ✅ — `LLMClient` z env
 

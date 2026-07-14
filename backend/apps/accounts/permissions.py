@@ -52,3 +52,9 @@ def owner_or_manager_required(
     view_func: Callable[..., HttpResponse],
 ) -> Callable[..., HttpResponse]:
     return role_required(UserRole.OWNER, UserRole.MANAGER)(view_func)
+
+
+def customer_required(
+    view_func: Callable[..., HttpResponse],
+) -> Callable[..., HttpResponse]:
+    return role_required(UserRole.CUSTOMER)(view_func)

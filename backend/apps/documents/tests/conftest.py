@@ -8,7 +8,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
+from apps.documents.models import Document, DocumentType
 from apps.fleet.models import Car, CarCategory, CarStatus
+from apps.operations.services.handover import HandoverService
 from apps.pricing.models import DailyRate, PriceList
 
 # 1x1 px PNG — poprawny obraz dla WeasyPrint w CI (nie sam naglowek PNG).
@@ -77,3 +79,19 @@ def scheduled_rental(db, category: CarCategory):
         status=ReservationStatus.CONFIRMED,
     )
     return RentalService.convert_from_reservation(reservation)
+
+
+@pytest.fixture
+def handover_document(scheduled_rental) -> Document:
+    HandoverService.complete_handover(
+        scheduled_rental.pk,
+        mileage=10_200,
+        fuel_level_percent=90,
+        signer_name="Anna Nowak",
+        signature_image=tiny_signature_image(),
+    )
+    return Document.objects.get(
+        handover_protocol__rental=scheduled_rental,
+        document_type=DocumentType.HANDOVER_PROTOCOL_PDF,
+        version=1,
+    )

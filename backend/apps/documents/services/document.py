@@ -114,7 +114,7 @@ class DocumentService:
         document.file.save(filename, ContentFile(pdf_bytes), save=False)
         document.save()
         if send_email:
-            EmailService.send_document_email(
+            EmailService.enqueue_document_email(
                 document.pk,
                 sent_by_id=generated_by_id,
             )

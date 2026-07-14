@@ -43,5 +43,5 @@ class PaymentAdmin(admin.ModelAdmin):
 
 @admin.register(PaymentProviderEvent)
 class PaymentProviderEventAdmin(admin.ModelAdmin):
-    list_display = ("intent", "event_type", "received_at")
+    list_display = ("provider_event_id", "intent", "event_type", "received_at")
     raw_id_fields = ("intent",)

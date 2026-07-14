@@ -4,25 +4,17 @@ from decimal import Decimal
 import pytest
 from django.core import mail
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
 from apps.documents.models import Document, DocumentType, EmailStatus
 from apps.documents.services.email import EmailService
+from apps.documents.tests.conftest import tiny_signature_image
 from apps.fleet.models import Car, CarCategory, CarStatus
 from apps.operations.services.handover import HandoverService
 from apps.operations.services.return_workflow import ReturnService
 from apps.pricing.models import DailyRate, PriceList
-
-
-def _tiny_image(name: str = "sig.png") -> SimpleUploadedFile:
-    return SimpleUploadedFile(
-        name,
-        b"\x89PNG\r\n\x1a\n",
-        content_type="image/png",
-    )
 
 
 @pytest.fixture
@@ -85,7 +77,7 @@ def handover_document(scheduled_rental) -> Document:
         mileage=10_200,
         fuel_level_percent=90,
         signer_name="Anna Nowak",
-        signature_image=_tiny_image(),
+        signature_image=tiny_signature_image(),
     )
     return Document.objects.get(
         handover_protocol__rental=scheduled_rental,
@@ -187,7 +179,7 @@ class TestEmailIntegrationWithDocumentService:
             mileage=10_200,
             fuel_level_percent=90,
             signer_name="Anna Nowak",
-            signature_image=_tiny_image(),
+            signature_image=tiny_signature_image(),
         )
         doc = Document.objects.get(
             document_type=DocumentType.HANDOVER_PROTOCOL_PDF,
@@ -204,7 +196,7 @@ class TestEmailIntegrationWithDocumentService:
             mileage=10_000,
             fuel_level_percent=100,
             signer_name="Anna",
-            signature_image=_tiny_image(),
+            signature_image=tiny_signature_image(),
         )
         mail.outbox.clear()
         ReturnService.complete_return(
@@ -212,7 +204,7 @@ class TestEmailIntegrationWithDocumentService:
             mileage=10_300,
             fuel_level_percent=80,
             signer_name="Anna",
-            signature_image=_tiny_image("ret.png"),
+            signature_image=tiny_signature_image("ret.png"),
         )
         doc = Document.objects.get(
             document_type=DocumentType.RETURN_PROTOCOL_PDF,

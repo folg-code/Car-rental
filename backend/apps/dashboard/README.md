@@ -26,7 +26,7 @@ Plan sprintu: [`../../../PROJECT_PLAN.md`](../../../PROJECT_PLAN.md) — Sprint 
 |----|------|--------------|--------|
 | **8.1** | Selektory KPI | `selectors/metrics.py` — migracja z `bookings.selectors.dashboard` | ✅ |
 | **8.2** | Wolne auta | `AvailabilityService.count_available_cars_at` / agregacja floty | ✅ |
-| **8.3** | Nieopłacone wynajmy | selektor cross-app z `payments.get_rental_payment_summary` | ⬜ |
+| **8.3** | Nieopłacone wynajmy | `selectors/unpaid_rentals.py` + `get_rental_balance_due` w payments | ✅ |
 | **8.4** | Przychód okresu | agregacja `Payment` (`REVENUE_PAYMENT_TYPES` only) | ⬜ |
 | **8.5** | Alerty fleet | `CarDocument.valid_until` wygasające w N dni | ⬜ |
 | **8.6** | UI pulpitu | `templates/dashboard/panel.html` — widgety + alerty + skróty | ⬜ |

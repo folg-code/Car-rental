@@ -1,13 +1,29 @@
+import base64
 from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
 from apps.fleet.models import Car, CarCategory, CarStatus
 from apps.pricing.models import DailyRate, PriceList
+
+# 1x1 px PNG — poprawny obraz dla WeasyPrint w CI (nie sam naglowek PNG).
+MINIMAL_PNG_BYTES = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+"
+    "X9qfAAAAABJRU5ErkJggg=="
+)
+
+
+def tiny_signature_image(name: str = "sig.png") -> SimpleUploadedFile:
+    return SimpleUploadedFile(
+        name,
+        MINIMAL_PNG_BYTES,
+        content_type="image/png",
+    )
 
 
 @pytest.fixture(autouse=True)

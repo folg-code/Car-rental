@@ -10,9 +10,11 @@ from apps.bookings.services.reservation import ReservationService
 from apps.fleet.models import Car, CarCategory, CarStatus
 from apps.payments.models import REVENUE_PAYMENT_TYPES, PaymentType
 from apps.payments.selectors.payment import (
+    get_rental_balance_due,
     get_rental_deposit_balance,
     get_rental_payment_summary,
     get_rental_revenue_total,
+    rental_has_balance_due,
 )
 from apps.payments.services.payment import PaymentService
 from apps.pricing.models import DailyRate, PriceList
@@ -122,6 +124,16 @@ class TestPaymentService:
         assert summary["rental_fees_paid"] == Decimal("200.00")
         assert summary["price_total"] > 0
         assert summary["rental_fee_due"] == summary["price_total"] - Decimal("200.00")
+
+    def test_balance_due_helpers(self, rental) -> None:
+        assert get_rental_balance_due(rental.pk) > 0
+        assert rental_has_balance_due(rental.pk) is True
+        PaymentService.record_rental_fee(
+            rental_id=rental.pk,
+            amount=Decimal("10000.00"),
+        )
+        assert get_rental_balance_due(rental.pk) == Decimal("0")
+        assert rental_has_balance_due(rental.pk) is False
 
     def test_revenue_types_constant(self) -> None:
         assert PaymentType.DEPOSIT not in REVENUE_PAYMENT_TYPES

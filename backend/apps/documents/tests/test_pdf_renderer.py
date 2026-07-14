@@ -88,3 +88,12 @@ class TestPdfRenderer:
             return_pdf_context,
         )
         assert PdfRenderer.is_pdf(pdf_bytes)
+
+    def test_identical_html_produces_identical_pdf_bytes(
+        self,
+        handover_pdf_context: dict,
+    ) -> None:
+        html = "<html><body><p>Stabilny PDF</p></body></html>"
+        first = PdfRenderer.html_to_pdf(html)
+        second = PdfRenderer.html_to_pdf(html)
+        assert first == second

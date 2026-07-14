@@ -4,7 +4,6 @@ from decimal import Decimal
 import pytest
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
@@ -12,20 +11,13 @@ from apps.bookings.services.reservation import ReservationService
 from apps.documents.models import Document, DocumentType
 from apps.documents.services.document import DocumentService
 from apps.documents.services.pdf_renderer import PdfRenderer
+from apps.documents.tests.conftest import tiny_signature_image
 from apps.fleet.models import Car, CarCategory, CarStatus
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import HandoverProtocol
 from apps.operations.services.handover import HandoverService
 from apps.operations.services.return_workflow import ReturnService
 from apps.pricing.models import DailyRate, PriceList
-
-
-def _tiny_image(name: str = "sig.png") -> SimpleUploadedFile:
-    return SimpleUploadedFile(
-        name,
-        b"\x89PNG\r\n\x1a\n",
-        content_type="image/png",
-    )
 
 
 @pytest.fixture
@@ -89,7 +81,7 @@ def completed_handover(scheduled_rental) -> HandoverProtocol:
         mileage=10_200,
         fuel_level_percent=90,
         signer_name="Jan Kowalski",
-        signature_image=_tiny_image(),
+        signature_image=tiny_signature_image(),
         notes="Stan OK.",
     )
 
@@ -162,7 +154,7 @@ class TestDocumentService:
             mileage=10_450,
             fuel_level_percent=70,
             signer_name="Jan Kowalski",
-            signature_image=_tiny_image("ret.png"),
+            signature_image=tiny_signature_image("ret.png"),
         )
         assert (
             Document.objects.filter(

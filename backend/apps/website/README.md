@@ -71,9 +71,13 @@ Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).
 - `/asystent/` + widget „Pomoc / Chat” w `base_public.html`
 - Env: `LLM_PROVIDER`, `CHAT_RATE_LIMIT_PER_HOUR` — [`docs/AI_CONSULTANT.md`](../../../docs/AI_CONSULTANT.md)
 
-### Chat AI (Sprint 8b — Faza B planowana)
+### Chat AI (Sprint 8b — Faza B ✅)
 
----
+- `services/chat_tools.py` — read-only tools + deep link do rezerwacji
+- `services/chat_tool_router.py` — heurystyki (mock provider) → tool calls
+- Tooli: `search_available_cars`, `estimate_price`, `get_my_reservation_status`, `get_faq_snippet`
+
+### Chat AI (opcjonalnie)
 
 ## Serwisy (planowane)
 

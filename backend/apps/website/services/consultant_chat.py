@@ -11,6 +11,8 @@ from django.db import transaction
 from apps.website.adapters.llm import LLMClient, get_llm_client
 from apps.website.faq_content import build_faq_context
 from apps.website.models import ChatMessage, ChatMessageRole, ChatSession
+from apps.website.services.chat_tool_router import ChatToolRouter
+from apps.website.services.chat_tools import format_tool_results
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractBaseUser
@@ -32,7 +34,7 @@ ZASADY:
 
 
 class ConsultantChatService:
-    """Orkiestracja czatu z asystentem AI (Sprint 8b — FAQ-only MVP)."""
+    """Orkiestracja czatu z asystentem AI (Sprint 8b)."""
 
     @staticmethod
     def get_or_create_session(
@@ -121,13 +123,18 @@ class ConsultantChatService:
         )
 
         client = llm_client or get_llm_client()
-        llm_messages = ConsultantChatService._build_llm_messages(session)
-        response = client.complete(llm_messages)
+        tool_results = ChatToolRouter.run_for_message(text, user=user)
+        if tool_results:
+            reply = format_tool_results(tool_results)
+        else:
+            llm_messages = ConsultantChatService._build_llm_messages(session)
+            response = client.complete(llm_messages)
+            reply = response.content.strip()
 
         assistant_message = ChatMessage.objects.create(
             session=session,
             role=ChatMessageRole.ASSISTANT,
-            content=response.content.strip(),
+            content=reply,
         )
         session.save(update_fields=["updated_at"])
         ConsultantChatService._increment_rate_limit(

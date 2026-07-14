@@ -13,8 +13,8 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 8b — Chat AI (Faza A MVP) 🟡 |
-| **Następny krok** | Sprint 8b Faza B — tool calls (dostępność, wycena) |
+| **Aktualny etap** | Sprint 8b — Chat AI Faza B ✅ (tool calls) |
+| **Następny krok** | Sprint 9+ backlog lub 8b rozszerzenia (retencja, panel support) |
 | **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -38,7 +38,7 @@
 | 7 | documents (PDF, faktury) | ✅ | 100% |
 | 8 | dashboard + website | ✅ | 100% |
 | 9 | Produkcja i płatności online | ✅ | 100% |
-| 8b | Chat AI — konsultant klienta | 🟡 | 50% |
+| 8b | Chat AI — konsultant klienta | ✅ | 90% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Rozszerzenia (raporty, SMS, i18n) | ⬜ | backlog |
 
@@ -650,7 +650,7 @@
 
 ---
 
-# Sprint 8b — Chat AI (konsultant klienta) 🟡
+# Sprint 8b — Chat AI (konsultant klienta) ✅
 
 **Cel:** publiczny asystent AI na stronie — FAQ, pomoc w wyborze auta, prowadzenie do rezerwacji (bez zapisu rezerwacji z czatu).
 
@@ -669,10 +669,10 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ### Rozszerzenie (Faza B — po bookings + pricing)
 
-- [ ] Tool `search_available_cars` → `AvailabilityService`
-- [ ] Tool `estimate_price` → `PricingService` (disclaimer: orientacyjnie)
-- [ ] Tool `get_my_reservation_status` — tylko zalogowany `customer`
-- [ ] Deep link do formularza rezerwacji z parametrami dat/auto
+- [x] Tool `search_available_cars` → `AvailabilityService`
+- [x] Tool `estimate_price` → `PricingService` (disclaimer: orientacyjnie)
+- [x] Tool `get_my_reservation_status` — tylko zalogowany `customer`
+- [x] Deep link do formularza rezerwacji z parametrami dat/auto
 - [ ] Retencja wiadomości / polityka czyszczenia
 - [ ] (Opcjonalnie) panel wewnętrzny: podgląd rozmów dla supportu
 

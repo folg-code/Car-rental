@@ -1,0 +1,1 @@
+Car Rental: protokol wydania wynajem #{{ rental_id }}. {{ car_label }} ({{ registration_number }}), przebieg {{ mileage }} km, paliwo {{ fuel_level_percent }}%.

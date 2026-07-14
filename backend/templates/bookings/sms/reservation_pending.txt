@@ -1,0 +1,1 @@
+Car Rental: rezerwacja {{ reservation_id }} oczekuje platnosci. Kwota {{ total_amount }} PLN. Zaplat online: {{ payment_url }}

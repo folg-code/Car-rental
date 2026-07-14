@@ -30,3 +30,8 @@ EMAIL_TEMPLATES_BY_DOCUMENT_TYPE: dict[str, dict[str, str]] = {
         "html": RETURN_EMAIL_BODY_HTML,
     },
 }
+
+SMS_TEMPLATES_BY_DOCUMENT_TYPE: dict[str, str] = {
+    "handover_protocol_pdf": "documents/sms/handover.txt",
+    "return_protocol_pdf": "documents/sms/return.txt",
+}

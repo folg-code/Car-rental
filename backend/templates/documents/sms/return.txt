@@ -1,0 +1,1 @@
+Car Rental: protokol zwrotu wynajem #{{ rental_id }}. {{ car_label }} ({{ registration_number }}), przebieg {{ mileage }} km.{% if surcharge_notes %} Uwagi: {{ surcharge_notes }}{% endif %}

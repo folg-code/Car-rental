@@ -1,0 +1,1 @@
+Car Rental: rezerwacja {{ reservation_id }} potwierdzona. {{ car_label }} ({{ registration_number }}), {{ start_at|date:"d.m.Y H:i" }}-{{ end_at|date:"d.m.Y H:i" }}. Szczegoly: {{ confirmation_url }}

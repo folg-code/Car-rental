@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 9+ — rozszerzenia (w toku) |
-| **Następny krok** | Bramka produkcyjna (P24/Stripe) lub SMS |
+| **Następny krok** | Bramka produkcyjna (P24/Stripe) |
 | **Postęp ogólny** | ~97% (Sprint 0–9 + rozszerzenia paperless/finanse) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -40,7 +40,7 @@
 | 9 | Produkcja i płatności online | ✅ | 100% |
 | 8b | Chat AI — konsultant klienta | ✅ | 100% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
-| 9+ | Rozszerzenia (raporty, SMS, i18n) | ⬜ | backlog |
+| 9+ | Rozszerzenia (raporty, SMS, i18n) | 🟡 | w toku |
 
 ---
 
@@ -66,13 +66,14 @@
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
 - [ ] **Bramka produkcyjna** — Stripe / Przelewy24 / PayU (Sprint 9+)
-- [ ] **Powiadomienia SMS** — adapter obok email (Celery)
 
 ---
 
 ## Zrobione (ostatnie)
 
 <!-- Przenoś tu ukończone TODO z sekcji powyżej -->
+
+- [x] Powiadomienia SMS — adapter mock/Twilio, Celery, SmsLog (Sprint 9+)
 
 - [x] Upload zdjec/dokumentow w panelu floty (PR #52)
 - [x] Operations paperless — doplaty po zwrocie, wizard zwrotu, porownanie szkod (PR #51–#53)
@@ -763,7 +764,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 - [ ] Zaawansowany dynamic pricing
 - [x] Raporty finansowe (przychód vs kaucje vs faktury) — `/panel/raporty/` (PR #54)
-- [ ] Powiadomienia SMS/push (po Celery — adapter obok email)
+- [x] Powiadomienia SMS (po Celery — adapter mock/Twilio obok email)
 - [ ] Wielojęzyczność UI
 - [ ] Chat AI — eskalacja do człowieka, analityka konwersji (jeśli nie w Sprint 8b)
 

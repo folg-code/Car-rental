@@ -9,69 +9,158 @@
 {% block content %}
 {% include "operations/_mobile_styles.html" %}
 
-<form method="post" enctype="multipart/form-data" class="max-w-xl mx-auto" id="return-form">
+<form method="post" enctype="multipart/form-data" class="max-w-xl mx-auto" id="return-wizard-form">
     {% csrf_token %}
+    {% include "operations/_wizard_nav.html" %}
 
-    <div class="op-section">
-        <h2 class="font-medium mb-4">Stan przy zwrocie</h2>
-        <div class="mb-4">
-            <label class="op-label" for="id_mileage">{{ form.mileage.label }}</label>
-            {{ form.mileage }}
+    <div class="op-wizard-step" data-step="1">
+        <div class="op-section">
+            <h2 class="font-medium mb-4">Stan przy zwrocie</h2>
+            <div class="mb-4">
+                <label class="op-label" for="id_mileage">{{ form.mileage.label }}</label>
+                {{ form.mileage }}
+                {% if form.mileage.errors %}<p class="text-red-600 text-sm mt-1">{{ form.mileage.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="mb-2">
+                <label class="op-label" for="id_fuel_level_percent">{{ form.fuel_level_percent.label }}: <span id="fuel-val">{{ form.fuel_level_percent.value }}</span>%</label>
+                {{ form.fuel_level_percent }}
+            </div>
+            <div
+                id="surcharge-preview"
+                class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100"
+                hx-get="{% url 'operations:return_surcharge_preview' rental.pk %}"
+                hx-trigger="change from:#id_mileage, input from:#id_fuel_level_percent delay:300ms"
+                hx-include="#id_mileage, #id_fuel_level_percent"
+                hx-swap="innerHTML"
+            >
+                <h3 class="text-sm font-medium text-amber-900 mb-2">Podglad doplat</h3>
+                {% include "operations/_surcharge_preview.html" with preview=surcharge_preview %}
+            </div>
         </div>
-        <div class="mb-2">
-            <label class="op-label" for="id_fuel_level_percent">{{ form.fuel_level_percent.label }}: <span id="fuel-val">{{ form.fuel_level_percent.value }}</span>%</label>
-            {{ form.fuel_level_percent }}
+        <button type="button" class="op-btn-primary op-wizard-next" data-next="2">Dalej — szkody i zdjecia</button>
+    </div>
+
+    <div class="op-wizard-step hidden" data-step="2">
+        <div class="op-section">
+            <h2 class="font-medium mb-3">Porownanie szkod (wydanie → zwrot)</h2>
+            {% include "operations/_damage_comparison.html" %}
+            <p class="text-xs text-gray-500 mt-4 mb-2">Nowe uszkodzenie przy zwrocie (opcjonalnie):</p>
+            {{ form.new_damage_description }}
+            {{ form.new_damage_location }}
+            {{ form.new_damage_severity }}
         </div>
-        <div
-            id="surcharge-preview"
-            class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100"
-            hx-get="{% url 'operations:return_surcharge_preview' rental.pk %}"
-            hx-trigger="change from:#id_mileage, input from:#id_fuel_level_percent delay:300ms"
-            hx-include="#id_mileage, #id_fuel_level_percent"
-            hx-swap="innerHTML"
-        >
-            <h3 class="text-sm font-medium text-amber-900 mb-2">Podglad doplat</h3>
-            {% include "operations/_surcharge_preview.html" with preview=surcharge_preview %}
+        <div class="op-section">
+            <h2 class="font-medium mb-3">Zdjecia</h2>
+            <input type="file" name="photos" accept="image/*" capture="environment" multiple class="op-input" />
+            <p class="text-xs text-gray-500 mt-2">Mozesz wybrac kilka zdjec naraz.</p>
+        </div>
+        <div class="flex gap-3">
+            <button type="button" class="op-btn-secondary op-wizard-prev" data-prev="1">Wstecz</button>
+            <button type="button" class="op-btn-primary op-wizard-next flex-1" data-next="3">Dalej — podpis</button>
         </div>
     </div>
 
-    <div class="op-section">
-        <h2 class="font-medium mb-3">Porownanie szkod (wydanie → zwrot)</h2>
-        {% include "operations/_damage_comparison.html" %}
-        <p class="text-xs text-gray-500 mt-4 mb-2">Nowe uszkodzenie przy zwrocie (opcjonalnie):</p>
-        {{ form.new_damage_description }}
-        {{ form.new_damage_location }}
-        {{ form.new_damage_severity }}
+    <div class="op-wizard-step hidden" data-step="3">
+        <div class="op-section">
+            <h2 class="font-medium mb-3">Podpis i doplaty</h2>
+            <div class="mb-3">
+                <label class="op-label">{{ form.signer_name.label }}</label>
+                {{ form.signer_name }}
+            </div>
+            <div class="mb-3">
+                <label class="op-label">{{ form.signature_image.label }}</label>
+                {{ form.signature_image }}
+            </div>
+            <div class="mb-3">
+                <label class="op-label">{{ form.surcharge_notes.label }}</label>
+                {{ form.surcharge_notes }}
+            </div>
+            <div>
+                <label class="op-label">{{ form.notes.label }}</label>
+                {{ form.notes }}
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+        <p class="text-red-600 text-sm mb-4">{{ form.non_field_errors.0 }}</p>
+        {% endif %}
+
+        <div class="flex gap-3">
+            <button type="button" class="op-btn-secondary op-wizard-prev" data-prev="2">Wstecz</button>
+            <button type="submit" class="op-btn-primary flex-1">Zakoncz zwrot</button>
+        </div>
     </div>
 
-    <div class="op-section">
-        <label class="op-label">Zdjecia</label>
-        <input type="file" name="photos" accept="image/*" capture="environment" multiple class="op-input" />
-    </div>
-
-    <div class="op-section">
-        <h2 class="font-medium mb-3">Podpis i doplaty</h2>
-        {{ form.signer_name }}
-        {{ form.signature_image }}
-        {{ form.surcharge_notes }}
-        {{ form.notes }}
-    </div>
-
-    {% if form.non_field_errors %}
-    <p class="text-red-600 text-sm mb-4">{{ form.non_field_errors.0 }}</p>
-    {% endif %}
-
-    <button type="submit" class="op-btn-primary">Zakoncz zwrot</button>
     <a href="{% url 'operations:home' %}" class="block text-center text-sm text-gray-500 mt-4">Anuluj</a>
 </form>
 
 <script>
 (function () {
-    const slider = document.querySelector("#id_fuel_level_percent");
-    const label = document.getElementById("fuel-val");
-    if (slider && label) {
-        slider.addEventListener("input", function () { label.textContent = slider.value; });
+    const form = document.getElementById("return-wizard-form");
+    const steps = form.querySelectorAll(".op-wizard-step");
+    const dots = form.querySelectorAll(".op-wizard-dot");
+    const label = document.getElementById("wizard-step-label");
+    const stepLabels = {
+        1: "Krok 1: Stan przy zwrocie",
+        2: "Krok 2: Szkody i zdjecia",
+        3: "Krok 3: Podpis i doplaty",
+    };
+
+    function showStep(n) {
+        steps.forEach(function (el) {
+            el.classList.toggle("hidden", Number(el.dataset.step) !== n);
+        });
+        dots.forEach(function (dot) {
+            const active = Number(dot.dataset.step) === n;
+            dot.classList.toggle("is-active", active);
+            if (active) {
+                dot.setAttribute("aria-current", "step");
+            } else {
+                dot.removeAttribute("aria-current");
+            }
+        });
+        if (label) {
+            label.textContent = stepLabels[n] || "";
+        }
     }
+
+    function validateStep(n) {
+        const step = form.querySelector('.op-wizard-step[data-step="' + n + '"]');
+        const fields = step.querySelectorAll("input, select, textarea");
+        for (const field of fields) {
+            if (!field.checkValidity()) {
+                field.reportValidity();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    form.querySelectorAll(".op-wizard-next").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            const current = Number(btn.closest(".op-wizard-step").dataset.step);
+            if (!validateStep(current)) {
+                return;
+            }
+            showStep(Number(btn.dataset.next));
+        });
+    });
+
+    form.querySelectorAll(".op-wizard-prev").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            showStep(Number(btn.dataset.prev));
+        });
+    });
+
+    const slider = document.querySelector("#id_fuel_level_percent");
+    const fuelLabel = document.getElementById("fuel-val");
+    if (slider && fuelLabel) {
+        slider.addEventListener("input", function () {
+            fuelLabel.textContent = slider.value;
+        });
+    }
+
+    showStep(1);
 })();
 </script>
 {% endblock %}

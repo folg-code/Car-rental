@@ -188,7 +188,7 @@ class DocumentService:
         template_path, template = DocumentService._resolve_template(
             DocumentType.HANDOVER_PROTOCOL_PDF
         )
-        pdf_bytes, html_content = DocumentService._render_template(
+        html_content, pdf_bytes = DocumentService._render_template(
             template_path,
             data.as_template_context(),
         )
@@ -221,7 +221,7 @@ class DocumentService:
         template_path, template = DocumentService._resolve_template(
             DocumentType.RETURN_PROTOCOL_PDF
         )
-        pdf_bytes, html_content = DocumentService._render_template(
+        html_content, pdf_bytes = DocumentService._render_template(
             template_path,
             data.as_template_context(),
         )
@@ -281,7 +281,7 @@ class DocumentService:
         template_path, template = DocumentService._resolve_template(
             DocumentType.INVOICE_PDF
         )
-        pdf_bytes, html_content = DocumentService._render_template(
+        html_content, pdf_bytes = DocumentService._render_template(
             template_path,
             data.as_template_context(),
         )

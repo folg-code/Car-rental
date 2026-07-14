@@ -49,3 +49,29 @@ class TestCustomerService:
                 email="test@example.com",
                 user_id=staff.pk,
             )
+
+    def test_get_or_create_returns_existing_by_email(self) -> None:
+        existing = CustomerService.create(
+            first_name="Jan",
+            last_name="Kowalski",
+            email="jan@example.com",
+            phone="+48111111111",
+        )
+        customer, created = CustomerService.get_or_create_for_public_booking(
+            first_name="Inne",
+            last_name="Imie",
+            email="jan@example.com",
+            phone="+48222222222",
+        )
+        assert created is False
+        assert customer.pk == existing.pk
+
+    def test_get_or_create_creates_new_customer(self) -> None:
+        customer, created = CustomerService.get_or_create_for_public_booking(
+            first_name="Anna",
+            last_name="Nowak",
+            email="anna-new@example.com",
+            phone="+48333333333",
+        )
+        assert created is True
+        assert customer.full_name == "Anna Nowak"

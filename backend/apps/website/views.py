@@ -1,13 +1,21 @@
 from __future__ import annotations
 
 from django.core.exceptions import ValidationError
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
-from apps.website.forms import AvailabilitySearchForm, PriceQuoteForm
+from apps.website.forms import AvailabilitySearchForm, PriceQuoteForm, PublicBookingForm
 from apps.website.selectors.availability_search import search_available_cars
 from apps.website.selectors.fleet_catalog import get_public_fleet_catalog
 from apps.website.selectors.price_quote import get_price_quote
+from apps.website.selectors.public_booking import (
+    get_public_reservation_summary,
+    reservation_display_total,
+)
+from apps.website.services.public_booking import PublicBookingOrchestrator
+
+PUBLIC_BOOKING_SESSION_KEY = "public_booking_id"
 
 
 def landing(request: HttpRequest) -> HttpResponse:
@@ -79,3 +87,66 @@ def price_quote(request: HttpRequest) -> HttpResponse:
             "quoted": result is not None,
         },
     )
+
+
+def public_booking(request: HttpRequest) -> HttpResponse:
+    """Formularz rezerwacji online (task 8.12)."""
+    if request.method == "POST":
+        form = PublicBookingForm(request.POST)
+        if form.is_valid():
+            try:
+                result = PublicBookingOrchestrator.submit(
+                    car=form.cleaned_data["car"],
+                    start_at=form.cleaned_data["start_at"],
+                    end_at=form.cleaned_data["end_at"],
+                    first_name=form.cleaned_data["first_name"],
+                    last_name=form.cleaned_data["last_name"],
+                    email=form.cleaned_data.get("email") or "",
+                    phone=form.cleaned_data.get("phone") or "",
+                    extra_codes=form.cleaned_data.get("extras"),
+                    notes=form.cleaned_data.get("notes") or "",
+                )
+            except ValidationError as exc:
+                message = exc.messages[0] if exc.messages else str(exc)
+                form.add_error(None, message)
+            else:
+                request.session[PUBLIC_BOOKING_SESSION_KEY] = result.reservation.pk
+                return HttpResponseRedirect(reverse("website:booking_confirmation"))
+    else:
+        form = PublicBookingForm(initial=_booking_form_initial(request))
+    return render(
+        request,
+        "website/public_booking.html",
+        {"form": form},
+    )
+
+
+def booking_confirmation(request: HttpRequest) -> HttpResponse:
+    """Potwierdzenie rezerwacji online (task 8.12)."""
+    reservation_id = request.session.pop(PUBLIC_BOOKING_SESSION_KEY, None)
+    if reservation_id is None:
+        return redirect("website:home")
+    reservation = get_public_reservation_summary(reservation_id)
+    if reservation is None:
+        return redirect("website:home")
+    return render(
+        request,
+        "website/booking_confirmation.html",
+        {
+            "reservation": reservation,
+            "total": reservation_display_total(reservation),
+        },
+    )
+
+
+def _booking_form_initial(request: HttpRequest) -> dict[str, object]:
+    initial: dict[str, object] = {}
+    if car_id := request.GET.get("car"):
+        try:
+            initial["car"] = int(car_id)
+        except ValueError:
+            pass
+    for field in ("start_at", "end_at"):
+        if raw := request.GET.get(field):
+            initial[field] = raw
+    return initial

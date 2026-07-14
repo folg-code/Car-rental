@@ -14,6 +14,11 @@ urlpatterns = [
     ),
     path("zwrot/<int:rental_id>/", views.return_create, name="return_create"),
     path(
+        "zwrot/<int:rental_id>/podglad-doplat/",
+        views.return_surcharge_preview,
+        name="return_surcharge_preview",
+    ),
+    path(
         "zwrot/<int:rental_id>/podglad/",
         views.return_detail,
         name="return_detail",

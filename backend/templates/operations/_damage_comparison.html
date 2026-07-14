@@ -1,0 +1,38 @@
+{% if damage_comparison %}
+<div class="op-damage-compare text-sm">
+    <div class="op-damage-compare-header">
+        <span>Wydanie</span>
+        <span>Zwrot (flota)</span>
+    </div>
+    {% for row in damage_comparison %}
+    <div class="op-damage-compare-row op-damage-{{ row.status }}">
+        <div class="op-damage-col">
+            {% if row.handover_description %}
+            <p class="font-medium">{{ row.handover_location|default:"—" }}</p>
+            <p>{{ row.handover_description }}</p>
+            {% if row.handover_is_new %}<span class="op-badge">nowe przy wydaniu</span>{% endif %}
+            {% else %}
+            <p class="text-gray-400">—</p>
+            {% endif %}
+        </div>
+        <div class="op-damage-col">
+            {% if row.return_description %}
+            <p class="font-medium">{{ row.return_location|default:"—" }}</p>
+            <p>{{ row.return_description }}</p>
+            {% else %}
+            <p class="text-gray-400">—</p>
+            {% endif %}
+        </div>
+        <p class="op-damage-status">
+            {% if row.status == "unchanged" %}Bez zmian
+            {% elif row.status == "changed" %}Zmienione
+            {% elif row.status == "resolved" %}Naprawione / brak w flocie
+            {% elif row.status == "new_at_return" %}Nowe od wydania
+            {% endif %}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-sm text-gray-500">Brak snapshotow szkod z wydania.</p>
+{% endif %}

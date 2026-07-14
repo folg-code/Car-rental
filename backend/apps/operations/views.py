@@ -10,6 +10,7 @@ from apps.documents.selectors.document import (
     get_return_protocol_document,
 )
 from apps.operations.forms import HandoverProtocolForm, ReturnProtocolForm
+from apps.operations.selectors.damage_comparison import get_return_damage_comparison
 from apps.operations.selectors.protocol import (
     get_handover_for_rental,
     get_return_for_rental,
@@ -18,6 +19,7 @@ from apps.operations.selectors.protocol import (
 )
 from apps.operations.services.handover import HandoverService
 from apps.operations.services.return_workflow import ReturnService
+from apps.operations.services.surcharge_preview import SurchargePreviewService
 
 
 def _parse_new_damage(cleaned_data: dict) -> list[dict]:
@@ -185,6 +187,15 @@ def return_create(request: HttpRequest, rental_id: int) -> HttpResponse:
 
     car = rental.reservation.car
     active_damages = Damage.objects.filter(car=car, status=DamageStatus.ACTIVE)
+    damage_comparison = (
+        get_return_damage_comparison(handover) if handover.is_completed else []
+    )
+    initial_preview = SurchargePreviewService.preview(
+        handover_mileage=handover.mileage,
+        handover_fuel=handover.fuel_level_percent,
+        return_mileage=initial["mileage"],
+        return_fuel=initial["fuel_level_percent"],
+    )
     return render(
         request,
         "operations/return_form.html",
@@ -193,7 +204,35 @@ def return_create(request: HttpRequest, rental_id: int) -> HttpResponse:
             "handover": handover,
             "form": form,
             "active_damages": active_damages,
+            "damage_comparison": damage_comparison,
+            "surcharge_preview": initial_preview,
         },
+    )
+
+
+@staff_required
+def return_surcharge_preview(request: HttpRequest, rental_id: int) -> HttpResponse:
+    rental = get_rental_by_id(rental_id)
+    handover = get_handover_for_rental(rental_id)
+    if rental is None or handover is None or not handover.is_completed:
+        return HttpResponse(status=404)
+
+    try:
+        mileage = int(request.GET.get("mileage", handover.mileage))
+        fuel = int(request.GET.get("fuel_level_percent", handover.fuel_level_percent))
+    except (TypeError, ValueError):
+        return HttpResponse(status=400)
+
+    preview = SurchargePreviewService.preview(
+        handover_mileage=handover.mileage,
+        handover_fuel=handover.fuel_level_percent,
+        return_mileage=mileage,
+        return_fuel=fuel,
+    )
+    return render(
+        request,
+        "operations/_surcharge_preview.html",
+        {"preview": preview},
     )
 
 

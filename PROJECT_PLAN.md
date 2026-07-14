@@ -499,7 +499,7 @@
 | 8 | Automatyczne wysłanie emaila do klienta z PDF | [x] |
 | 9 | Automatyczna zmiana statusu `Rental` → **active** | [x] (`HandoverService` → `RentalService.start`) |
 
-**Backlog UX wydania:** formularz krok po kroku (HTMX), walidacja na każdym kroku, offline-tolerant upload zdjęć (opcjonalnie, później).
+**Backlog UX wydania:** formularz krok po kroku (HTMX) — [x] wizard 3-krokowy (JS); walidacja na każdym kroku, offline-tolerant upload zdjęć (opcjonalnie, później).
 
 ### Docelowy workflow — zwrot auta
 
@@ -507,15 +507,15 @@
 |------|------|--------|
 | 1 | Otworzenie zwrotu (kolejka „Do zwrotu” / wynajem aktywny) | [x] |
 | 2 | Wprowadzenie: przebiegu, paliwa, uwag | [x] |
-| 3 | Porównanie szkód z wydaniem (`DamageSnapshot` z handover vs stan przy zwrocie) | [x] (snapshoty); UI porównania side-by-side — [ ] |
+| 3 | Porównanie szkód z wydaniem (`DamageSnapshot` z handover vs stan przy zwrocie) | [x] snapshoty + UI porównania side-by-side |
 | 4 | Dodanie nowych szkód | [x] |
-| 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [ ] → `pricing` + `payments` (obecnie: notatki `surcharge_notes`) |
+| 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [x] podgląd HTMX (`SurchargePreviewService`); auto `payments` — [ ] |
 | 6 | Podpis klienta | [x] |
 | 7 | Generacja PDF protokołu zwrotu | [x] |
 | 8 | Email do klienta z PDF | [x] |
 | 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] częściowo (`mark_returned`); pełne `close` po płatnościach — [ ] |
 
-**Backlog UX zwrotu:** ekran porównania szkód wydanie/zwrot, podgląd dopłat przed podpisem, HTMX kroki.
+**Backlog UX zwrotu:** ekran porównania szkód wydanie/zwrot — [x]; podgląd dopłat przed podpisem — [x] (HTMX); HTMX kroki — [ ].
 
 ### Mapowanie na sprinty
 

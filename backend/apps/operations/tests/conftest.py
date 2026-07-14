@@ -7,7 +7,21 @@ from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
 from apps.fleet.models import Car, CarCategory, CarStatus
-from apps.pricing.models import DailyRate, PriceList
+from apps.operations.services.surcharge_preview import EXTRA_KM_CODE, FUEL_REFILL_CODE
+from apps.pricing.models import (
+    DailyRate,
+    ExtraService,
+    ExtraServiceChargeType,
+    PriceList,
+)
+
+
+@pytest.fixture(autouse=True)
+def mock_pdf_renderer(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "apps.documents.services.pdf_renderer.PdfRenderer.html_to_pdf",
+        lambda html, base_url=None: b"%PDF-1.4 operations-test",
+    )
 
 
 @pytest.fixture
@@ -26,6 +40,20 @@ def default_price_list(db, category: CarCategory) -> PriceList:
         is_active=True,
     )
     DailyRate.objects.create(price_list=pl, category=category, amount=Decimal("100"))
+    ExtraService.objects.create(
+        price_list=pl,
+        code=FUEL_REFILL_CODE,
+        name="Uzupelnienie paliwa",
+        charge_type=ExtraServiceChargeType.PER_UNIT,
+        amount=Decimal("5.00"),
+    )
+    ExtraService.objects.create(
+        price_list=pl,
+        code=EXTRA_KM_CODE,
+        name="Dodatkowy km",
+        charge_type=ExtraServiceChargeType.PER_UNIT,
+        amount=Decimal("1.50"),
+    )
     return pl
 
 

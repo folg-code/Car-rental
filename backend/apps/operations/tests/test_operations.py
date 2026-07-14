@@ -17,7 +17,13 @@ from apps.operations.models import DamageSnapshot, HandoverProtocol
 from apps.operations.services.damage_snapshot import DamageSnapshotService
 from apps.operations.services.handover import HandoverService
 from apps.operations.services.return_workflow import ReturnService
-from apps.pricing.models import DailyRate, PriceList
+from apps.operations.services.surcharge_preview import EXTRA_KM_CODE, FUEL_REFILL_CODE
+from apps.pricing.models import (
+    DailyRate,
+    ExtraService,
+    ExtraServiceChargeType,
+    PriceList,
+)
 
 
 def _tiny_image(name: str = "sig.png") -> SimpleUploadedFile:
@@ -44,6 +50,20 @@ def default_price_list(db, category: CarCategory) -> PriceList:
         is_active=True,
     )
     DailyRate.objects.create(price_list=pl, category=category, amount=Decimal("100"))
+    ExtraService.objects.create(
+        price_list=pl,
+        code=FUEL_REFILL_CODE,
+        name="Uzupelnienie paliwa",
+        charge_type=ExtraServiceChargeType.PER_UNIT,
+        amount=Decimal("5.00"),
+    )
+    ExtraService.objects.create(
+        price_list=pl,
+        code=EXTRA_KM_CODE,
+        name="Dodatkowy km",
+        charge_type=ExtraServiceChargeType.PER_UNIT,
+        amount=Decimal("1.50"),
+    )
     return pl
 
 

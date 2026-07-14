@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 9 — produkcja i płatności online |
-| **Następny krok** | Task **9.9** — deploy produkcyjny (HTTPS + backup) |
+| **Następny krok** | Task **9.10** — testy płatności (pełna integracja) |
 | **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -706,7 +706,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 | **9.6** | Orkiestracja po płatności | sukces → `PaymentService` + `ReservationService.confirm` | ✅ |
 | **9.7** | Redis + Celery | serwisy Docker, `config/celery.py`, worker; [`docs/DOCKER.md`](docs/DOCKER.md) | ✅ |
 | **9.8** | Email async | task wysyłki PDF (`documents`) zamiast synchronicznego `EmailService` w request | ✅ |
-| **9.9** | Deploy produkcyjny | HTTPS (Caddy/Nginx), backup PostgreSQL + media, test odtworzenia | ⬜ |
+| **9.9** | Deploy produkcyjny | HTTPS (Caddy/Nginx), backup PostgreSQL + media, test odtworzenia | ✅ |
 | **9.10** | Testy płatności | pytest: mock gateway, webhook, flow website → intent → confirm | ⬜ |
 
 ### Płatności online (9.1–9.6)
@@ -721,7 +721,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 - [x] Celery + Redis w Compose
 - [x] Powiadomienia email w tle
-- [ ] Deploy VPS + HTTPS + backup
+- [x] Deploy VPS + HTTPS + backup
 
 ### Definition of Done Sprint 9
 
@@ -739,7 +739,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 ### Bezpieczeństwo i compliance
 
-- [ ] HTTPS na produkcji
+- [x] HTTPS na produkcji (Caddy + Let's Encrypt — task 9.9)
 - [ ] Szyfrowane PDF
 - [ ] Audit log operacji krytycznych
 - [ ] Bezpieczne uploady (walidacja typu/rozmiaru)

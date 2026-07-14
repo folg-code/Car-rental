@@ -77,7 +77,7 @@ Platforma operacyjna do zarządzania wypożyczalnią samochodów — od rezerwac
 | **CI/CD** | GitHub Actions (Ruff, pytest, build obrazu, deploy SSH) |
 | **Testy** | pytest + pytest-django |
 | **Linting** | Ruff, pre-commit |
-| **Planowane** | Celery + Redis (async powiadomienia), Caddy/Nginx (reverse proxy) |
+| **Planowane** | Prawdziwa bramka płatności (Stripe / Przelewy24) |
 
 ---
 
@@ -547,7 +547,8 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | ID | Moduł | Task |
 |----|-------|------|
 | 9.1–9.6 | payments + website | intent dla rezerwacji, adapter bramki, webhook, płatność online, confirm |
-| 9.7–9.9 | infra | Celery/Redis, email async, deploy HTTPS + backup |
+| 9.9 | infra | Deploy HTTPS (Caddy) + backup/restore — [`docs/DEPLOY.md`](docs/DEPLOY.md) |
+| 9.10 | payments | Testy pełnego flow płatności |
 | 9.10 | payments | testy flow płatności |
 
 Szczegóły: [`PROJECT_PLAN.md`](PROJECT_PLAN.md)

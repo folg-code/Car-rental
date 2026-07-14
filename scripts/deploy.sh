@@ -8,8 +8,23 @@ WEB_IMAGE="${WEB_IMAGE:?WEB_IMAGE is required}"
 
 cd "$APP_DIR"
 
+if [ -f .env.production ]; then
+	set -a
+	# shellcheck disable=SC1091
+	source .env.production
+	set +a
+fi
+
+if [ -n "${DOMAIN:-}" ]; then
+	export COMPOSE_PROFILES=https
+	echo "==> HTTPS enabled for DOMAIN=$DOMAIN (Caddy profile)"
+else
+	unset COMPOSE_PROFILES
+	echo "==> DOMAIN not set — HTTP only on 127.0.0.1:8000"
+fi
+
 echo "==> Pull latest image"
-docker compose -f "$COMPOSE_FILE" pull web
+docker compose -f "$COMPOSE_FILE" pull web celery
 
 echo "==> Start services"
 export WEB_IMAGE
@@ -20,14 +35,14 @@ sleep 10
 
 echo "==> Run migrations"
 docker compose -f "$COMPOSE_FILE" run --rm web \
-  python backend/manage.py migrate --noinput
+	python backend/manage.py migrate --noinput
 
 echo "==> Collect static files"
 docker compose -f "$COMPOSE_FILE" run --rm web \
-  python backend/manage.py collectstatic --noinput
+	python backend/manage.py collectstatic --noinput
 
-echo "==> Restart web container"
-docker compose -f "$COMPOSE_FILE" restart web
+echo "==> Restart application containers"
+docker compose -f "$COMPOSE_FILE" restart web celery
 
 echo "==> Remove dangling images"
 docker image prune -f

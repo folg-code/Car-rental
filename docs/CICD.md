@@ -128,9 +128,13 @@ pytest -q
 | Plik | Rola |
 |------|------|
 | `Dockerfile.prod` | Obraz z Gunicorn |
-| `docker-compose.prod.yml` | Postgres + web (+ opcjonalnie Caddy) |
-| `scripts/deploy.sh` | Pull + migrate + restart |
-| `deploy/Caddyfile` | Szablon reverse proxy HTTPS |
+| `docker-compose.prod.yml` | Postgres + web + Celery + Redis (+ Caddy profil `https`) |
+| `scripts/deploy.sh` | Pull + migrate + collectstatic + restart |
+| `scripts/backup.sh` | Backup DB + media + private_documents |
+| `scripts/restore.sh` | Przywracanie z backupu (`--confirm`) |
+| `scripts/backup-restore-selftest.sh` | Test roundtrip backup/restore (CI) |
+| `deploy/Caddyfile` | Reverse proxy HTTPS |
+| [`docs/DEPLOY.md`](./DEPLOY.md) | Checklist VPS, cron, offsite |
 
 ## Rozwiązywanie problemów
 

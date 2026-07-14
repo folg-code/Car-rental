@@ -100,6 +100,9 @@ jobs:
             docker-compose.prod.yml
             deploy/Caddyfile
             scripts/deploy.sh
+            scripts/backup.sh
+            scripts/restore.sh
+            scripts/backup-restore-selftest.sh
             .env.example
           target: ${{ secrets.DEPLOY_PATH }}
 
@@ -117,6 +120,9 @@ jobs:
             cd "${{ secrets.DEPLOY_PATH }}"
 
             chmod +x scripts/deploy.sh
+            chmod +x scripts/backup.sh
+            chmod +x scripts/restore.sh
+            chmod +x scripts/backup-restore-selftest.sh
 
             if [ -n "$GHCR_READ_TOKEN" ]; then
               echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

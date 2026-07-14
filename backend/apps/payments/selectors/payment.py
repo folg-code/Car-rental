@@ -56,15 +56,80 @@ def get_rental_revenue_total(rental_id: int) -> Decimal:
     return (total or Decimal("0")).quantize(Decimal("0.01"))
 
 
+def _sum_payments_in_period(
+    start_at: datetime,
+    end_at: datetime,
+    *,
+    payment_type: str | None = None,
+    payment_types: frozenset[str] | None = None,
+) -> Decimal:
+    qs = Payment.objects.filter(paid_at__gte=start_at, paid_at__lte=end_at)
+    if payment_type is not None:
+        qs = qs.filter(payment_type=payment_type)
+    elif payment_types is not None:
+        qs = qs.filter(payment_type__in=payment_types)
+    total = qs.aggregate(total=Sum("amount"))["total"]
+    return (total or Decimal("0")).quantize(Decimal("0.01"))
+
+
 def get_revenue_total_in_period(
     start_at: datetime,
     end_at: datetime,
 ) -> Decimal:
     """Suma platnosci przychodowych w przedziale [start_at, end_at] (paid_at)."""
-    total = Payment.objects.filter(
-        payment_type__in=REVENUE_PAYMENT_TYPES,
-        paid_at__gte=start_at,
-        paid_at__lte=end_at,
+    return _sum_payments_in_period(
+        start_at,
+        end_at,
+        payment_types=REVENUE_PAYMENT_TYPES,
+    )
+
+
+def get_payment_type_totals_in_period(
+    start_at: datetime,
+    end_at: datetime,
+) -> dict[str, Decimal]:
+    """Sumy platnosci wg typu w przedziale [start_at, end_at] (paid_at)."""
+    rows = (
+        Payment.objects.filter(paid_at__gte=start_at, paid_at__lte=end_at)
+        .values("payment_type")
+        .annotate(total=Sum("amount"))
+    )
+    totals = {payment_type: Decimal("0") for payment_type in PaymentType.values}
+    for row in rows:
+        totals[row["payment_type"]] = (row["total"] or Decimal("0")).quantize(
+            Decimal("0.01")
+        )
+    return totals
+
+
+def get_revenue_by_method_in_period(
+    start_at: datetime,
+    end_at: datetime,
+) -> dict[str, Decimal]:
+    """Przychod operacyjny wg metody platnosci w przedziale [start_at, end_at]."""
+    rows = (
+        Payment.objects.filter(
+            payment_type__in=REVENUE_PAYMENT_TYPES,
+            paid_at__gte=start_at,
+            paid_at__lte=end_at,
+        )
+        .values("method")
+        .annotate(total=Sum("amount"))
+    )
+    return {
+        row["method"]: (row["total"] or Decimal("0")).quantize(Decimal("0.01"))
+        for row in rows
+    }
+
+
+def get_charges_accrued_in_period(
+    start_at: datetime,
+    end_at: datetime,
+) -> Decimal:
+    """Suma naliczonych doplat (RentalCharge) w przedziale [start_at, end_at]."""
+    total = RentalCharge.objects.filter(
+        created_at__gte=start_at,
+        created_at__lte=end_at,
     ).aggregate(total=Sum("amount"))["total"]
     return (total or Decimal("0")).quantize(Decimal("0.01"))
 

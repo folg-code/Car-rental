@@ -1,0 +1,181 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Raport finansowy{% endblock %}
+{% block page_heading %}Raport finansowy{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">
+    Przychod operacyjny vs kaucje vs faktury — {{ period_start|date:"Y-m-d" }} do {{ period_end|date:"Y-m-d" }}
+</p>
+{% endblock %}
+
+{% block content %}
+<form method="get" class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap gap-4 items-end">
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="from">Od</label>
+        <input
+            type="date"
+            id="from"
+            name="from"
+            value="{{ period_start|date:'Y-m-d' }}"
+            class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="to">Do</label>
+        <input
+            type="date"
+            id="to"
+            name="to"
+            value="{{ period_end|date:'Y-m-d' }}"
+            class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+    </div>
+    <button
+        type="submit"
+        class="inline-flex items-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+    >
+        Odswiez
+    </button>
+</form>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-emerald-500">
+        <p class="text-sm text-gray-500">Przychod operacyjny</p>
+        <p class="text-2xl font-semibold text-gray-900">{{ report.revenue_total }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">Wynajem + doplaty + szkody (bez kaucji)</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
+        <p class="text-sm text-gray-500">Kaucje (netto)</p>
+        <p class="text-2xl font-semibold text-gray-900">{{ report.deposit_net }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">
+            Wplaty {{ report.deposits_collected }} PLN · zwroty {{ report.refunds_paid }} PLN
+        </p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-violet-500">
+        <p class="text-sm text-gray-500">Faktury wystawione</p>
+        <p class="text-2xl font-semibold text-gray-900">{{ report.invoice_total }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">{{ report.invoice_count }} faktur (bez anulowanych)</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-amber-500">
+        <p class="text-sm text-gray-500">Doplaty naliczone</p>
+        <p class="text-2xl font-semibold text-gray-900">{{ report.charges_accrued }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">Po zwrocie — moga byc jeszcze nieoplacone</p>
+    </div>
+</div>
+
+<p class="text-xs text-gray-500 mb-6">
+    Przychod (ruch pieniezny) odzwierciedla zaksiegowane platnosci wg daty <code>paid_at</code>.
+    Faktury to dokumenty ksiegowe wg daty wystawienia — kwoty moga sie roznic od przychodu w tym samym okresie.
+</p>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-4 py-3 border-b bg-gray-50">
+            <h2 class="font-medium text-gray-900">Przychod wg typu platnosci</h2>
+        </div>
+        <table class="min-w-full text-sm">
+            <tbody class="divide-y">
+                <tr>
+                    <td class="px-4 py-3 text-gray-600">Oplata za wynajem</td>
+                    <td class="px-4 py-3 text-right font-medium">{{ report.revenue.rental_fees }} PLN</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-3 text-gray-600">Oplata dodatkowa</td>
+                    <td class="px-4 py-3 text-right font-medium">{{ report.revenue.extra_charges }} PLN</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-3 text-gray-600">Oplata za szkody</td>
+                    <td class="px-4 py-3 text-right font-medium">{{ report.revenue.damage_charges }} PLN</td>
+                </tr>
+                <tr class="bg-gray-50">
+                    <td class="px-4 py-3 font-medium">Razem przychod</td>
+                    <td class="px-4 py-3 text-right font-semibold">{{ report.revenue_total }} PLN</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-4 py-3 border-b bg-gray-50">
+            <h2 class="font-medium text-gray-900">Przychod wg metody platnosci</h2>
+        </div>
+        <table class="min-w-full text-sm">
+            <tbody class="divide-y">
+                {% for label, amount in revenue_by_method_rows %}
+                <tr>
+                    <td class="px-4 py-3 text-gray-600">{{ label }}</td>
+                    <td class="px-4 py-3 text-right font-medium">{{ amount }} PLN</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="px-4 py-8 text-center text-gray-500">Brak platnosci przychodowych w okresie.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-4 py-3 border-b bg-gray-50 flex justify-between items-center">
+            <h2 class="font-medium text-gray-900">Platnosci w okresie</h2>
+            <a href="{% url 'payments:payment_list' %}" class="text-xs text-blue-600 hover:underline">Wszystkie</a>
+        </div>
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 text-left text-gray-600">
+                <tr>
+                    <th class="px-4 py-2">Data</th>
+                    <th class="px-4 py-2">Typ</th>
+                    <th class="px-4 py-2 text-right">Kwota</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                {% for payment in payments_in_period %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2">{{ payment.paid_at|date:"Y-m-d" }}</td>
+                    <td class="px-4 py-2">{{ payment.get_payment_type_display }}</td>
+                    <td class="px-4 py-2 text-right font-medium">{{ payment.amount }} PLN</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="px-4 py-8 text-center text-gray-500">Brak platnosci w wybranym okresie.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-4 py-3 border-b bg-gray-50 flex justify-between items-center">
+            <h2 class="font-medium text-gray-900">Faktury w okresie</h2>
+            <a href="{% url 'documents:home' %}" class="text-xs text-blue-600 hover:underline">Dokumenty</a>
+        </div>
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 text-left text-gray-600">
+                <tr>
+                    <th class="px-4 py-2">Nr / data</th>
+                    <th class="px-4 py-2">Status</th>
+                    <th class="px-4 py-2 text-right">Kwota</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                {% for invoice in invoices_in_period %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2">
+                        {{ invoice.invoice_number }}<br />
+                        <span class="text-xs text-gray-400">{{ invoice.issue_date|date:"Y-m-d" }}</span>
+                    </td>
+                    <td class="px-4 py-2">{{ invoice.get_status_display }}</td>
+                    <td class="px-4 py-2 text-right font-medium">{{ invoice.total_amount }} {{ invoice.currency }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="px-4 py-8 text-center text-gray-500">Brak faktur w wybranym okresie.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

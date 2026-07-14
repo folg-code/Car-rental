@@ -21,11 +21,21 @@
             <span class="font-medium text-gray-900">Kwota:</span>
             {{ total }} PLN
         </p>
+        <p>
+            <span class="font-medium text-gray-900">Status rezerwacji:</span>
+            {{ reservation.get_status_display }}
+        </p>
     </div>
 
+    {% if reservation.status == "confirmed" %}
     <p class="mt-8 text-sm text-gray-600">
-        Potwierdzenie rezerwacji otrzymasz po przetworzeniu platnosci przez system.
+        Rezerwacja zostala potwierdzona. Skontaktujemy sie w sprawie wydania pojazdu.
     </p>
+    {% else %}
+    <p class="mt-8 text-sm text-gray-600">
+        Potwierdzenie rezerwacji nastapi po przetworzeniu platnosci.
+    </p>
+    {% endif %}
 
     <a
         href="{% url 'website:home' %}"

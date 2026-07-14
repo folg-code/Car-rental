@@ -129,6 +129,8 @@ class Payment(models.Model):
     rental = models.ForeignKey(
         "bookings.Rental",
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name="payments",
     )
     reservation = models.ForeignKey(
@@ -171,6 +173,12 @@ class Payment(models.Model):
             models.Index(fields=["rental", "payment_type"]),
             models.Index(fields=["paid_at"]),
         ]
+        constraints = [
+            _check_constraint(
+                "payment_requires_rental_or_reservation",
+                models.Q(rental__isnull=False) | models.Q(reservation__isnull=False),
+            ),
+        ]
 
     def __str__(self) -> str:
         return (
@@ -184,6 +192,10 @@ class Payment(models.Model):
 
     def clean(self) -> None:
         super().clean()
+        if self.rental_id is None and self.reservation_id is None:
+            raise ValidationError(
+                "Platnosc musi byc powiazana z wynajmem lub rezerwacja."
+            )
         if self.payment_type == PaymentType.REFUND and self.amount <= 0:
             raise ValidationError({"amount": "Kwota zwrotu musi byc dodatnia."})
 

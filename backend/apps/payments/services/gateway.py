@@ -9,7 +9,8 @@ from typing import Any
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
-from apps.bookings.models import Rental, Reservation
+from apps.bookings.models import Rental, Reservation, ReservationStatus
+from apps.bookings.services.reservation import ReservationService
 from apps.payments.adapters.gateway import (
     GatewayCheckoutRequest,
     GatewayCheckoutSession,
@@ -19,9 +20,11 @@ from apps.payments.adapters.gateway import (
 from apps.payments.models import (
     PaymentIntent,
     PaymentIntentStatus,
+    PaymentMethod,
     PaymentProviderEvent,
     PaymentType,
 )
+from apps.payments.services.payment import PaymentService
 
 SUCCESS_EVENT_TYPES = frozenset(
     {
@@ -209,6 +212,39 @@ class PaymentGatewayService:
         if intent.status == PaymentIntentStatus.PENDING:
             intent.status = PaymentIntentStatus.SUCCEEDED
             intent.save(update_fields=["status", "updated_at"])
+            PaymentGatewayService._fulfill_successful_payment(intent)
+
+    @staticmethod
+    @transaction.atomic
+    def _fulfill_successful_payment(intent: PaymentIntent) -> None:
+        if intent.payments.exists():
+            return
+
+        if intent.reservation_id is not None:
+            reservation = Reservation.objects.select_for_update().get(
+                pk=intent.reservation_id,
+            )
+            if reservation.status == ReservationStatus.PENDING_PAYMENT:
+                ReservationService.confirm(reservation)
+            PaymentService.record_reservation_payment(
+                reservation_id=reservation.pk,
+                amount=intent.amount,
+                payment_type=intent.payment_type,
+                method=PaymentMethod.ONLINE_GATEWAY,
+                intent_id=intent.pk,
+                notes="Platnosc online",
+            )
+            return
+
+        if intent.rental_id is not None:
+            PaymentService.record_payment(
+                rental_id=intent.rental_id,
+                amount=intent.amount,
+                payment_type=intent.payment_type,
+                method=PaymentMethod.ONLINE_GATEWAY,
+                intent_id=intent.pk,
+                notes="Platnosc online",
+            )
 
     @staticmethod
     def _mark_intent_failed(intent: PaymentIntent) -> None:

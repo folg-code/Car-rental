@@ -18,6 +18,8 @@
 
 **Wolumeny prod:** `postgres_data`, `redis_data`, `media_data`, `static_data`, `private_documents_data`.
 
+**Windows (dev):** mount `.:/app` nadpisuje `.venv` z obrazu — w `docker-compose.yml` jest osobny wolumen `venv_cache:/app/.venv` oraz `uv sync` przy starcie `web`/`celery`. Po zmianie zależności: `docker compose up -d --build web celery`.
+
 ---
 
 ## Celery + Redis (Sprint 9.7)

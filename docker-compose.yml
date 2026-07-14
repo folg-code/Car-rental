@@ -16,13 +16,16 @@ services:
   web:
     build: .
 
-    command: python backend/manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "uv sync --all-groups &&
+      python backend/manage.py runserver 0.0.0.0:8000"
 
     env_file:
       - .env.docker
 
     volumes:
       - .:/app
+      - venv_cache:/app/.venv
 
     ports:
       - "8000:8000"
@@ -34,7 +37,9 @@ services:
   celery:
     build: .
 
-    command: celery -A config worker -l info --workdir backend
+    command: >
+      sh -c "uv sync --all-groups &&
+      cd backend && celery -A config worker -l info"
 
     env_file:
       - .env.docker
@@ -45,6 +50,7 @@ services:
 
     volumes:
       - .:/app
+      - venv_cache:/app/.venv
 
   tailwind:
     image: node:20
@@ -55,3 +61,6 @@ services:
 
     volumes:
       - .:/app
+
+volumes:
+  venv_cache:

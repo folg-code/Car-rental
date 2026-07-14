@@ -14,12 +14,12 @@
             bez dzwonienia do biura.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
-            <span
-                class="inline-flex items-center rounded-lg bg-white px-5 py-3 text-sm font-medium text-gray-900 opacity-80 cursor-not-allowed"
-                title="Katalog floty — task 8.9"
+            <a
+                href="{% url 'website:fleet_list' %}"
+                class="inline-flex items-center rounded-lg bg-white px-5 py-3 text-sm font-medium text-gray-900 hover:bg-gray-100"
             >
-                Przegladaj flote (wkrotce)
-            </span>
+                Przegladaj flote
+            </a>
             <a
                 href="{% url 'accounts:login' %}"
                 class="inline-flex items-center rounded-lg border border-gray-600 px-5 py-3 text-sm font-medium text-white hover:bg-gray-800"

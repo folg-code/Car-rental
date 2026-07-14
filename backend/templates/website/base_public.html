@@ -18,7 +18,9 @@
                 <a href="{% url 'website:home' %}" class="text-gray-600 hover:text-gray-900">
                     Start
                 </a>
-                <span class="text-gray-400" title="Task 8.9">Flota</span>
+                <a href="{% url 'website:fleet_list' %}" class="text-gray-600 hover:text-gray-900">
+                    Flota
+                </a>
                 <span class="text-gray-400" title="Task 8.13">Kontakt</span>
                 {% if user.is_authenticated and user.is_staff_member %}
                 <a href="{% url 'dashboard:home' %}" class="text-gray-600 hover:text-gray-900">

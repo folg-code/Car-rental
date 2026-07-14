@@ -32,13 +32,13 @@ Chat AI: Sprint **8b** — [`../../../docs/AI_CONSULTANT.md`](../../../docs/AI_C
 | **8.11** | Orientacyjna wycena | `PricingService.calculate()` read-only na stronie | ✅ |
 | **8.12** | Rezerwacja online | `services/public_booking.py` → `ReservationService` | ✅ |
 | **8.13** | Strony informacyjne | regulamin, kontakt, FAQ (placeholdery) | ✅ |
-| **8.14** | Testy | `tests/test_landing.py`, `tests/test_public_booking.py` | ⬜ |
+| **8.14** | Testy | `tests/test_public_flow.py` + istniejace testy widokow | ✅ |
 
 ### Stan wyjściowy
 
 - Aplikacja `website` w `INSTALLED_APPS`
-- Kanał publiczny: `/`, `/flota/`, `/flota/dostepnosc/`, `/wycena/`, `/rezerwacja/`, `/regulamin/`, `/kontakt/`, `/faq/` (taski **8.8–8.13**)
-- Następny krok: testy website (task **8.14**)
+- Kanał publiczny kompletny (taski **8.8–8.14**)
+- Test integracyjny: dostepnosc → wycena → rezerwacja → potwierdzenie
 
 ---
 

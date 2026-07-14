@@ -529,7 +529,7 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 5 | Rental + Payments MVP | ✅ |
 | 6 | Operations (wydanie/zwrot, snapshoty, podpisy) | ✅ |
 | 7 | Documents (PDF, email, faktury, private storage) | ✅ |
-| 8 | Dashboard KPI + Website publiczna | 🟡 (~79%) |
+| 8 | Dashboard KPI + Website publiczna | ✅ |
 | 8b | AI Chatbot — konsultant klienta | Planned |
 | 9+ | Produkcja: Celery/Redis, bramka płatności, HTTPS | Backlog |
 
@@ -539,7 +539,7 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 |----|-------|------|--------|
 | 8.1–8.7 | dashboard | KPI, alerty fleet, nieopłacone wynajmy, przychód, UI pulpitu, testy | ✅ |
 | 8.8–8.11 | website | layout, katalog floty, wyszukiwarka, wycena | ✅ |
-| 8.12–8.14 | website | rezerwacja online, strony informacyjne, testy | ⬜ |
+| 8.12–8.14 | website | rezerwacja online, strony informacyjne, testy | ✅ |
 
 Szczegóły: [`PROJECT_PLAN.md`](PROJECT_PLAN.md)
 

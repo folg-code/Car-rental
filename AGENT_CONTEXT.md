@@ -664,11 +664,11 @@ Critical priorities:
 
 > Sprint tracking: [`PROJECT_PLAN.md`](./PROJECT_PLAN.md) — last updated 2026-07-14.
 
-**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP) · 6 (operations — handover/return) · 7 (documents — PDF, email, faktury)
+**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP) · 6 (operations — handover/return) · 7 (documents — PDF, email, faktury) · **8 (dashboard KPI + website publiczna)**
 
-**In progress:** Sprint 8 — dashboard KPI (**8.1–8.7** ✅) + website publiczna (**8.8–8.11** ✅; **8.12–8.14** ⬜).
+**In progress:** brak — Sprint 8 zamknięty.
 
-**Next task:** 8.12 — public online reservation (`PublicBookingOrchestrator`).
+**Next:** Sprint 8b (Chat AI) lub Sprint 9+ (produkcja, bramka płatności).
 
 Implemented:
 - Django project setup
@@ -689,15 +689,11 @@ Implemented:
 - operations: `HandoverProtocol`, `ReturnProtocol`, `ProtocolPhoto`, `Signature`, `DamageSnapshot`, `HandoverService` / `ReturnService`, panel `/panel/operacje/` (mobile-first, `capture="environment"`), handover → `RentalService.start`, return → `mark_returned`, **DamageSnapshot immutable** after fleet `Damage` edits
 - documents: `DocumentService`, `EmailService`, `InvoiceService`, private storage, panel `/panel/dokumenty/`, PDF protokołów i faktur
 - dashboard: pełne KPI (przychód, nieopłacone, alerty fleet), widget wolnych aut przez `AvailabilityService`, UI pulpitu (taski 8.1–8.7)
-- website: layout publiczny, katalog floty, wyszukiwarka dostępności, orientacyjna wycena (taski 8.8–8.11)
+- website: pełny kanał publiczny — flota, dostępność, wycena, rezerwacja online, strony info (taski 8.8–8.14)
 - CI/CD (GitHub Actions)
 - `manage.py seed_demo` — fleet, customers, price list, sample reservation + rental (scheduled)
 
-In progress:
-- Sprint 8 — rezerwacja online (8.12), strony informacyjne (8.13), testy website (8.14)
-
 Not implemented yet:
-- website: public booking form + `PublicBookingOrchestrator`
 - payment gateway integration (webhooks, online checkout)
 - AI customer consultant (chatbot — Sprint 8b)
 

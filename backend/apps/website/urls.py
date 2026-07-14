@@ -15,6 +15,22 @@ urlpatterns = [
         views.booking_confirmation,
         name="booking_confirmation",
     ),
+    path(
+        "rezerwacja/<int:reservation_id>/potwierdzenie/",
+        views.booking_confirmation_by_id,
+        name="booking_confirmation_by_id",
+    ),
+    path(
+        "rezerwacja/<int:reservation_id>/platnosc/",
+        views.start_payment,
+        name="start_payment",
+    ),
+    path(
+        "rezerwacja/<int:reservation_id>/platnosc/sukces/",
+        views.payment_success,
+        name="payment_success",
+    ),
+    path("platnosc/mock/", views.mock_payment_checkout, name="mock_payment_checkout"),
     path("regulamin/", views.terms, name="terms"),
     path("kontakt/", views.contact, name="contact"),
     path("faq/", views.faq, name="faq"),

@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
         <p class="text-sm text-gray-500">Aktywne rezerwacje</p>
         <p class="text-2xl font-semibold text-gray-900">{{ metrics.active_reservations }}</p>
@@ -36,14 +36,177 @@
     </div>
 </div>
 
-<div class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-lg font-medium mb-2">Witaj, {{ user.get_full_name|default:user.username }}</h2>
-    <p class="text-gray-600 text-sm">
-        Rola: <strong>{{ user.get_role_display }}</strong>.
-        Moduly <a href="{% url 'bookings:reservation_list' %}" class="underline">Rezerwacje</a>,
-        <a href="{% url 'bookings:rental_list' %}" class="underline">Wynajmy</a>
-        i <a href="{% url 'fleet:car_list' %}" class="underline">Flota</a> sa aktywne.
-        Dane demo: <code class="text-xs bg-gray-100 px-1 rounded">python backend/manage.py seed_demo</code>
-    </p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-rose-500">
+        <p class="text-sm text-gray-500">Nieoplacone wynajmy</p>
+        <p class="text-2xl font-semibold text-gray-900">{{ metrics.unpaid_rentals }}</p>
+        <p class="text-xs text-gray-400 mt-1">
+            <a href="{% url 'payments:payment_list' %}" class="hover:underline">Platnosci</a>
+        </p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-emerald-500">
+        <p class="text-sm text-gray-500">Przychod (ten miesiac)</p>
+        <p class="text-2xl font-semibold text-gray-900">{{ metrics.month_revenue }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">Bez kaucji — tylko przychod</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-5 border-l-4 border-orange-500">
+        <p class="text-sm text-gray-500">Alerty dokumentow floty</p>
+        <p class="text-2xl font-semibold text-gray-900">{{ metrics.expiring_fleet_documents }}</p>
+        <p class="text-xs text-gray-400 mt-1">OC / przeglad — 30 dni</p>
+    </div>
+</div>
+
+<div class="flex flex-wrap gap-3 mb-8">
+    <a
+        href="{% url 'operations:home' %}"
+        class="inline-flex items-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+    >
+        Kolejka operacji
+    </a>
+    <a
+        href="{% url 'payments:payment_list' %}"
+        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
+    >
+        Ostatnie platnosci
+    </a>
+    <a
+        href="{% url 'fleet:car_list' %}"
+        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
+    >
+        Flota
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">Nieoplacone wynajmy</h2>
+            <a href="{% url 'payments:payment_list' %}" class="text-sm text-blue-600 hover:underline">
+                Wszystkie platnosci
+            </a>
+        </div>
+        <ul class="space-y-3">
+            {% for rental in unpaid_rentals_queue %}
+            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div>
+                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
+                    <p class="text-sm text-gray-500">
+                        {{ rental.reservation.customer.full_name }} ·
+                        {{ rental.reservation.car.registration_number }}
+                    </p>
+                </div>
+                <a
+                    href="{% url 'payments:rental_payments' rental.pk %}"
+                    class="bg-black text-white px-3 py-2 rounded-lg text-sm font-medium shrink-0"
+                >
+                    Platnosc
+                </a>
+            </li>
+            {% empty %}
+            <li class="text-gray-500 text-sm">Brak wynajmow z saldem do zaplaty.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">Alerty dokumentow floty</h2>
+            <a href="{% url 'fleet:car_list' %}" class="text-sm text-blue-600 hover:underline">
+                Flota
+            </a>
+        </div>
+        <ul class="space-y-3">
+            {% for doc in fleet_document_alerts %}
+            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div>
+                    <p class="font-medium">{{ doc.get_document_type_display }}</p>
+                    <p class="text-sm text-gray-500">
+                        {{ doc.car.registration_number }} ·
+                        {{ doc.car.make }} {{ doc.car.model }}
+                    </p>
+                    <p class="text-xs {% if doc.valid_until < today %}text-red-600{% else %}text-amber-600{% endif %}">
+                        {% if doc.valid_until < today %}
+                        Wygasl: {{ doc.valid_until|date:"Y-m-d" }}
+                        {% else %}
+                        Wazny do: {{ doc.valid_until|date:"Y-m-d" }}
+                        {% endif %}
+                    </p>
+                </div>
+                <a
+                    href="{% url 'fleet:car_detail' doc.car.pk %}"
+                    class="border border-gray-300 px-3 py-2 rounded-lg text-sm font-medium shrink-0 hover:bg-gray-50"
+                >
+                    Auto
+                </a>
+            </li>
+            {% empty %}
+            <li class="text-gray-500 text-sm">Brak alertow dokumentow.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">Do wydania</h2>
+            <a href="{% url 'operations:home' %}" class="text-sm text-blue-600 hover:underline">
+                Operacje
+            </a>
+        </div>
+        <ul class="space-y-3">
+            {% for rental in pending_handover %}
+            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div>
+                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
+                    <p class="text-sm text-gray-500">
+                        {{ rental.reservation.customer.full_name }} ·
+                        {{ rental.reservation.car.registration_number }}
+                    </p>
+                    <p class="text-xs text-gray-400">{{ rental.scheduled_start_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <a
+                    href="{% url 'operations:handover_create' rental.pk %}"
+                    class="bg-black text-white px-3 py-2 rounded-lg text-sm font-medium shrink-0"
+                >
+                    Wydaj
+                </a>
+            </li>
+            {% empty %}
+            <li class="text-gray-500 text-sm">Brak wynajmow do wydania.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">Do zwrotu</h2>
+            <a href="{% url 'operations:home' %}" class="text-sm text-blue-600 hover:underline">
+                Operacje
+            </a>
+        </div>
+        <ul class="space-y-3">
+            {% for rental in pending_return %}
+            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div>
+                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
+                    <p class="text-sm text-gray-500">
+                        {{ rental.reservation.customer.full_name }} ·
+                        {{ rental.reservation.car.registration_number }}
+                    </p>
+                    <p class="text-xs text-gray-400">Plan zwrotu: {{ rental.scheduled_end_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <a
+                    href="{% url 'operations:return_create' rental.pk %}"
+                    class="bg-black text-white px-3 py-2 rounded-lg text-sm font-medium shrink-0"
+                >
+                    Zwrot
+                </a>
+            </li>
+            {% empty %}
+            <li class="text-gray-500 text-sm">Brak aktywnych wynajmow do zwrotu.</li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
 {% endblock %}

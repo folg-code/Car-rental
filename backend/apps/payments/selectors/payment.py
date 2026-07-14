@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from django.db.models import QuerySet, Sum
@@ -50,6 +51,19 @@ def get_rental_revenue_total(rental_id: int) -> Decimal:
     total = Payment.objects.filter(
         rental_id=rental_id,
         payment_type__in=REVENUE_PAYMENT_TYPES,
+    ).aggregate(total=Sum("amount"))["total"]
+    return (total or Decimal("0")).quantize(Decimal("0.01"))
+
+
+def get_revenue_total_in_period(
+    start_at: datetime,
+    end_at: datetime,
+) -> Decimal:
+    """Suma platnosci przychodowych w przedziale [start_at, end_at] (paid_at)."""
+    total = Payment.objects.filter(
+        payment_type__in=REVENUE_PAYMENT_TYPES,
+        paid_at__gte=start_at,
+        paid_at__lte=end_at,
     ).aggregate(total=Sum("amount"))["total"]
     return (total or Decimal("0")).quantize(Decimal("0.01"))
 

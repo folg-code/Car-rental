@@ -13,8 +13,8 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 9 — produkcja i płatności online |
-| **Następny krok** | Task **9.10** — testy płatności (pełna integracja) |
+| **Aktualny etap** | Sprint 9 — zamknięty ✅ |
+| **Następny krok** | Sprint 9 zamknięty — backlog Sprint 9+ |
 | **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -707,7 +707,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 | **9.7** | Redis + Celery | serwisy Docker, `config/celery.py`, worker; [`docs/DOCKER.md`](docs/DOCKER.md) | ✅ |
 | **9.8** | Email async | task wysyłki PDF (`documents`) zamiast synchronicznego `EmailService` w request | ✅ |
 | **9.9** | Deploy produkcyjny | HTTPS (Caddy/Nginx), backup PostgreSQL + media, test odtworzenia | ✅ |
-| **9.10** | Testy płatności | pytest: mock gateway, webhook, flow website → intent → confirm | ⬜ |
+| **9.10** | Testy płatności | pytest: mock gateway, webhook, flow website → intent → confirm | ✅ |
 
 ### Płatności online (9.1–9.6)
 

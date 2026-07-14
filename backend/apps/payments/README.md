@@ -68,8 +68,8 @@ Planowane (Sprint 9): strona płatności w `website` (9.5)
 | **9.2** | Adapter bramki (mock) | ✅ |
 | **9.3** | `PaymentGatewayService` | ✅ |
 | **9.4** | Webhook endpoint | ✅ |
-| **9.5–9.6** | Website init + confirm po platnosci | ⬜ |
-| **9.10** | Testy flow online | ⬜ |
+| **9.5–9.6** | Website init + confirm po platnosci | ✅ |
+| **9.10** | Testy flow online (`test_payment_flow_integration.py`) | ✅ |
 
 Szczegóły: [`../../../PROJECT_PLAN.md`](../../../PROJECT_PLAN.md) — Sprint 9.
 

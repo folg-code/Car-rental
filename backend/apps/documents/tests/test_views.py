@@ -1,20 +1,12 @@
 import pytest
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 from django.urls import reverse
 
 from apps.accounts.models import UserRole
 from apps.accounts.services.user import UserService
 from apps.documents.models import Document, DocumentType
+from apps.documents.tests.conftest import tiny_signature_image
 from apps.operations.services.handover import HandoverService
-
-
-def _tiny_image(name: str = "sig.png") -> SimpleUploadedFile:
-    return SimpleUploadedFile(
-        name,
-        b"\x89PNG\r\n\x1a\n",
-        content_type="image/png",
-    )
 
 
 @pytest.fixture
@@ -40,7 +32,7 @@ def handover_document(scheduled_rental) -> Document:
         mileage=10_500,
         fuel_level_percent=90,
         signer_name="Jan Kowalski",
-        signature_image=_tiny_image(),
+        signature_image=tiny_signature_image(),
         notes="",
         photo_files=[],
         new_damages=[],

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import mimetypes
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -102,9 +104,14 @@ class ReturnDocumentData:
 
 
 def image_field_to_uri(image_field) -> str | None:
+    """Osadza obraz inline — WeasyPrint na CI nie laduje niezawodnie file:// URI."""
     if not image_field or not image_field.name:
         return None
     path = Path(image_field.path)
-    if path.is_file():
-        return path.as_uri()
-    return None
+    if not path.is_file():
+        return None
+    mime_type, _ = mimetypes.guess_type(path.name)
+    if mime_type is None:
+        mime_type = "application/octet-stream"
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime_type};base64,{encoded}"

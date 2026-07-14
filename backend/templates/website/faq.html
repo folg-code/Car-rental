@@ -1,0 +1,40 @@
+{% extends "website/base_public.html" %}
+
+{% block title %}FAQ{% endblock %}
+
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 py-16">
+    <h1 class="text-3xl font-semibold text-gray-900">Czesto zadawane pytania</h1>
+    <p class="mt-4 text-gray-600">
+        Przykladowe pytania na potrzeby layoutu — tresc do uzupelnienia przed produkcja.
+    </p>
+
+    <dl class="mt-10 space-y-8">
+        <div class="rounded-lg border border-gray-200 p-6">
+            <dt class="font-semibold text-gray-900">Jak zarezerwowac auto online?</dt>
+            <dd class="mt-2 text-sm text-gray-600">
+                Sprawdz dostepnosc, zobacz orientacyjna wycene i wypelnij formularz
+                rezerwacji. Placeholder — szczegolowy opis krokow.
+            </dd>
+        </div>
+        <div class="rounded-lg border border-gray-200 p-6">
+            <dt class="font-semibold text-gray-900">Czy potrzebuje konta, zeby zarezerwowac?</dt>
+            <dd class="mt-2 text-sm text-gray-600">
+                Nie — wystarczy formularz z danymi kontaktowymi. Placeholder.
+            </dd>
+        </div>
+        <div class="rounded-lg border border-gray-200 p-6">
+            <dt class="font-semibold text-gray-900">Jak dziala kaucja?</dt>
+            <dd class="mt-2 text-sm text-gray-600">
+                Miejsce na wyjasnienie kaucji i zwrotu po zakonczeniu wynajmu.
+            </dd>
+        </div>
+        <div class="rounded-lg border border-gray-200 p-6">
+            <dt class="font-semibold text-gray-900">Czy moge anulowac rezerwacje?</dt>
+            <dd class="mt-2 text-sm text-gray-600">
+                Miejsce na zasady anulowania — patrz tez regulamin (placeholder).
+            </dd>
+        </div>
+    </dl>
+</section>
+{% endblock %}

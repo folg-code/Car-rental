@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from apps.payments.models import PaymentIntent
 from apps.website.forms import AvailabilitySearchForm, PriceQuoteForm, PublicBookingForm
@@ -13,6 +14,10 @@ from apps.website.selectors.price_quote import get_price_quote
 from apps.website.selectors.public_booking import (
     get_public_reservation_summary,
     reservation_display_total,
+)
+from apps.website.services.consultant_chat import (
+    CHAT_SESSION_COOKIE,
+    ConsultantChatService,
 )
 from apps.website.services.public_booking import PublicBookingOrchestrator
 from apps.website.services.public_payment import PublicPaymentOrchestrator
@@ -258,3 +263,92 @@ def contact(request: HttpRequest) -> HttpResponse:
 def faq(request: HttpRequest) -> HttpResponse:
     """FAQ — przykladowe pytania, bez tresci produkcyjnej (task 8.13)."""
     return render(request, "website/faq.html")
+
+
+def _client_ip(request: HttpRequest) -> str:
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR", "") or "unknown"
+
+
+def _get_chat_session_key(request: HttpRequest) -> str | None:
+    return request.COOKIES.get(CHAT_SESSION_COOKIE)
+
+
+def _set_chat_session_cookie(response: HttpResponse, session_key: str) -> HttpResponse:
+    response.set_cookie(
+        CHAT_SESSION_COOKIE,
+        session_key,
+        max_age=60 * 60 * 24 * 30,
+        httponly=True,
+        samesite="Lax",
+    )
+    return response
+
+
+def consultant(request: HttpRequest) -> HttpResponse:
+    """Asystent AI — pelna strona czatu (Sprint 8b)."""
+    session, session_key = ConsultantChatService.get_or_create_session(
+        _get_chat_session_key(request),
+        user=request.user if request.user.is_authenticated else None,
+    )
+    messages = session.messages.order_by("created_at")
+    response = render(
+        request,
+        "website/consultant.html",
+        {"messages": messages},
+    )
+    if _get_chat_session_key(request) != session_key:
+        _set_chat_session_cookie(response, session_key)
+    return response
+
+
+@require_POST
+def consultant_message(request: HttpRequest) -> HttpResponse:
+    """POST wiadomosci do asystenta — HTMX partial lub redirect."""
+    session_key = _get_chat_session_key(request)
+    try:
+        assistant_message = ConsultantChatService.send_message(
+            session_key or "",
+            request.POST.get("message", ""),
+            client_ip=_client_ip(request),
+            user=request.user if request.user.is_authenticated else None,
+        )
+    except ValidationError as exc:
+        message = exc.messages[0] if exc.messages else str(exc)
+        if request.headers.get("HX-Request"):
+            return render(
+                request,
+                "website/partials/chat_error.html",
+                {"error": message},
+                status=400,
+            )
+        return render(
+            request,
+            "website/consultant.html",
+            {"error": message, "messages": []},
+            status=400,
+        )
+
+    session = assistant_message.session
+    new_session_key = session.session_key
+    context = {
+        "user_message": session.messages.filter(
+            role="user",
+        )
+        .order_by("-created_at")
+        .first(),
+        "assistant_message": assistant_message,
+    }
+    if request.headers.get("HX-Request"):
+        response = render(
+            request,
+            "website/partials/chat_message_pair.html",
+            context,
+        )
+    else:
+        response = redirect("website:consultant")
+    if session_key != new_session_key:
+        _set_chat_session_cookie(response, new_session_key)
+    return response

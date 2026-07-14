@@ -170,6 +170,20 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
+# --- Chat AI (Sprint 8b) ---
+LLM_PROVIDER = env("LLM_PROVIDER", default="mock")
+LLM_API_KEY = env("LLM_API_KEY", default="")
+LLM_MODEL = env("LLM_MODEL", default="gpt-4o-mini")
+LLM_MAX_TOKENS = env.int("LLM_MAX_TOKENS", default=1024)
+CHAT_RATE_LIMIT_PER_HOUR = env.int("CHAT_RATE_LIMIT_PER_HOUR", default=30)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "car-rental-default",
+    },
+}
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/

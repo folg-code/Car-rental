@@ -63,10 +63,15 @@ Chat AI: Sprint **8b** — [`../../../docs/AI_CONSULTANT.md`](../../../docs/AI_C
 Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).  
 **Brak** duplikacji `Car`, `Reservation`, `Customer`.
 
-### Chat AI (Sprint 8b — planowane)
+### Chat AI (Sprint 8b — Faza A ✅)
 
-- `ChatSession` — sesja (anonimowa lub powiązana z `User` role=customer)
-- `ChatMessage` — rola user/assistant/system, treść, timestamp (audyt)
+- `ChatSession`, `ChatMessage` — modele + migracja `website.0001_chat_models`
+- `adapters/llm.py` — `LLMClient`, `MockLLMClient`, `get_llm_client()`
+- `ConsultantChatService` — FAQ-only, rate limit (cache), system prompt
+- `/asystent/` + widget „Pomoc / Chat” w `base_public.html`
+- Env: `LLM_PROVIDER`, `CHAT_RATE_LIMIT_PER_HOUR` — [`docs/AI_CONSULTANT.md`](../../../docs/AI_CONSULTANT.md)
+
+### Chat AI (Sprint 8b — Faza B planowana)
 
 ---
 
@@ -74,8 +79,8 @@ Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).
 
 - `PublicBookingOrchestrator` — jeden punkt wejścia: search → quote → reserve (Task **8.12**)
 - Opcjonalnie `CustomerPortalService` — lista dokumentów do pobrania (selektory `documents` + auth)
-- `ConsultantChatService` — Sprint 8b — orchestracja czatu (read-only tools)
-- `adapters/llm.py` — Sprint 8b — `LLMClient` z env
+- `ConsultantChatService` — Sprint 8b Faza A ✅ — orchestracja czatu (FAQ-only)
+- `adapters/llm.py` — Sprint 8b Faza A ✅ — `LLMClient` z env
 
 Logika biznesowa w serwisach **innych** app — `website` tylko koordynuje.
 

@@ -34,4 +34,6 @@ urlpatterns = [
     path("regulamin/", views.terms, name="terms"),
     path("kontakt/", views.contact, name="contact"),
     path("faq/", views.faq, name="faq"),
+    path("asystent/", views.consultant, name="consultant"),
+    path("asystent/wiadomosc/", views.consultant_message, name="consultant_message"),
 ]

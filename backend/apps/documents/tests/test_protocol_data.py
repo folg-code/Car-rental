@@ -3,7 +3,6 @@ from decimal import Decimal
 
 import pytest
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
@@ -16,20 +15,13 @@ from apps.documents.selectors.protocol_data import (
     get_handover_document_data,
 )
 from apps.documents.services.pdf_renderer import PdfRenderer
+from apps.documents.tests.conftest import MINIMAL_PNG_BYTES, tiny_signature_image
 from apps.fleet.models import Car, CarCategory, CarStatus
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import HandoverProtocol
 from apps.operations.services.handover import HandoverService
 from apps.operations.services.return_workflow import ReturnService
 from apps.pricing.models import DailyRate, PriceList
-
-
-def _tiny_image(name: str = "sig.png") -> SimpleUploadedFile:
-    return SimpleUploadedFile(
-        name,
-        b"\x89PNG\r\n\x1a\n",
-        content_type="image/png",
-    )
 
 
 @pytest.fixture
@@ -93,7 +85,7 @@ def completed_handover(scheduled_rental) -> HandoverProtocol:
         mileage=10_200,
         fuel_level_percent=90,
         signer_name="Jan Kowalski",
-        signature_image=_tiny_image(),
+        signature_image=tiny_signature_image(),
         notes="Stan OK.",
     )
 
@@ -166,7 +158,7 @@ class TestReturnDocumentData:
             mileage=10_450,
             fuel_level_percent=70,
             signer_name="Jan Kowalski",
-            signature_image=_tiny_image("ret.png"),
+            signature_image=tiny_signature_image("ret.png"),
             notes="Zwrot bez problemow.",
         )
         data = build_return_document_data(return_protocol)
@@ -181,7 +173,7 @@ class TestReturnDocumentData:
 class TestImageFieldToUri:
     def test_returns_data_uri_for_local_file(self, tmp_path) -> None:
         file_path = tmp_path / "sig.png"
-        file_path.write_bytes(b"\x89PNG\r\n\x1a\n")
+        file_path.write_bytes(MINIMAL_PNG_BYTES)
 
         class _ImageField:
             name = str(file_path)

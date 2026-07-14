@@ -148,6 +148,11 @@ class PaymentService:
             intent.status = PaymentIntentStatus.SUCCEEDED
             intent.save(update_fields=["status", "updated_at"])
 
+        if rental_id is not None:
+            from apps.payments.services.settlement import SettlementService
+
+            SettlementService.try_close_rental_if_settled(rental_id)
+
         return payment
 
     @staticmethod

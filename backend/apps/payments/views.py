@@ -81,9 +81,12 @@ def rental_payments(request: HttpRequest, rental_id: int) -> HttpResponse:
             return redirect("payments:rental_payments", rental_id=rental_id)
 
     if not form.is_bound and summary:
-        if summary.get("rental_fee_due", 0) > 0:
+        if summary.get("extra_charges_due", 0) > 0:
+            form.fields["amount"].initial = summary["extra_charges_due"]
+            form.fields["payment_type"].initial = PaymentType.EXTRA_CHARGE
+        elif summary.get("rental_fee_due", 0) > 0:
             form.fields["amount"].initial = summary["rental_fee_due"]
-        form.fields["payment_type"].initial = PaymentType.RENTAL_FEE
+            form.fields["payment_type"].initial = PaymentType.RENTAL_FEE
 
     return render(
         request,

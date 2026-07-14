@@ -69,9 +69,9 @@ Pełna roadmapa kroków: [`PROJECT_PLAN.md`](../../../PROJECT_PLAN.md#roadmap--o
 | PDF po protokole | ✅ auto (`DocumentService` w `complete_handover` / `complete_return`) |
 | Email do klienta | ✅ auto po PDF (`EmailService`) |
 | HTMX krok po kroku | ✅ wizard wydania (3 kroki); zwrot: podgląd dopłat HTMX |
-| Wyliczenie dopłat → `payments` | ⬜ backlog (podgląd z `pricing` ✅) |
+| Wyliczenie dopłat → `payments` | ✅ naliczenie `RentalCharge` po zwrocie; panel pokazuje saldo do zaplaty |
 | UI porównania szkód wydanie/zwrot | ✅ |
-| `close` po rozliczeniu finansowym | ⬜ backlog |
+| `close` po rozliczeniu finansowym | ✅ auto-close gdy `total_due` = 0 |
 
 ---
 

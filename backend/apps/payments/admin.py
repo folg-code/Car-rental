@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from apps.payments.models import Payment, PaymentIntent, PaymentProviderEvent
+from apps.payments.models import (
+    Payment,
+    PaymentIntent,
+    PaymentProviderEvent,
+    RentalCharge,
+)
 
 
 class PaymentInline(admin.TabularInline):
@@ -39,6 +44,21 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ("payment_type", "method")
     raw_id_fields = ("rental", "reservation", "intent", "recorded_by")
     date_hierarchy = "paid_at"
+
+
+@admin.register(RentalCharge)
+class RentalChargeAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "rental",
+        "payment_type",
+        "source_code",
+        "amount",
+        "created_at",
+    )
+    list_filter = ("payment_type",)
+    raw_id_fields = ("rental", "return_protocol")
+    readonly_fields = ("idempotency_key", "created_at")
 
 
 @admin.register(PaymentProviderEvent)

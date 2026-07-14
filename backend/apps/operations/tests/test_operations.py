@@ -204,6 +204,16 @@ class TestReturnService:
         assert scheduled_rental.status == RentalStatus.RETURNED
         assert "paliwa" in ret.surcharge_notes.lower() or ret.surcharge_notes
 
+        from apps.payments.models import RentalCharge
+        from apps.payments.selectors.payment import get_rental_payment_summary
+
+        charges = RentalCharge.objects.filter(rental_id=scheduled_rental.pk)
+        assert charges.count() == 2
+        summary = get_rental_payment_summary(scheduled_rental.pk)
+        assert summary["extra_charges_accrued"] == Decimal("675.00")
+        assert summary["extra_charges_due"] == Decimal("675.00")
+        assert summary["total_due"] > Decimal("0")
+
         pdf = Document.objects.filter(
             return_protocol=ret,
             document_type=DocumentType.RETURN_PROTOCOL_PDF,

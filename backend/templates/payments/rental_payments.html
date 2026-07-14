@@ -16,9 +16,14 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
-        <p class="text-sm text-gray-500">Do zaplaty (wynajem)</p>
-        <p class="text-2xl font-semibold">{{ summary.rental_fee_due }} PLN</p>
-        <p class="text-xs text-gray-400 mt-1">Naliczone: {{ summary.price_total }} PLN · zaplacono {{ summary.rental_fees_paid }} PLN</p>
+        <p class="text-sm text-gray-500">Do zaplaty (lacznie)</p>
+        <p class="text-2xl font-semibold">{{ summary.total_due }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">
+            Wynajem: {{ summary.rental_fee_due }} PLN
+            {% if summary.extra_charges_due > 0 %}
+            · doplaty: {{ summary.extra_charges_due }} PLN
+            {% endif %}
+        </p>
     </div>
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-amber-500">
         <p class="text-sm text-gray-500">Kaucja (saldo)</p>
@@ -31,6 +36,16 @@
         <p class="text-xs text-gray-400 mt-1">Oplata + dodatki + szkody</p>
     </div>
 </div>
+
+{% if summary.extra_charges_accrued > 0 %}
+<div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-900">
+    <p class="font-medium">Doplaty po zwrocie</p>
+    <p class="mt-1">
+        Naliczono {{ summary.extra_charges_accrued }} PLN · zaplacono {{ summary.extra_charges_paid }} PLN
+        · do zaplaty <strong>{{ summary.extra_charges_due }} PLN</strong>
+    </p>
+</div>
+{% endif %}
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white rounded-lg shadow p-6">

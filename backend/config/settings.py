@@ -125,6 +125,8 @@ if "pytest" in sys.modules:
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": ":memory:",
     }
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
 
 
 # Password validation
@@ -156,6 +158,17 @@ TIME_ZONE = "Europe/Warsaw"
 USE_I18N = True
 
 USE_TZ = True
+
+# --- Celery (Sprint 9.7) ---
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = env(
+    "CELERY_RESULT_BACKEND",
+    default="redis://localhost:6379/1",
+)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
 
 
 # Static files (CSS, JavaScript, Images)

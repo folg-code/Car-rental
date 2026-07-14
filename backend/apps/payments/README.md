@@ -50,8 +50,9 @@ Rejestracja **ruchu pieniężnego** — wpłaty, kaucje, zwroty, opłaty dodatko
 - Panel: `/panel/platnosci/`, platnosci per wynajem `/panel/platnosci/wynajem/<id>/`
 - **Kaucja ≠ przychód** — `REVENUE_PAYMENT_TYPES` bez `deposit` / `refund`
 
-Planowane (Sprint 9): webhook endpoint (9.4), strona płatności (9.5)
+Planowane (Sprint 9): strona płatności w `website` (9.5)
 
+- `POST /platnosci/webhook/` — publiczny endpoint webhooka (`views_webhook.payment_webhook`)
 - `PaymentGatewayService` — `create_intent`, `initiate_checkout`, `handle_webhook` (idempotencja `provider_event_id`)
 
 ### Adapter bramki (9.2)
@@ -66,7 +67,7 @@ Planowane (Sprint 9): webhook endpoint (9.4), strona płatności (9.5)
 | **9.1** | `PaymentIntent` + FK `reservation` | ✅ |
 | **9.2** | Adapter bramki (mock) | ✅ |
 | **9.3** | `PaymentGatewayService` | ✅ |
-| **9.4** | Webhook endpoint | ⬜ |
+| **9.4** | Webhook endpoint | ✅ |
 | **9.5–9.6** | Website init + confirm po platnosci | ⬜ |
 | **9.10** | Testy flow online | ⬜ |
 

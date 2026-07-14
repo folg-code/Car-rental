@@ -208,6 +208,10 @@ PAYMENT_GATEWAY_MOCK_BASE_URL = env(
     default="http://localhost:8000",
 )
 PAYMENT_GATEWAY_WEBHOOK_SECRET = env("PAYMENT_GATEWAY_WEBHOOK_SECRET", default="")
+PAYMENT_GATEWAY_WEBHOOK_SIGNATURE_HEADER = env(
+    "PAYMENT_GATEWAY_WEBHOOK_SIGNATURE_HEADER",
+    default="X-Payment-Signature",
+)
 
 # --- Szkic podzialu dev / prod (rozszerzyc o osobne moduly settings przy deploy) ---
 # Dev:  DEBUG=True,  ALLOWED_HOSTS=localhost,127.0.0.1

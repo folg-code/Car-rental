@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
 
@@ -88,3 +88,18 @@ class AvailabilityService:
                 return False
 
         return True
+
+    @staticmethod
+    def count_available_cars_at(as_of: datetime) -> int:
+        """
+        Liczba aut ACTIVE wolnych w chwili ``as_of``.
+
+        Uzywa ``is_car_available`` na minimalnym przedziale [as_of, as_of + 1 min),
+        wiec uwzglednia blokady serwisowe i rezerwacje/wynajmy z bookings.
+        """
+        interval_end = as_of + timedelta(minutes=1)
+        return sum(
+            1
+            for car in Car.objects.filter(status=CarStatus.ACTIVE).iterator()
+            if AvailabilityService.is_car_available(car, as_of, interval_end)
+        )

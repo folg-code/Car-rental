@@ -1,12 +1,12 @@
 from django.shortcuts import render
 
 from apps.accounts.permissions import staff_required
-from apps.bookings.selectors.dashboard import get_bookings_dashboard_metrics
+from apps.dashboard.services.metrics import DashboardMetricsService
 
 
 @staff_required
 def panel_home(request):
-    metrics = get_bookings_dashboard_metrics()
+    metrics = DashboardMetricsService.get_home_metrics()
     return render(
         request,
         "dashboard/panel.html",

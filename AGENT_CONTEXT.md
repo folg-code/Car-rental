@@ -662,11 +662,11 @@ Critical priorities:
 
 # 19. Current Project Status
 
-> Sprint tracking: [`PROJECT_PLAN.md`](./PROJECT_PLAN.md) — last updated 2026-05-20.
+> Sprint tracking: [`PROJECT_PLAN.md`](./PROJECT_PLAN.md) — last updated 2026-05-30.
 
-**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP) · 6 (operations — handover/return)
+**Completed sprints:** 0 (fundament) · 1 (accounts + panel) · 2 (fleet) · 3 (bookings) · 4 (pricing + snapshots) · 5 (rental + payments MVP) · 6 (operations — handover/return) · 7 (documents — PDF, email, faktury)
 
-**Next sprint:** 7 — documents (PDF protokołów, faktury, email ze snapshotów).
+**Next sprint:** 8 — dashboard KPI + website publiczna (taski 8.1–8.14).
 
 Implemented:
 - Django project setup
@@ -685,19 +685,19 @@ Implemented:
 - pricing: `PriceList`, `DailyRate`, `PricingRule`, `ExtraService`, `PricingService.calculate()`, panel `/panel/cenniki/`
 - payments: `Payment`, `PaymentIntent`, `PaymentProviderEvent`, `PaymentService`, panel `/panel/platnosci/`, deposit/refund with balance validation, **deposit ≠ revenue**
 - operations: `HandoverProtocol`, `ReturnProtocol`, `ProtocolPhoto`, `Signature`, `DamageSnapshot`, `HandoverService` / `ReturnService`, panel `/panel/operacje/` (mobile-first, `capture="environment"`), handover → `RentalService.start`, return → `mark_returned`, **DamageSnapshot immutable** after fleet `Damage` edits
-- dashboard: layout, navigation, bookings + rental metrics on home
+- documents: `DocumentService`, `EmailService`, `InvoiceService`, private storage, panel `/panel/dokumenty/`, PDF protokołów i faktur
+- dashboard: layout, navigation, **podstawowe** bookings metrics on home (Sprint 3 — do rozbudowy w Sprint 8)
 - CI/CD (GitHub Actions)
 - `manage.py seed_demo` — fleet, customers, price list, sample reservation + rental (scheduled)
 
 In progress:
-- (none)
+- Sprint 8 — dashboard KPI (8.1–8.7) + website publiczna (8.8–8.14)
 
 Not implemented yet:
-- documents system (PDF, invoices)
-- payment gateway integration (webhooks, online checkout)
-- dashboard (full operational KPIs beyond home widgets)
+- dashboard: pełne KPI (przychód, nieopłacone, alerty fleet), `AvailabilityService` w widgetach
 - customer-facing website (public booking channel)
-- AI customer consultant (chatbot)
+- payment gateway integration (webhooks, online checkout)
+- AI customer consultant (chatbot — Sprint 8b)
 
 ---
 

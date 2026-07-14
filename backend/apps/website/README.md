@@ -4,6 +4,9 @@
 
 **Kanał publiczny i self-service klienta** — prezentacja floty, wyszukiwanie dostępności, składanie rezerwacji, płatność online (inicjacja), portal dokumentów i historii.
 
+Plan sprintu: [`../../../PROJECT_PLAN.md`](../../../PROJECT_PLAN.md) — Sprint 8, taski **8.8–8.14**.  
+Chat AI: Sprint **8b** — [`../../../docs/AI_CONSULTANT.md`](../../../docs/AI_CONSULTANT.md).
+
 ---
 
 ## Co robi (IN scope)
@@ -12,11 +15,29 @@
 - Lista floty, filtry kategorii — dane przez selektory `fleet`
 - Wyszukiwanie dostępności (daty) — `fleet.AvailabilityService`
 - Formularz rezerwacji — orkiestracja: `PricingService` → `ReservationService`
-- Inicjacja płatności online — `payments.PaymentGatewayService`
-- Portal klienta (zalogowany `customer`): historia rezerwacji, pobranie dokumentów (linki `documents`)
+- Inicjacja płatności online — `payments.PaymentGatewayService` (Sprint 9+)
+- Portal klienta (zalogowany `customer`): historia rezerwacji, pobranie dokumentów (linki `documents`) — backlog Sprint 8
 - SEO-friendly strony statyczne (regulamin, kontakt) — szablony w tej app
 - Rate limiting / podstawowa ochrona formularzy publicznych
-- **Chat AI — konsultant klienta** (widget + endpoint wiadomości) — patrz [`../../docs/AI_CONSULTANT.md`](../../docs/AI_CONSULTANT.md)
+
+---
+
+## Sprint 8 — taski implementacji
+
+| ID | Task | Pliki (plan) | Status |
+|----|------|--------------|--------|
+| **8.8** | Infrastruktura | `urls.py`, `views.py`, `templates/website/base_public.html`, routing w `config/urls.py` | ⬜ |
+| **8.9** | Katalog floty | `/flota/` — selektory `fleet`, szablon listy | ⬜ |
+| **8.10** | Wyszukiwarka dostępności | formularz dat → `AvailabilityService` | ⬜ |
+| **8.11** | Orientacyjna wycena | `PricingService.calculate()` read-only na stronie | ⬜ |
+| **8.12** | Rezerwacja online | `services/public_booking.py` → `ReservationService` | ⬜ |
+| **8.13** | Strony informacyjne | regulamin, kontakt, FAQ | ⬜ |
+| **8.14** | Testy | `tests/test_views.py`, `tests/test_public_booking.py` | ⬜ |
+
+### Stan wyjściowy
+
+- Aplikacja `website` w `INSTALLED_APPS` (szkielet)
+- Strona główna `/` — placeholder `config.views.home` → `base.html` (do zastąpienia w **8.8**)
 
 ---
 
@@ -41,7 +62,7 @@
 Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).  
 **Brak** duplikacji `Car`, `Reservation`, `Customer`.
 
-### Chat AI (planowane)
+### Chat AI (Sprint 8b — planowane)
 
 - `ChatSession` — sesja (anonimowa lub powiązana z `User` role=customer)
 - `ChatMessage` — rola user/assistant/system, treść, timestamp (audyt)
@@ -50,10 +71,10 @@ Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).
 
 ## Serwisy (planowane)
 
-- `PublicBookingOrchestrator` — jeden punkt wejścia: search → quote → reserve → payment intent
+- `PublicBookingOrchestrator` — jeden punkt wejścia: search → quote → reserve (Task **8.12**)
 - Opcjonalnie `CustomerPortalService` — lista dokumentów do pobrania (selektory `documents` + auth)
-- `ConsultantChatService` — orchestracja czatu: kontekst → LLM → odpowiedź; wywołania **read-only** do innych app
-- `adapters/llm.py` — `LLMClient` (interfejs), implementacja providera z env (`OPENAI_API_KEY` itd.)
+- `ConsultantChatService` — Sprint 8b — orchestracja czatu (read-only tools)
+- `adapters/llm.py` — Sprint 8b — `LLMClient` z env
 
 Logika biznesowa w serwisach **innych** app — `website` tylko koordynuje.
 

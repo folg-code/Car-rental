@@ -15,7 +15,7 @@ Chat AI: Sprint **8b** — [`../../../docs/AI_CONSULTANT.md`](../../../docs/AI_C
 - Lista floty, filtry kategorii — dane przez selektory `fleet`
 - Wyszukiwanie dostępności (daty) — `fleet.AvailabilityService`
 - Formularz rezerwacji — orkiestracja: `PricingService` → `ReservationService`
-- Inicjacja płatności online — `payments.PaymentGatewayService` (Sprint 9+)
+- Inicjacja płatności online — `PublicPaymentOrchestrator` → `PaymentGatewayService` (task **9.5** ✅)
 - Portal klienta (zalogowany `customer`): historia rezerwacji, pobranie dokumentów (linki `documents`) — backlog Sprint 8
 - SEO-friendly strony statyczne (regulamin, kontakt) — szablony w tej app
 - Rate limiting / podstawowa ochrona formularzy publicznych

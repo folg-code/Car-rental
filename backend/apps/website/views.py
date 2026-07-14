@@ -5,6 +5,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from apps.payments.models import PaymentIntent
 from apps.website.forms import AvailabilitySearchForm, PriceQuoteForm, PublicBookingForm
 from apps.website.selectors.availability_search import search_available_cars
 from apps.website.selectors.fleet_catalog import get_public_fleet_catalog
@@ -14,6 +15,7 @@ from apps.website.selectors.public_booking import (
     reservation_display_total,
 )
 from apps.website.services.public_booking import PublicBookingOrchestrator
+from apps.website.services.public_payment import PublicPaymentOrchestrator
 
 PUBLIC_BOOKING_SESSION_KEY = "public_booking_id"
 
@@ -126,12 +128,103 @@ def booking_confirmation(request: HttpRequest) -> HttpResponse:
     reservation_id = request.session.pop(PUBLIC_BOOKING_SESSION_KEY, None)
     if reservation_id is None:
         return redirect("website:home")
+    return _render_booking_confirmation(request, reservation_id)
+
+
+def booking_confirmation_by_id(
+    request: HttpRequest,
+    reservation_id: int,
+) -> HttpResponse:
+    """Potwierdzenie rezerwacji po anulowaniu platnosci (task 9.5)."""
+    return _render_booking_confirmation(request, reservation_id)
+
+
+def _render_booking_confirmation(
+    request: HttpRequest,
+    reservation_id: int,
+) -> HttpResponse:
     reservation = get_public_reservation_summary(reservation_id)
     if reservation is None:
         return redirect("website:home")
     return render(
         request,
         "website/booking_confirmation.html",
+        {
+            "reservation": reservation,
+            "total": reservation_display_total(reservation),
+        },
+    )
+
+
+def start_payment(request: HttpRequest, reservation_id: int) -> HttpResponse:
+    """Inicjacja platnosci online — redirect do bramki (task 9.5)."""
+    try:
+        session = PublicPaymentOrchestrator.start_online_payment(
+            reservation_id,
+            success_url=request.build_absolute_uri(
+                PublicPaymentOrchestrator.build_success_url(reservation_id),
+            ),
+            cancel_url=request.build_absolute_uri(
+                PublicPaymentOrchestrator.build_cancel_url(reservation_id),
+            ),
+        )
+    except ValidationError as exc:
+        message = exc.messages[0] if exc.messages else str(exc)
+        reservation = get_public_reservation_summary(reservation_id)
+        if reservation is None:
+            return redirect("website:home")
+        return render(
+            request,
+            "website/booking_confirmation.html",
+            {
+                "reservation": reservation,
+                "total": reservation_display_total(reservation),
+                "payment_error": message,
+            },
+            status=400,
+        )
+    return HttpResponseRedirect(session.checkout_url)
+
+
+def mock_payment_checkout(request: HttpRequest) -> HttpResponse:
+    """Mock bramki — strona testowa platnosci (dev/test, task 9.5)."""
+    external_reference = request.GET.get("ref", "")
+    intent_id = request.GET.get("intent", "")
+    intent = (
+        PaymentIntent.objects.filter(
+            pk=intent_id,
+            external_reference=external_reference,
+        ).first()
+        if intent_id and external_reference
+        else None
+    )
+    if intent is None:
+        return redirect("website:home")
+
+    if request.method == "POST":
+        PublicPaymentOrchestrator.complete_mock_payment(
+            external_reference=external_reference,
+        )
+        return redirect(
+            "website:payment_success",
+            reservation_id=intent.reservation_id,
+        )
+
+    return render(
+        request,
+        "website/mock_payment_checkout.html",
+        {"intent": intent},
+    )
+
+
+def payment_success(request: HttpRequest, reservation_id: int) -> HttpResponse:
+    """Strona sukcesu platnosci online (task 9.5)."""
+    reservation = get_public_reservation_summary(reservation_id)
+    if reservation is None:
+        return redirect("website:home")
+    return render(
+        request,
+        "website/payment_success.html",
         {
             "reservation": reservation,
             "total": reservation_display_total(reservation),

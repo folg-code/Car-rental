@@ -6,6 +6,7 @@ from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
+from apps.bookings.constants import RESERVATION_EMAIL_PENDING
 from apps.bookings.models import (
     Customer,
     Reservation,
@@ -15,6 +16,7 @@ from apps.bookings.models import (
 from apps.bookings.services.customer import CustomerService
 from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.bookings.services.reservation import ReservationService
+from apps.bookings.services.reservation_email import ReservationEmailService
 from apps.fleet.models import Car, CarStatus
 
 
@@ -69,6 +71,13 @@ class PublicBookingOrchestrator:
                 extra_codes=codes,
                 replace=True,
             )
+        reservation_id = reservation.pk
+        transaction.on_commit(
+            lambda: ReservationEmailService.enqueue_reservation_email(
+                reservation_id,
+                email_kind=RESERVATION_EMAIL_PENDING,
+            ),
+        )
         return PublicBookingResult(
             reservation=reservation,
             customer=customer,

@@ -1,0 +1,1 @@
+Rezerwacja nr {{ reservation_id }} potwierdzona — Car Rental

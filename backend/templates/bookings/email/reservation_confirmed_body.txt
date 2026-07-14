@@ -1,0 +1,13 @@
+Witaj {{ customer_name }},
+
+Twoja platnosc zostala przyjeta. Rezerwacja nr {{ reservation_id }} jest potwierdzona.
+
+Pojazd: {{ car_label }} ({{ registration_number }})
+Termin: {{ start_at|date:"d.m.Y H:i" }} — {{ end_at|date:"d.m.Y H:i" }}
+Oplacona kwota: {{ total_amount }} PLN
+
+Skontaktujemy sie w sprawie wydania pojazdu. Szczegoly rezerwacji:
+{{ confirmation_url }}
+
+Pozdrawiamy,
+Car Rental

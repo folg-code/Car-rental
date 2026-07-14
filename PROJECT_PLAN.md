@@ -65,6 +65,7 @@
 
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
+- [ ] **SMTP produkcyjny** — konfiguracja `EMAIL_*` w `.env` (Gmail/SendGrid) — po mailach rezerwacji ✅
 - [ ] Upload zdjec/dokumentow w panelu floty (obecnie admin) — backlog / Sprint 2+
 - [ ] **Operations paperless** — pelna roadmapa: [Roadmap — operations (paperless)](#roadmap--operations-paperless) (HTMX kroki, PDF, email, doplaty, zamkniecie wynajmu)
 
@@ -125,6 +126,7 @@
 - [x] Sprint 5: kaucja ≠ przychod (`REVENUE_PAYMENT_TYPES`, selektory salda)
 - [x] Sprint 5: testy bookings (~45) + payments (10)
 - [x] Sprint 5 — **zamkniety** (Definition of Done spelnione)
+- [x] Email potwierdzenia rezerwacji — `ReservationEmailService` + Celery (pending + confirmed)
 - [x] Sprint 6: `HandoverProtocol`, `ReturnProtocol`, `ProtocolPhoto`, `Signature`, `DamageSnapshot` + `operations.0001_initial`
 - [x] Sprint 6: `HandoverService` / `ReturnService` + `DamageSnapshotService` (immutability)
 - [x] Sprint 6: panel `/panel/operacje/` (kolejka, formularze mobile, `capture="environment"`)

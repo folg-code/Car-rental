@@ -1,0 +1,21 @@
+<p>Witaj {{ customer_name }},</p>
+<p>Dziekujemy za rezerwacje w <strong>Car Rental</strong>.</p>
+<ul>
+    <li><strong>Numer rezerwacji:</strong> {{ reservation_id }}</li>
+    <li><strong>Status:</strong> {{ status_display }}</li>
+    <li><strong>Pojazd:</strong> {{ car_label }} ({{ registration_number }})</li>
+    <li><strong>Kategoria:</strong> {{ category_name }}</li>
+    <li><strong>Termin:</strong> {{ start_at|date:"d.m.Y H:i" }} — {{ end_at|date:"d.m.Y H:i" }}</li>
+    <li><strong>Kwota do zaplaty:</strong> {{ total_amount }} PLN</li>
+</ul>
+<p>
+    <a href="{{ payment_url }}">Zaplac online</a>
+</p>
+<p>
+    <a href="{{ confirmation_url }}">Szczegoly rezerwacji</a>
+</p>
+<p>
+    W razie pytan odpowiedz na ten email lub skontaktuj sie z wypozyczalnia,
+    podajac numer rezerwacji {{ reservation_id }}.
+</p>
+<p>Pozdrawiamy,<br>Car Rental</p>

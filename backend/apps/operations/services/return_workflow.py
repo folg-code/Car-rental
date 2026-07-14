@@ -2,6 +2,8 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
+from apps.audit.models import AuditAction
+from apps.audit.services.audit import AuditService
 from apps.bookings.models import Rental, RentalStatus
 from apps.bookings.services.rental import RentalService
 from apps.documents.services.document import DocumentService
@@ -183,5 +185,18 @@ class ReturnService:
         DocumentService.generate_return_pdf(
             return_protocol.pk,
             generated_by_id=performed_by_id,
+        )
+        AuditService.log(
+            AuditAction.RETURN_COMPLETED,
+            actor_id=performed_by_id,
+            rental_id=rental.pk,
+            reservation_id=rental.reservation_id,
+            object_type="return_protocol",
+            object_id=return_protocol.pk,
+            metadata={
+                "mileage": return_protocol.mileage,
+                "fuel_level_percent": return_protocol.fuel_level_percent,
+                "surcharge_notes": return_protocol.surcharge_notes,
+            },
         )
         return return_protocol

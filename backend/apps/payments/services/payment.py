@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
+from apps.audit.services.audit import AuditService
 from apps.bookings.models import Rental, Reservation
 from apps.payments.models import (
     Payment,
@@ -92,6 +93,7 @@ class PaymentService:
             recorded_by_id=recorded_by_id,
         )
         payment.save()
+        AuditService.log_payment(payment, actor_id=recorded_by_id)
         return payment
 
     @staticmethod
@@ -153,6 +155,7 @@ class PaymentService:
 
             SettlementService.try_close_rental_if_settled(rental_id)
 
+        AuditService.log_payment(payment, actor_id=recorded_by_id)
         return payment
 
     @staticmethod

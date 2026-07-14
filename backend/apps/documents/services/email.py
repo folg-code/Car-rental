@@ -71,6 +71,17 @@ class EmailService:
         return Path(document.file.name).name
 
     @staticmethod
+    def enqueue_document_email(
+        document_id: int,
+        *,
+        sent_by_id: int | None = None,
+    ) -> None:
+        """Kolejkuje wysylke — worker Celery wykonuje send_document_email."""
+        from apps.documents.tasks import send_document_email_task
+
+        send_document_email_task.delay(document_id, sent_by_id=sent_by_id)
+
+    @staticmethod
     def send_document_email(
         document_id: int,
         *,

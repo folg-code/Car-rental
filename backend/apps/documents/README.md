@@ -52,9 +52,9 @@
 ## Serwisy (zaimplementowane — Task 7.7)
 
 - `EmailService.send_document_email` — PDF w zalaczniku, `EmailLog` (sent/failed), `retry_email`
+- `EmailService.enqueue_document_email` — kolejkuje `documents.send_document_email` (Celery)
 - Szablony: `documents/email/handover_*`, `return_*`
-- **Sprint 9.7:** infrastruktura Celery — [`docs/DOCKER.md`](../../../docs/DOCKER.md)
-- **Sprint 9.8:** wysyłka email przez Celery task (zamiast sync w request)
+- Taski Celery: `apps/documents/tasks.py` — `send_document_email_task`, `ping`
 
 ## Panel (Task 7.8 — zaimplementowane)
 

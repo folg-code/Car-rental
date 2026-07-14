@@ -59,9 +59,9 @@ docker compose exec web python backend/manage.py shell -c "from apps.documents.t
 
 `CELERY_TASK_ALWAYS_EAGER=True` — bez Redis w CI.
 
-### Kolejny krok (9.8)
+### Kolejny krok (9.9+)
 
-Wysyłka emaili z PDF przez taski Celery zamiast synchronicznego `EmailService` w request.
+Deploy produkcyjny — HTTPS, backup DB (task 9.9).
 
 ---
 

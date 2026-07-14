@@ -13,8 +13,8 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 9 — zamknięty ✅ |
-| **Następny krok** | Sprint 9 zamknięty — backlog Sprint 9+ |
+| **Aktualny etap** | Sprint 8b — Chat AI (Faza A MVP) 🟡 |
+| **Następny krok** | Sprint 8b Faza B — tool calls (dostępność, wycena) |
 | **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -37,8 +37,8 @@
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
 | 7 | documents (PDF, faktury) | ✅ | 100% |
 | 8 | dashboard + website | ✅ | 100% |
-| 9 | Produkcja i płatności online | 🟡 | 0% |
-| 8b | Chat AI — konsultant klienta | ⬜ | 0% |
+| 9 | Produkcja i płatności online | ✅ | 100% |
+| 8b | Chat AI — konsultant klienta | 🟡 | 50% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Rozszerzenia (raporty, SMS, i18n) | ⬜ | backlog |
 
@@ -56,8 +56,8 @@
 8. ~~**Sprint 6 — operations**~~ ✅ — protokoly wydania/zwrotu, snapshoty szkod
 9. ~~**Sprint 7 — documents**~~ ✅
 10. ~~**Sprint 8**~~ ✅ — dashboard KPI + website (taski 8.1–8.14)
-11. **Sprint 9** — płatności online + Celery + deploy (taski 9.1–9.10)
-12. **Sprint 8b — Chat AI** — opcjonalnie równolegle po 9.5 — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+11. ~~**Sprint 9**~~ ✅ — płatności online + Celery + deploy (taski 9.1–9.10)
+12. **Sprint 8b — Chat AI** — Faza A MVP ✅ / Faza B tool calls — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ---
 
@@ -650,7 +650,7 @@
 
 ---
 
-# Sprint 8b — Chat AI (konsultant klienta) ⬜
+# Sprint 8b — Chat AI (konsultant klienta) 🟡
 
 **Cel:** publiczny asystent AI na stronie — FAQ, pomoc w wyborze auta, prowadzenie do rezerwacji (bez zapisu rezerwacji z czatu).
 
@@ -660,12 +660,12 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ### MVP (Faza A — możliwe przed pełnym website)
 
-- [ ] `ChatSession`, `ChatMessage` — modele + migracje
-- [ ] Adapter `LLMClient` + konfiguracja env (`LLM_API_KEY`, `LLM_MODEL`)
-- [ ] `ConsultantChatService` — FAQ-only, system prompt z polityką firmy
-- [ ] Widok `/asystent/` + widget na `base.html`
-- [ ] Rate limiting, CSRF, komunikat RODO/disclaimer
-- [ ] Testy z mockiem LLM
+- [x] `ChatSession`, `ChatMessage` — modele + migracje
+- [x] Adapter `LLMClient` + konfiguracja env (`LLM_API_KEY`, `LLM_MODEL`)
+- [x] `ConsultantChatService` — FAQ-only, system prompt z polityką firmy
+- [x] Widok `/asystent/` + widget na `base_public.html`
+- [x] Rate limiting, CSRF, komunikat RODO/disclaimer
+- [x] Testy z mockiem LLM
 
 ### Rozszerzenie (Faza B — po bookings + pricing)
 
@@ -678,15 +678,15 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ### Bezpieczeństwo
 
-- [ ] Klucze API tylko w secrets / `.env`
-- [ ] Brak PII innych klientów w kontekście LLM
-- [ ] Jawny zakaz tworzenia rezerwacji/płatności przez model (prompt + brak tooli mutujących)
+- [x] Klucze API tylko w secrets / `.env`
+- [x] Brak PII innych klientów w kontekście LLM
+- [x] Jawny zakaz tworzenia rezerwacji/płatności przez model (prompt + brak tooli mutujących)
 
 **Definition of Done:** klient na stronie publicznej prowadzi rozmowę z botem; bot odpowiada po polsku na FAQ; po Sprint 4 — potrafi podać wolne auta i orientacyjną cenę; konwersja kończy się linkiem do formularza rezerwacji.
 
 ---
 
-# Sprint 9 — produkcja i płatności online 🟡
+# Sprint 9 — produkcja i płatności online ✅
 
 **Cel:** zamknięcie pętli **rezerwacja online → płatność → potwierdzenie** oraz fundament produkcyjny (async, deploy).
 

@@ -548,7 +548,7 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 |----|-------|------|
 | 9.1–9.6 | payments + website | intent dla rezerwacji, adapter bramki, webhook, płatność online, confirm |
 | 9.9 | infra | Deploy HTTPS (Caddy) + backup/restore — [`docs/DEPLOY.md`](docs/DEPLOY.md) |
-| 9.10 | payments | Testy pełnego flow płatności |
+| 9.10 | payments | Testy integracyjne flow online — `test_payment_flow_integration.py` |
 | 9.10 | payments | testy flow płatności |
 
 Szczegóły: [`PROJECT_PLAN.md`](PROJECT_PLAN.md)

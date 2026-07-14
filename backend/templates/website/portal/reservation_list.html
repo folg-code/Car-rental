@@ -3,49 +3,34 @@
 {% block title %}Moje rezerwacje{% endblock %}
 
 {% block content %}
-<section class="max-w-4xl mx-auto px-4 py-12">
-    <div class="flex flex-wrap items-center justify-between gap-4">
-        <h1 class="text-2xl font-semibold text-gray-900">Moje rezerwacje</h1>
-        <a
-            href="{% url 'customer_portal:home' %}"
-            class="text-sm text-gray-600 hover:text-gray-900"
-        >
-            ← Moje konto
-        </a>
-    </div>
+{% include "website/partials/page_header.html" with eyebrow="Portal klienta" title="Moje rezerwacje" subtitle="" %}
+
+<section class="site-container py-8 md:py-12 max-w-4xl">
+    <a href="{% url 'customer_portal:home' %}" class="link-brand text-sm inline-flex items-center gap-1 mb-6">
+        ← Moje konto
+    </a>
 
     {% if reservations %}
-    <div class="mt-8 bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <table class="min-w-full text-sm">
-            <thead class="bg-gray-50 text-left text-gray-600">
+    <div class="data-table-wrap">
+        <table class="data-table">
+            <thead>
                 <tr>
-                    <th class="px-4 py-3">Nr</th>
-                    <th class="px-4 py-3">Pojazd</th>
-                    <th class="px-4 py-3">Termin</th>
-                    <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3"></th>
+                    <th>Nr</th>
+                    <th>Pojazd</th>
+                    <th>Termin</th>
+                    <th>Status</th>
+                    <th></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
                 {% for reservation in reservations %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3">#{{ reservation.pk }}</td>
-                    <td class="px-4 py-3">
-                        {{ reservation.car.make }} {{ reservation.car.model }}
-                        ({{ reservation.car.registration_number }})
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap">
-                        {{ reservation.start_at|date:"d.m.Y H:i" }} —
-                        {{ reservation.end_at|date:"d.m.Y H:i" }}
-                    </td>
-                    <td class="px-4 py-3">{{ reservation.get_status_display }}</td>
-                    <td class="px-4 py-3 text-right">
-                        <a
-                            href="{% url 'customer_portal:reservation_detail' reservation.pk %}"
-                            class="text-blue-600 hover:underline"
-                        >
-                            Szczegoly
-                        </a>
+                <tr>
+                    <td>#{{ reservation.pk }}</td>
+                    <td>{{ reservation.car.make }} {{ reservation.car.model }} ({{ reservation.car.registration_number }})</td>
+                    <td class="whitespace-nowrap">{{ reservation.start_at|date:"d.m.Y H:i" }} — {{ reservation.end_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ reservation.get_status_display }}</td>
+                    <td class="text-right">
+                        <a href="{% url 'customer_portal:reservation_detail' reservation.pk %}" class="link-brand">Szczegoly</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -53,7 +38,10 @@
         </table>
     </div>
     {% else %}
-    <p class="mt-8 text-sm text-gray-500">Brak rezerwacji.</p>
+    <div class="content-card text-center py-12">
+        <p class="text-gray-500 mb-4">Brak rezerwacji.</p>
+        <a href="{% url 'website:public_booking' %}" class="btn-primary">Zarezerwuj auto</a>
+    </div>
     {% endif %}
 </section>
 {% endblock %}

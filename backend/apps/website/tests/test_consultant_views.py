@@ -41,7 +41,8 @@ class TestConsultantViews:
 
     def test_widget_link_on_public_pages(self, client) -> None:
         response = client.get(reverse("website:home"))
-        assert b"Pomoc / Chat" in response.content
+        assert b"Pomoc" in response.content
+        assert b"chat z asystentem" in response.content.lower()
 
     @override_settings(CHAT_RATE_LIMIT_PER_HOUR=1)
     def test_rate_limit_returns_400_on_htmx(self, client) -> None:

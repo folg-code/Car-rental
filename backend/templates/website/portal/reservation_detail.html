@@ -3,79 +3,39 @@
 {% block title %}Rezerwacja #{{ reservation.pk }}{% endblock %}
 
 {% block content %}
-<section class="max-w-3xl mx-auto px-4 py-12">
-    <a
-        href="{% url 'customer_portal:reservation_list' %}"
-        class="text-sm text-gray-600 hover:text-gray-900"
-    >
+<section class="site-container py-8 md:py-12 max-w-3xl">
+    <a href="{% url 'customer_portal:reservation_list' %}" class="link-brand text-sm inline-flex items-center gap-1">
         ← Wszystkie rezerwacje
     </a>
 
-    <h1 class="mt-4 text-2xl font-semibold text-gray-900">
-        Rezerwacja #{{ reservation.pk }}
-    </h1>
+    <h1 class="mt-4 section-heading">Rezerwacja #{{ reservation.pk }}</h1>
 
-    <div class="mt-8 space-y-4 text-sm text-gray-700">
-        <p>
-            <span class="font-medium text-gray-900">Pojazd:</span>
-            {{ reservation.car.make }} {{ reservation.car.model }}
-            ({{ reservation.car.registration_number }})
-        </p>
-        <p>
-            <span class="font-medium text-gray-900">Termin:</span>
-            {{ reservation.start_at|date:"d.m.Y H:i" }} —
-            {{ reservation.end_at|date:"d.m.Y H:i" }}
-        </p>
-        <p>
-            <span class="font-medium text-gray-900">Status:</span>
-            {{ reservation.get_status_display }}
-        </p>
+    <div class="content-card mt-8 space-y-3 text-sm text-gray-700">
+        <p><span class="font-semibold text-gray-900">Pojazd:</span> {{ reservation.car.make }} {{ reservation.car.model }} ({{ reservation.car.registration_number }})</p>
+        <p><span class="font-semibold text-gray-900">Termin:</span> {{ reservation.start_at|date:"d.m.Y H:i" }} — {{ reservation.end_at|date:"d.m.Y H:i" }}</p>
+        <p><span class="font-semibold text-gray-900">Status:</span> {{ reservation.get_status_display }}</p>
     </div>
 
     {% if reservation.price_lines.all %}
-    <table class="mt-8 w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-        <thead class="bg-gray-50 text-left text-gray-600">
-            <tr>
-                <th class="px-4 py-3 font-medium">Pozycja</th>
-                <th class="px-4 py-3 font-medium text-right">Kwota</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-            {% for line in reservation.price_lines.all %}
-            <tr>
-                <td class="px-4 py-3">{{ line.description }}</td>
-                <td class="px-4 py-3 text-right">{{ line.total_amount }} PLN</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% include "website/partials/price_table.html" with lines=reservation.price_lines.all %}
     {% endif %}
 
     <div class="mt-10">
-        <h2 class="text-lg font-medium text-gray-900">Dokumenty</h2>
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Dokumenty</h2>
         {% if documents %}
-        <ul class="mt-4 space-y-2 text-sm">
+        <ul class="space-y-3">
             {% for document in documents %}
-            <li class="flex items-center justify-between rounded border border-gray-200 px-4 py-3">
-                <span>
-                    {{ document.get_document_type_display }}
-                    <span class="text-gray-500">
-                        ({{ document.generated_at|date:"d.m.Y H:i" }})
-                    </span>
+            <li class="content-card flex items-center justify-between gap-4 py-4">
+                <span class="text-sm">
+                    <span class="font-semibold text-gray-900">{{ document.get_document_type_display }}</span>
+                    <span class="text-gray-500">({{ document.generated_at|date:"d.m.Y H:i" }})</span>
                 </span>
-                <a
-                    href="{% url 'customer_portal:document_download' document.uuid %}"
-                    class="text-blue-600 hover:underline font-medium"
-                    target="_blank"
-                    rel="noopener"
-                >
-                    Pobierz PDF
-                </a>
+                <a href="{% url 'customer_portal:document_download' document.uuid %}" class="link-brand shrink-0" target="_blank" rel="noopener">Pobierz PDF</a>
             </li>
             {% endfor %}
         </ul>
         {% else %}
-        <p class="mt-4 text-sm text-gray-500">Brak dokumentow dla tej rezerwacji.</p>
+        <p class="text-sm text-gray-500">Brak dokumentow dla tej rezerwacji.</p>
         {% endif %}
     </div>
 </section>

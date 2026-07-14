@@ -5,64 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Wynajem aut{% endblock %} | Car Rental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'dist/output.css' %}">
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
-<body class="bg-white text-gray-900 min-h-screen flex flex-col">
-    <header class="border-b border-gray-200 bg-white">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="{% url 'website:home' %}" class="font-semibold text-lg text-gray-900">
-                Car Rental
-            </a>
-            <nav class="flex items-center gap-6 text-sm">
-                <a href="{% url 'website:home' %}" class="text-gray-600 hover:text-gray-900">
-                    Start
-                </a>
-                <a href="{% url 'website:fleet_list' %}" class="text-gray-600 hover:text-gray-900">
-                    Flota
-                </a>
-                <a href="{% url 'website:availability_search' %}" class="text-gray-600 hover:text-gray-900">
-                    Dostepnosc
-                </a>
-                <a href="{% url 'website:price_quote' %}" class="text-gray-600 hover:text-gray-900">
-                    Wycena
-                </a>
-                <a href="{% url 'website:public_booking' %}" class="text-gray-600 hover:text-gray-900">
-                    Rezerwacja
-                </a>
-                <a href="{% url 'website:contact' %}" class="text-gray-600 hover:text-gray-900">
-                    Kontakt
-                </a>
-                <a href="{% url 'website:faq' %}" class="text-gray-600 hover:text-gray-900">
-                    FAQ
-                </a>
-                {% if user.is_authenticated and user.is_staff_member %}
-                <a href="{% url 'dashboard:home' %}" class="text-gray-600 hover:text-gray-900">
-                    Panel
-                </a>
-                {% elif user.is_authenticated and user.is_customer_account %}
-                <a href="{% url 'customer_portal:home' %}" class="text-gray-600 hover:text-gray-900">
-                    Moje konto
-                </a>
-                <a href="{% url 'accounts:logout' %}" class="text-gray-600 hover:text-gray-900">
-                    Wyloguj
-                </a>
-                {% else %}
-                <a href="{% url 'accounts:login' %}" class="text-gray-600 hover:text-gray-900">
-                    Logowanie
-                </a>
-                {% endif %}
-            </nav>
-        </div>
-    </header>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col font-sans antialiased">
+    {% include "website/partials/navbar.html" %}
 
     {% if messages %}
-    <div class="max-w-6xl mx-auto px-4 pt-4 w-full space-y-2">
+    <div class="site-container pt-4 w-full space-y-2">
         {% for message in messages %}
-        <div class="rounded px-4 py-3 text-sm
-            {% if message.tags == 'error' %}bg-red-100 text-red-800
-            {% elif message.tags == 'success' %}bg-green-100 text-green-800
-            {% else %}bg-blue-100 text-blue-800{% endif %}">
+        <div class="rounded-xl px-4 py-3 text-sm shadow-sm
+            {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-100
+            {% elif message.tags == 'success' %}bg-green-50 text-green-800 border border-green-100
+            {% else %}bg-brand-50 text-brand-900 border border-brand-100{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
@@ -73,23 +31,17 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="border-t border-gray-200 bg-gray-50 mt-auto">
-        <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-gray-500 flex flex-col sm:flex-row justify-between gap-4">
-            <p>&copy; Car Rental — wynajem samochodow</p>
-            <div class="flex flex-wrap gap-4 text-gray-600">
-                <a href="{% url 'website:terms' %}" class="hover:text-gray-900">Regulamin</a>
-                <a href="{% url 'website:contact' %}" class="hover:text-gray-900">Kontakt</a>
-                <a href="{% url 'website:faq' %}" class="hover:text-gray-900">FAQ</a>
-            </div>
-        </div>
-    </footer>
+    {% include "website/partials/footer.html" %}
 
     <a
         href="{% url 'website:consultant' %}"
-        class="fixed bottom-6 right-6 z-50 rounded-full bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg hover:bg-blue-700"
+        class="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-600/30 transition-all duration-200 hover:bg-brand-700 hover:scale-105"
         aria-label="Pomoc — chat z asystentem"
     >
-        Pomoc / Chat
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        Pomoc
     </a>
 </body>
 </html>

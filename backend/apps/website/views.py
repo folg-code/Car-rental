@@ -27,7 +27,12 @@ PUBLIC_BOOKING_SESSION_KEY = "public_booking_id"
 
 def landing(request: HttpRequest) -> HttpResponse:
     """Strona glowna kanalu publicznego (task 8.8)."""
-    return render(request, "website/landing.html")
+    catalog = get_public_fleet_catalog()
+    return render(
+        request,
+        "website/landing.html",
+        {"featured_cars": catalog.cars[:6]},
+    )
 
 
 def fleet_list(request: HttpRequest) -> HttpResponse:

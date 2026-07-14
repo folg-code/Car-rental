@@ -14,6 +14,8 @@ from apps.pricing.selectors.price_list import (
     list_active_extras,
 )
 
+_FORM_INPUT = "form-input"
+
 
 class AvailabilitySearchForm(forms.Form):
     """Formularz dat odbioru i zwrotu (task 8.10)."""
@@ -21,14 +23,14 @@ class AvailabilitySearchForm(forms.Form):
     start_at = forms.DateTimeField(
         label="Data odbioru",
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"},
+            attrs={"type": "datetime-local", "class": "form-input"},
             format="%Y-%m-%dT%H:%M",
         ),
     )
     end_at = forms.DateTimeField(
         label="Data zwrotu",
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"},
+            attrs={"type": "datetime-local", "class": "form-input"},
             format="%Y-%m-%dT%H:%M",
         ),
     )
@@ -37,6 +39,7 @@ class AvailabilitySearchForm(forms.Form):
         queryset=CarCategory.objects.none(),
         required=False,
         empty_label="Wszystkie kategorie",
+        widget=forms.Select(attrs={"class": "form-input"}),
     )
 
     def __init__(self, *args, **kwargs) -> None:
@@ -77,12 +80,13 @@ class PriceQuoteForm(forms.Form):
         label="Pojazd",
         queryset=Car.objects.none(),
         empty_label="Wybierz pojazd",
+        widget=forms.Select(attrs={"class": _FORM_INPUT}),
     )
     start_at = forms.DateTimeField(
         label="Data odbioru",
         input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"},
+            attrs={"type": "datetime-local", "class": _FORM_INPUT},
             format="%Y-%m-%dT%H:%M",
         ),
     )
@@ -90,7 +94,7 @@ class PriceQuoteForm(forms.Form):
         label="Data zwrotu",
         input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"},
+            attrs={"type": "datetime-local", "class": _FORM_INPUT},
             format="%Y-%m-%dT%H:%M",
         ),
     )
@@ -163,12 +167,13 @@ class PublicBookingForm(forms.Form):
         label="Pojazd",
         queryset=Car.objects.none(),
         empty_label="Wybierz pojazd",
+        widget=forms.Select(attrs={"class": _FORM_INPUT}),
     )
     start_at = forms.DateTimeField(
         label="Data odbioru",
         input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"},
+            attrs={"type": "datetime-local", "class": _FORM_INPUT},
             format="%Y-%m-%dT%H:%M",
         ),
     )
@@ -176,14 +181,31 @@ class PublicBookingForm(forms.Form):
         label="Data zwrotu",
         input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"},
+            attrs={"type": "datetime-local", "class": _FORM_INPUT},
             format="%Y-%m-%dT%H:%M",
         ),
     )
-    first_name = forms.CharField(label="Imie", max_length=80)
-    last_name = forms.CharField(label="Nazwisko", max_length=80)
-    email = forms.EmailField(label="E-mail", required=False)
-    phone = forms.CharField(label="Telefon", max_length=32, required=False)
+    first_name = forms.CharField(
+        label="Imie",
+        max_length=80,
+        widget=forms.TextInput(attrs={"class": _FORM_INPUT}),
+    )
+    last_name = forms.CharField(
+        label="Nazwisko",
+        max_length=80,
+        widget=forms.TextInput(attrs={"class": _FORM_INPUT}),
+    )
+    email = forms.EmailField(
+        label="E-mail",
+        required=False,
+        widget=forms.EmailInput(attrs={"class": _FORM_INPUT}),
+    )
+    phone = forms.CharField(
+        label="Telefon",
+        max_length=32,
+        required=False,
+        widget=forms.TextInput(attrs={"class": _FORM_INPUT}),
+    )
     extras = forms.MultipleChoiceField(
         label="Uslugi dodatkowe",
         required=False,
@@ -194,7 +216,7 @@ class PublicBookingForm(forms.Form):
         label="Uwagi",
         required=False,
         max_length=500,
-        widget=forms.Textarea(attrs={"rows": 3}),
+        widget=forms.Textarea(attrs={"rows": 3, "class": _FORM_INPUT}),
     )
     accept_terms = forms.BooleanField(
         label="Akceptuje regulamin wynajmu",

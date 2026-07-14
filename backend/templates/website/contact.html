@@ -3,33 +3,37 @@
 {% block title %}Kontakt{% endblock %}
 
 {% block content %}
-<section class="max-w-3xl mx-auto px-4 py-16">
-    <h1 class="text-3xl font-semibold text-gray-900">Kontakt</h1>
-    <p class="mt-4 text-gray-600">
-        Placeholder — miejsce na dane kontaktowe wypozyczalni.
-    </p>
+{% include "website/partials/page_header.html" with eyebrow="Informacje" title="Kontakt" subtitle="Skontaktuj sie z nami — odpowiemy na pytania o flote, rezerwacje i wynajem." %}
 
-    <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-        <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6">
-            <p class="font-medium text-gray-800">Adres biura</p>
-            <p class="mt-2 text-gray-500">Miejsce na adres</p>
+<section class="site-container py-8 md:py-12 max-w-4xl">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div class="content-card-muted">
+            <p class="font-semibold text-gray-900">Adres biura</p>
+            <p class="mt-2 text-gray-600">ul. Przykładowa 12<br>30-001 Krakow</p>
         </div>
-        <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6">
-            <p class="font-medium text-gray-800">Telefon</p>
-            <p class="mt-2 text-gray-500">Miejsce na numer telefonu</p>
+        <div class="content-card-muted">
+            <p class="font-semibold text-gray-900">Telefon</p>
+            <p class="mt-2 text-gray-600">+48 12 345 67 89</p>
         </div>
-        <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6">
-            <p class="font-medium text-gray-800">E-mail</p>
-            <p class="mt-2 text-gray-500">Miejsce na adres e-mail</p>
+        <div class="content-card-muted">
+            <p class="font-semibold text-gray-900">E-mail</p>
+            <p class="mt-2 text-gray-600">kontakt@car-rental.local</p>
         </div>
-        <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6">
-            <p class="font-medium text-gray-800">Godziny otwarcia</p>
-            <p class="mt-2 text-gray-500">Miejsce na godziny pracy biura</p>
+        <div class="content-card-muted">
+            <p class="font-semibold text-gray-900">Godziny otwarcia</p>
+            <p class="mt-2 text-gray-600">Pn–Pt 8:00–18:00<br>Sb 9:00–14:00</p>
         </div>
     </div>
 
-    <p class="mt-10 text-sm text-gray-500">
-        Formularz kontaktowy — do dodania w przyszlej wersji (backlog).
-    </p>
+    <div class="content-card mt-10">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">Potrzebujesz szybkiej odpowiedzi?</h2>
+        <p class="text-sm text-gray-600 mb-4">
+            Skorzystaj z asystenta AI lub zloz rezerwacje online — dostepne 24/7.
+        </p>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'website:consultant' %}" class="btn-primary">Chat z asystentem</a>
+            <a href="{% url 'website:public_booking' %}" class="btn-secondary">Rezerwacja online</a>
+        </div>
+    </div>
 </section>
 {% endblock %}

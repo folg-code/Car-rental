@@ -53,7 +53,7 @@ Rejestracja **ruchu pieniężnego** — wpłaty, kaucje, zwroty, opłaty dodatko
 Planowane (Sprint 9): strona płatności w `website` (9.5)
 
 - `POST /platnosci/webhook/` — publiczny endpoint webhooka (`views_webhook.payment_webhook`)
-- `PaymentGatewayService` — `create_intent`, `initiate_checkout`, `handle_webhook` (idempotencja `provider_event_id`)
+- `PaymentGatewayService.handle_webhook` — po sukcesie: `ReservationService.confirm` + `PaymentService.record_reservation_payment` (task **9.6** ✅)
 
 ### Adapter bramki (9.2)
 

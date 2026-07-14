@@ -114,6 +114,9 @@ class TestPublicPaymentViews:
         intent.refresh_from_db()
         assert intent.status == PaymentIntentStatus.SUCCEEDED
 
+        reservation.refresh_from_db()
+        assert reservation.status == ReservationStatus.CONFIRMED
+
         success = client.get(post_response.url)
         assert success.status_code == 200
         assert b"Platnosc przyjeta" in success.content

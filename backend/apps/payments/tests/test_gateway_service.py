@@ -145,8 +145,11 @@ class TestPaymentGatewayService:
         )
         result = PaymentGatewayService.handle_webhook(payload=payload, gateway=gateway)
         intent.refresh_from_db()
+        reservation.refresh_from_db()
         assert result.duplicate is False
         assert intent.status == PaymentIntentStatus.SUCCEEDED
+        assert reservation.status == ReservationStatus.CONFIRMED
+        assert intent.payments.count() == 1
         assert PaymentProviderEvent.objects.filter(intent=intent).count() == 1
 
     def test_handle_webhook_failure(self, reservation) -> None:
@@ -193,6 +196,9 @@ class TestPaymentGatewayService:
         assert first.duplicate is False
         assert second.duplicate is True
         assert PaymentProviderEvent.objects.filter(intent=intent).count() == 1
+        assert intent.payments.count() == 1
+        reservation.refresh_from_db()
+        assert reservation.status == ReservationStatus.CONFIRMED
 
     def test_handle_webhook_invalid_signature(self, reservation) -> None:
         del reservation

@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
-from apps.bookings.models import Rental
+from apps.bookings.models import Rental, Reservation
 from apps.payments.models import (
     Payment,
     PaymentIntent,
@@ -24,6 +24,75 @@ class PaymentService:
         if rental is None:
             raise ValidationError(f"Wynajem {rental_id} nie istnieje.")
         return rental
+
+    @staticmethod
+    def _get_reservation(reservation_id: int) -> Reservation:
+        reservation = Reservation.objects.filter(pk=reservation_id).first()
+        if reservation is None:
+            raise ValidationError(f"Rezerwacja {reservation_id} nie istnieje.")
+        return reservation
+
+    @staticmethod
+    def _get_intent(intent_id: int | None) -> PaymentIntent | None:
+        if intent_id is None:
+            return None
+        intent = PaymentIntent.objects.filter(pk=intent_id).first()
+        if intent is None:
+            raise ValidationError("Nie znaleziono intencji platnosci.")
+        return intent
+
+    @staticmethod
+    def _existing_payment_for_intent(intent_id: int | None) -> Payment | None:
+        if intent_id is None:
+            return None
+        return Payment.objects.filter(intent_id=intent_id).first()
+
+    @staticmethod
+    @transaction.atomic
+    def record_reservation_payment(
+        *,
+        reservation_id: int,
+        amount: Decimal,
+        payment_type: str,
+        method: str,
+        paid_at: datetime | None = None,
+        notes: str = "",
+        recorded_by_id: int | None = None,
+        intent_id: int | None = None,
+    ) -> Payment:
+        if payment_type not in PaymentType.values:
+            msg = f"Nieprawidlowy typ platnosci: {payment_type}"
+            raise ValueError(msg)
+        if method not in PaymentMethod.values:
+            msg = f"Nieprawidlowa metoda platnosci: {method}"
+            raise ValueError(msg)
+
+        existing = PaymentService._existing_payment_for_intent(intent_id)
+        if existing is not None:
+            return existing
+
+        amount = amount.quantize(Decimal("0.01"))
+        if amount <= 0:
+            raise ValidationError("Kwota platnosci musi byc wieksza od zera.")
+
+        reservation = PaymentService._get_reservation(reservation_id)
+        intent = PaymentService._get_intent(intent_id)
+        if intent is not None and intent.reservation_id != reservation_id:
+            raise ValidationError("Intencja nie dotyczy tej rezerwacji.")
+
+        payment = Payment(
+            rental=None,
+            reservation=reservation,
+            intent=intent,
+            payment_type=payment_type,
+            method=method,
+            amount=amount,
+            paid_at=paid_at or timezone.now(),
+            notes=notes,
+            recorded_by_id=recorded_by_id,
+        )
+        payment.save()
+        return payment
 
     @staticmethod
     @transaction.atomic
@@ -49,14 +118,18 @@ class PaymentService:
         if amount <= 0:
             raise ValidationError("Kwota platnosci musi byc wieksza od zera.")
 
+        existing = PaymentService._existing_payment_for_intent(intent_id)
+        if existing is not None:
+            return existing
+
         rental = PaymentService._get_rental(rental_id)
-        intent = None
-        if intent_id is not None:
-            intent = PaymentIntent.objects.filter(pk=intent_id).first()
-            if intent is None:
-                raise ValidationError("Nie znaleziono intencji platnosci.")
-            if intent.rental_id is not None and intent.rental_id != rental_id:
-                raise ValidationError("Intencja nie dotyczy tego wynajmu.")
+        intent = PaymentService._get_intent(intent_id)
+        if (
+            intent is not None
+            and intent.rental_id is not None
+            and intent.rental_id != rental_id
+        ):
+            raise ValidationError("Intencja nie dotyczy tego wynajmu.")
 
         payment = Payment(
             rental=rental,

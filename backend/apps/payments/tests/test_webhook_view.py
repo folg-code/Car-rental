@@ -184,3 +184,6 @@ class TestPaymentWebhookView:
             provider_event_id="evt_view_4",
         ).intent
         assert intent.status == PaymentIntentStatus.SUCCEEDED
+        reservation = intent.reservation
+        reservation.refresh_from_db()
+        assert reservation.status == ReservationStatus.CONFIRMED

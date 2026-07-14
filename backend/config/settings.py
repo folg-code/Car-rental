@@ -201,6 +201,14 @@ EMAIL_BACKEND = env(
 )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
+# --- Bramka płatności (Sprint 9) ---
+PAYMENT_GATEWAY_PROVIDER = env("PAYMENT_GATEWAY_PROVIDER", default="mock")
+PAYMENT_GATEWAY_MOCK_BASE_URL = env(
+    "PAYMENT_GATEWAY_MOCK_BASE_URL",
+    default="http://localhost:8000",
+)
+PAYMENT_GATEWAY_WEBHOOK_SECRET = env("PAYMENT_GATEWAY_WEBHOOK_SECRET", default="")
+
 # --- Szkic podzialu dev / prod (rozszerzyc o osobne moduly settings przy deploy) ---
 # Dev:  DEBUG=True,  ALLOWED_HOSTS=localhost,127.0.0.1
 # Prod: DEBUG=False, ALLOWED_HOSTS=<domena>, SECURE_SSL_REDIRECT=True, SESSION_COOKIE_SECURE=True

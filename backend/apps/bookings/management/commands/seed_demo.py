@@ -162,6 +162,30 @@ class Command(BaseCommand):
                 "amount": Decimal("40.00"),
             },
         )
+        ExtraService.objects.get_or_create(
+            price_list=price_list,
+            code="fuel_refill",
+            defaults={
+                "name": "Uzupelnienie paliwa",
+                "charge_type": ExtraServiceChargeType.PER_UNIT,
+                "amount": Decimal("5.00"),
+                "description": (
+                    "Za kazdy brakujacy punkt procentowy paliwa przy zwrocie."
+                ),
+            },
+        )
+        ExtraService.objects.get_or_create(
+            price_list=price_list,
+            code="extra_km",
+            defaults={
+                "name": "Dodatkowy kilometr",
+                "charge_type": ExtraServiceChargeType.PER_UNIT,
+                "amount": Decimal("1.50"),
+                "description": (
+                    "Oplata za przejechane km ponad limit (szacunek przy zwrocie)."
+                ),
+            },
+        )
         self.stdout.write(f"  Cennik: {price_list.name}")
 
         now = timezone.now()

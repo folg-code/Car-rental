@@ -32,4 +32,82 @@
         padding: 1.25rem;
         margin-bottom: 1rem;
     }
+    .op-btn-secondary {
+        display: block;
+        width: 100%;
+        background: #fff;
+        color: #111;
+        border: 1px solid #d1d5db;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    .op-wizard-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .op-wizard-dot {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 9999px;
+        border: 2px solid #d1d5db;
+        background: #fff;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    .op-wizard-dot.is-active {
+        border-color: #000;
+        background: #000;
+        color: #fff;
+    }
+    .op-wizard-line {
+        width: 2rem;
+        height: 2px;
+        background: #e5e7eb;
+    }
+    .op-wizard-step.hidden {
+        display: none;
+    }
+    .op-damage-compare-header,
+    .op-damage-compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+    .op-damage-compare-header {
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .op-damage-compare-row {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .op-damage-status {
+        grid-column: 1 / -1;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+    }
+    .op-damage-unchanged .op-damage-status { color: #059669; }
+    .op-damage-changed .op-damage-status { color: #d97706; }
+    .op-damage-resolved .op-damage-status { color: #6b7280; }
+    .op-damage-new_at_return .op-damage-status { color: #dc2626; }
+    .op-badge {
+        display: inline-block;
+        font-size: 0.65rem;
+        background: #fef3c7;
+        color: #92400e;
+        padding: 0.1rem 0.35rem;
+        border-radius: 0.25rem;
+        margin-top: 0.25rem;
+    }
 </style>

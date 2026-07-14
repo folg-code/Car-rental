@@ -12,84 +12,155 @@
 {% block content %}
 {% include "operations/_mobile_styles.html" %}
 
-<form method="post" enctype="multipart/form-data" class="max-w-xl mx-auto">
+<form method="post" enctype="multipart/form-data" class="max-w-xl mx-auto" id="handover-wizard-form">
     {% csrf_token %}
+    {% include "operations/_wizard_nav.html" %}
 
-    <div class="op-section">
-        <h2 class="font-medium mb-4">Dane pojazdu</h2>
-        <p class="text-sm text-gray-500 mb-4">Przebieg w bazie: {{ car_mileage }} km</p>
-        <div class="mb-4">
-            <label class="op-label">{{ form.mileage.label }}</label>
-            {{ form.mileage }}
-            {% if form.mileage.errors %}<p class="text-red-600 text-sm mt-1">{{ form.mileage.errors.0 }}</p>{% endif %}
+    <div class="op-wizard-step" data-step="1">
+        <div class="op-section">
+            <h2 class="font-medium mb-4">Dane pojazdu</h2>
+            <p class="text-sm text-gray-500 mb-4">Przebieg w bazie: {{ car_mileage }} km</p>
+            <div class="mb-4">
+                <label class="op-label" for="id_mileage">{{ form.mileage.label }}</label>
+                {{ form.mileage }}
+                {% if form.mileage.errors %}<p class="text-red-600 text-sm mt-1">{{ form.mileage.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="mb-2">
+                <label class="op-label" for="id_fuel_level_percent">{{ form.fuel_level_percent.label }}: <span id="fuel-val">{{ form.fuel_level_percent.value|default:100 }}</span>%</label>
+                {{ form.fuel_level_percent }}
+            </div>
         </div>
-        <div class="mb-2">
-            <label class="op-label">{{ form.fuel_level_percent.label }}: <span id="fuel-val">{{ form.fuel_level_percent.value|default:100 }}</span>%</label>
-            {{ form.fuel_level_percent }}
+        <button type="button" class="op-btn-primary op-wizard-next" data-next="2">Dalej — szkody i zdjecia</button>
+    </div>
+
+    <div class="op-wizard-step hidden" data-step="2">
+        <div class="op-section">
+            <h2 class="font-medium mb-3">Aktywne uszkodzenia (flota)</h2>
+            {% if active_damages %}
+            <ul class="text-sm space-y-2 mb-4">
+                {% for d in active_damages %}
+                <li class="border-l-2 border-amber-400 pl-2">{{ d.location|default:"—" }}: {{ d.description }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-sm text-gray-500 mb-4">Brak aktywnych uszkodzen w historii floty.</p>
+            {% endif %}
+            <p class="text-xs text-gray-500 mb-2">Nowe uszkodzenie przy wydaniu (opcjonalnie):</p>
+            {{ form.new_damage_description }}
+            {{ form.new_damage_location }}
+            {{ form.new_damage_severity }}
+        </div>
+        <div class="op-section">
+            <h2 class="font-medium mb-3">Zdjecia</h2>
+            <input
+                type="file"
+                name="photos"
+                accept="image/*"
+                capture="environment"
+                multiple
+                class="op-input"
+            />
+            <p class="text-xs text-gray-500 mt-2">Mozesz wybrac kilka zdjec naraz.</p>
+        </div>
+        <div class="flex gap-3">
+            <button type="button" class="op-btn-secondary op-wizard-prev" data-prev="1">Wstecz</button>
+            <button type="button" class="op-btn-primary op-wizard-next flex-1" data-next="3">Dalej — podpis</button>
         </div>
     </div>
 
-    <div class="op-section">
-        <h2 class="font-medium mb-3">Aktywne uszkodzenia (flota)</h2>
-        {% if active_damages %}
-        <ul class="text-sm space-y-2 mb-4">
-            {% for d in active_damages %}
-            <li class="border-l-2 border-amber-400 pl-2">{{ d.location|default:"—" }}: {{ d.description }}</li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p class="text-sm text-gray-500 mb-4">Brak aktywnych uszkodzen w historii floty.</p>
+    <div class="op-wizard-step hidden" data-step="3">
+        <div class="op-section">
+            <h2 class="font-medium mb-3">Podpis klienta</h2>
+            <div class="mb-3">
+                <label class="op-label">{{ form.signer_name.label }}</label>
+                {{ form.signer_name }}
+            </div>
+            <div class="mb-3">
+                <label class="op-label">{{ form.signature_image.label }}</label>
+                {{ form.signature_image }}
+            </div>
+            <div>
+                <label class="op-label">{{ form.notes.label }}</label>
+                {{ form.notes }}
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+        <p class="text-red-600 text-sm mb-4">{{ form.non_field_errors.0 }}</p>
         {% endif %}
-        <p class="text-xs text-gray-500 mb-2">Nowe uszkodzenie przy wydaniu (opcjonalnie):</p>
-        {{ form.new_damage_description }}
-        {{ form.new_damage_location }}
-        {{ form.new_damage_severity }}
-    </div>
 
-    <div class="op-section">
-        <h2 class="font-medium mb-3">Zdjecia</h2>
-        <input
-            type="file"
-            name="photos"
-            accept="image/*"
-            capture="environment"
-            multiple
-            class="op-input"
-        />
-        <p class="text-xs text-gray-500 mt-2">Mozesz wybrac kilka zdjec naraz.</p>
-    </div>
-
-    <div class="op-section">
-        <h2 class="font-medium mb-3">Podpis klienta</h2>
-        <div class="mb-3">
-            <label class="op-label">{{ form.signer_name.label }}</label>
-            {{ form.signer_name }}
-        </div>
-        <div class="mb-3">
-            <label class="op-label">{{ form.signature_image.label }}</label>
-            {{ form.signature_image }}
-        </div>
-        <div>
-            <label class="op-label">{{ form.notes.label }}</label>
-            {{ form.notes }}
+        <div class="flex gap-3">
+            <button type="button" class="op-btn-secondary op-wizard-prev" data-prev="2">Wstecz</button>
+            <button type="submit" class="op-btn-primary flex-1">Zakoncz wydanie i aktywuj wynajem</button>
         </div>
     </div>
 
-    {% if form.non_field_errors %}
-    <p class="text-red-600 text-sm mb-4">{{ form.non_field_errors.0 }}</p>
-    {% endif %}
-
-    <button type="submit" class="op-btn-primary">Zakoncz wydanie i aktywuj wynajem</button>
     <a href="{% url 'operations:home' %}" class="block text-center text-sm text-gray-500 mt-4">Anuluj</a>
 </form>
 
 <script>
 (function () {
-    const slider = document.querySelector('input[name="fuel_level_percent"]');
-    const label = document.getElementById("fuel-val");
-    if (slider && label) {
+    const form = document.getElementById("handover-wizard-form");
+    const steps = form.querySelectorAll(".op-wizard-step");
+    const dots = form.querySelectorAll(".op-wizard-dot");
+    const label = document.getElementById("wizard-step-label");
+    const stepLabels = {
+        1: "Krok 1: Dane pojazdu",
+        2: "Krok 2: Szkody i zdjecia",
+        3: "Krok 3: Podpis klienta",
+    };
+
+    function showStep(n) {
+        steps.forEach(function (el) {
+            el.classList.toggle("hidden", Number(el.dataset.step) !== n);
+        });
+        dots.forEach(function (dot) {
+            const active = Number(dot.dataset.step) === n;
+            dot.classList.toggle("is-active", active);
+            if (active) {
+                dot.setAttribute("aria-current", "step");
+            } else {
+                dot.removeAttribute("aria-current");
+            }
+        });
+        if (label) {
+            label.textContent = stepLabels[n] || "";
+        }
+    }
+
+    function validateStep(n) {
+        const step = form.querySelector('.op-wizard-step[data-step="' + n + '"]');
+        const fields = step.querySelectorAll("input, select, textarea");
+        for (const field of fields) {
+            if (!field.checkValidity()) {
+                field.reportValidity();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    form.querySelectorAll(".op-wizard-next").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            const current = Number(btn.closest(".op-wizard-step").dataset.step);
+            if (!validateStep(current)) {
+                return;
+            }
+            showStep(Number(btn.dataset.next));
+        });
+    });
+
+    form.querySelectorAll(".op-wizard-prev").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            showStep(Number(btn.dataset.prev));
+        });
+    });
+
+    const slider = document.querySelector("#id_fuel_level_percent");
+    const fuelLabel = document.getElementById("fuel-val");
+    if (slider && fuelLabel) {
         slider.addEventListener("input", function () {
-            label.textContent = slider.value;
+            fuelLabel.textContent = slider.value;
         });
     }
 })();

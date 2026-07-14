@@ -9,6 +9,7 @@ from apps.fleet.models import Car
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import ProtocolPhoto, ReturnProtocol, Signature
 from apps.operations.services.damage_snapshot import DamageSnapshotService
+from apps.operations.services.surcharge_preview import SurchargePreviewService
 
 
 class ReturnService:
@@ -42,15 +43,13 @@ class ReturnService:
         return_mileage: int,
         return_fuel: int,
     ) -> str:
-        notes: list[str] = []
-        if return_fuel < handover_fuel:
-            notes.append(
-                f"Dopelnienie paliwa: wydanie {handover_fuel}% → zwrot {return_fuel}%."
-            )
-        driven = return_mileage - handover_mileage
-        if driven > 0:
-            notes.append(f"Przejechane km: {driven}.")
-        return " ".join(notes)
+        preview = SurchargePreviewService.preview(
+            handover_mileage=handover_mileage,
+            handover_fuel=handover_fuel,
+            return_mileage=return_mileage,
+            return_fuel=return_fuel,
+        )
+        return preview.summary_notes
 
     @staticmethod
     @transaction.atomic

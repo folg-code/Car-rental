@@ -1,0 +1,16 @@
+{% if preview.lines %}
+<ul class="text-sm space-y-2 mb-3">
+    {% for line in preview.lines %}
+    <li class="flex justify-between gap-4">
+        <span>{{ line.description }}{% if line.quantity > 1 %} (× {{ line.quantity }}){% endif %}</span>
+        <span class="font-medium whitespace-nowrap">{{ line.total }} PLN</span>
+    </li>
+    {% endfor %}
+</ul>
+<p class="text-sm font-semibold text-amber-900">Suma szacunkowa: {{ preview.total }} PLN</p>
+{% elif preview.summary_notes %}
+<p class="text-sm text-amber-800">{{ preview.summary_notes }}</p>
+<p class="text-xs text-gray-500 mt-2">Brak stawek w cenniku (fuel_refill / extra_km) — tylko informacja.</p>
+{% else %}
+<p class="text-sm text-gray-500">Brak doplat za paliwo lub km.</p>
+{% endif %}

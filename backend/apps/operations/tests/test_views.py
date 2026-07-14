@@ -3,6 +3,8 @@ from django.urls import reverse
 
 from apps.accounts.models import UserRole
 from apps.accounts.services.user import UserService
+from apps.operations.services.handover import HandoverService
+from apps.operations.tests.test_operations import _tiny_image
 
 
 @pytest.fixture
@@ -26,7 +28,7 @@ class TestOperationsViews:
         assert response.status_code == 200
         assert b"Operacje w terenie" in response.content
 
-    def test_handover_form(self, staff_client, scheduled_rental) -> None:
+    def test_handover_form_has_wizard(self, staff_client, scheduled_rental) -> None:
         response = staff_client.get(
             reverse(
                 "operations:handover_create",
@@ -35,3 +37,42 @@ class TestOperationsViews:
         )
         assert response.status_code == 200
         assert b"Protokol wydania" in response.content
+        assert b"op-wizard-nav" in response.content
+        assert b"Krok 1: Dane pojazdu" in response.content
+
+    def test_return_form_has_htmx_preview(self, staff_client, scheduled_rental) -> None:
+        HandoverService.complete_handover(
+            scheduled_rental.pk,
+            mileage=10_000,
+            fuel_level_percent=100,
+            signer_name="Jan",
+            signature_image=_tiny_image(),
+        )
+        response = staff_client.get(
+            reverse(
+                "operations:return_create",
+                kwargs={"rental_id": scheduled_rental.pk},
+            )
+        )
+        assert response.status_code == 200
+        assert b"Podglad doplat" in response.content
+        assert b"hx-get" in response.content
+        assert b"Porownanie szkod" in response.content
+
+    def test_return_surcharge_preview_endpoint(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        HandoverService.complete_handover(
+            scheduled_rental.pk,
+            mileage=10_000,
+            fuel_level_percent=100,
+            signer_name="Jan",
+            signature_image=_tiny_image(),
+        )
+        url = reverse(
+            "operations:return_surcharge_preview",
+            kwargs={"rental_id": scheduled_rental.pk},
+        )
+        response = staff_client.get(url, {"mileage": 10350, "fuel_level_percent": 70})
+        assert response.status_code == 200
+        assert b"Przejechane km" in response.content or b"km" in response.content

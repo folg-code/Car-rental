@@ -9,30 +9,36 @@
 {% block content %}
 {% include "operations/_mobile_styles.html" %}
 
-<form method="post" enctype="multipart/form-data" class="max-w-xl mx-auto">
+<form method="post" enctype="multipart/form-data" class="max-w-xl mx-auto" id="return-form">
     {% csrf_token %}
 
     <div class="op-section">
         <h2 class="font-medium mb-4">Stan przy zwrocie</h2>
         <div class="mb-4">
-            <label class="op-label">{{ form.mileage.label }}</label>
+            <label class="op-label" for="id_mileage">{{ form.mileage.label }}</label>
             {{ form.mileage }}
         </div>
         <div class="mb-2">
-            <label class="op-label">{{ form.fuel_level_percent.label }}: <span id="fuel-val">{{ form.fuel_level_percent.value }}</span>%</label>
+            <label class="op-label" for="id_fuel_level_percent">{{ form.fuel_level_percent.label }}: <span id="fuel-val">{{ form.fuel_level_percent.value }}</span>%</label>
             {{ form.fuel_level_percent }}
+        </div>
+        <div
+            id="surcharge-preview"
+            class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100"
+            hx-get="{% url 'operations:return_surcharge_preview' rental.pk %}"
+            hx-trigger="change from:#id_mileage, input from:#id_fuel_level_percent delay:300ms"
+            hx-include="#id_mileage, #id_fuel_level_percent"
+            hx-swap="innerHTML"
+        >
+            <h3 class="text-sm font-medium text-amber-900 mb-2">Podglad doplat</h3>
+            {% include "operations/_surcharge_preview.html" with preview=surcharge_preview %}
         </div>
     </div>
 
     <div class="op-section">
-        <h2 class="font-medium mb-3">Uszkodzenia</h2>
-        {% if active_damages %}
-        <ul class="text-sm space-y-2 mb-4">
-            {% for d in active_damages %}
-            <li class="border-l-2 border-amber-400 pl-2">{{ d.description }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+        <h2 class="font-medium mb-3">Porownanie szkod (wydanie → zwrot)</h2>
+        {% include "operations/_damage_comparison.html" %}
+        <p class="text-xs text-gray-500 mt-4 mb-2">Nowe uszkodzenie przy zwrocie (opcjonalnie):</p>
         {{ form.new_damage_description }}
         {{ form.new_damage_location }}
         {{ form.new_damage_severity }}
@@ -61,7 +67,7 @@
 
 <script>
 (function () {
-    const slider = document.querySelector('input[name="fuel_level_percent"]');
+    const slider = document.querySelector("#id_fuel_level_percent");
     const label = document.getElementById("fuel-val");
     if (slider && label) {
         slider.addEventListener("input", function () { label.textContent = slider.value; });

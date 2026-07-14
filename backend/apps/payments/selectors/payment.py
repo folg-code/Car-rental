@@ -84,3 +84,15 @@ def get_rental_payment_summary(rental_id: int) -> dict[str, Decimal]:
         "rental_fee_due": fees_due,
         "deposit_expected": rental.deposit_amount,
     }
+
+
+def get_rental_balance_due(rental_id: int) -> Decimal:
+    """Kwota naleznosci za wynajem (snapshot ceny minus wplacone rental_fee)."""
+    summary = get_rental_payment_summary(rental_id)
+    if not summary:
+        return Decimal("0")
+    return summary["rental_fee_due"]
+
+
+def rental_has_balance_due(rental_id: int) -> bool:
+    return get_rental_balance_due(rental_id) > Decimal("0")

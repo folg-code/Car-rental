@@ -11,6 +11,7 @@ dist
 .pytest_cache
 .mypy_cache
 .vscode
+.cursor
 
 .env*
 !.env.example

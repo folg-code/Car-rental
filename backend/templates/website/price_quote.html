@@ -3,74 +3,47 @@
 {% block title %}Orientacyjna wycena{% endblock %}
 
 {% block content %}
-<section class="bg-gray-50 border-b border-gray-200">
-    <div class="max-w-6xl mx-auto px-4 py-12">
-        <h1 class="text-3xl font-semibold text-gray-900">Orientacyjna wycena</h1>
-        <p class="mt-2 text-gray-600 max-w-2xl">
-            Wybierz pojazd i termin — zobaczysz szacunkowy koszt wynajmu na podstawie
-            aktualnego cennika. To nie jest rezerwacja ani wiążąca oferta.
-        </p>
-    </div>
-</section>
+{% include "website/partials/page_header.html" with eyebrow="Cennik" title="Orientacyjna wycena" subtitle="Wybierz pojazd i termin — zobaczysz szacunkowy koszt wynajmu na podstawie aktualnego cennika. To nie jest rezerwacja ani wiążąca oferta." %}
 
-<section class="max-w-6xl mx-auto px-4 py-8">
-    <form method="get" class="max-w-xl space-y-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+<section class="site-container py-8 md:py-12">
+    <form method="get" class="form-card max-w-xl">
         {% if form.non_field_errors %}
-        <div class="rounded bg-red-50 text-red-800 text-sm px-4 py-3">
-            {{ form.non_field_errors }}
-        </div>
+        <div class="alert-error">{{ form.non_field_errors }}</div>
         {% endif %}
         <div>
-            <label for="{{ form.car.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.car.label }}
-            </label>
+            <label for="{{ form.car.id_for_label }}" class="form-label">{{ form.car.label }}</label>
             {{ form.car }}
-            {% if form.car.errors %}
-            <p class="mt-1 text-sm text-red-600">{{ form.car.errors.0 }}</p>
-            {% endif %}
+            {% if form.car.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.car.errors.0 }}</p>{% endif %}
         </div>
         <div>
-            <label for="{{ form.start_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.start_at.label }}
-            </label>
+            <label for="{{ form.start_at.id_for_label }}" class="form-label">{{ form.start_at.label }}</label>
             {{ form.start_at }}
-            {% if form.start_at.errors %}
-            <p class="mt-1 text-sm text-red-600">{{ form.start_at.errors.0 }}</p>
-            {% endif %}
+            {% if form.start_at.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.start_at.errors.0 }}</p>{% endif %}
         </div>
         <div>
-            <label for="{{ form.end_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.end_at.label }}
-            </label>
+            <label for="{{ form.end_at.id_for_label }}" class="form-label">{{ form.end_at.label }}</label>
             {{ form.end_at }}
-            {% if form.end_at.errors %}
-            <p class="mt-1 text-sm text-red-600">{{ form.end_at.errors.0 }}</p>
-            {% endif %}
+            {% if form.end_at.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.end_at.errors.0 }}</p>{% endif %}
         </div>
         {% if form.extras.field.choices %}
         <div>
-            <p class="block text-sm font-medium text-gray-700 mb-2">{{ form.extras.label }}</p>
+            <p class="form-label">{{ form.extras.label }}</p>
             <div class="space-y-2">
                 {% for checkbox in form.extras %}
-                <label class="flex items-center gap-2 text-sm text-gray-700">
+                <label class="form-checkbox-row">
                     {{ checkbox.tag }}
-                    {{ checkbox.choice_label }}
+                    <span>{{ checkbox.choice_label }}</span>
                 </label>
                 {% endfor %}
             </div>
         </div>
         {% endif %}
-        <button
-            type="submit"
-            class="inline-flex items-center rounded-lg bg-gray-900 px-5 py-3 text-sm font-medium text-white hover:bg-gray-800"
-        >
-            Oblicz wycene
-        </button>
+        <button type="submit" class="btn-primary w-full sm:w-auto">Oblicz wycene</button>
     </form>
 
     {% if quoted %}
-    <div class="mt-10 max-w-2xl">
-        <h2 class="text-xl font-semibold text-gray-900">
+    <div class="mt-12 max-w-2xl">
+        <h2 class="text-2xl font-bold text-gray-900">
             {{ result.car.make }} {{ result.car.model }}
         </h2>
         <p class="text-sm text-gray-600 mt-1">
@@ -79,47 +52,16 @@
             {{ result.end_at|date:"d.m.Y H:i" }}
         </p>
 
-        <table class="mt-6 w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-            <thead class="bg-gray-50 text-left text-gray-600">
-                <tr>
-                    <th class="px-4 py-3 font-medium">Pozycja</th>
-                    <th class="px-4 py-3 font-medium text-right">Kwota</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                {% for line in result.pricing.lines %}
-                <tr>
-                    <td class="px-4 py-3 text-gray-800">{{ line.description }}</td>
-                    <td class="px-4 py-3 text-right text-gray-900">
-                        {{ line.total_amount }} {{ result.pricing.currency }}
-                    </td>
-                </tr>
-                {% endfor %}
-                <tr class="bg-gray-50 font-semibold">
-                    <td class="px-4 py-3 text-gray-900">Razem (orientacyjnie)</td>
-                    <td class="px-4 py-3 text-right text-gray-900">
-                        {{ result.pricing.total }} {{ result.pricing.currency }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        {% include "website/partials/price_table.html" with lines=result.pricing.lines currency=result.pricing.currency total=result.pricing.total total_label="Razem (orientacyjnie)" %}
 
-        <p class="mt-4 text-sm text-gray-500">
+        <p class="mt-4 text-sm text-gray-500 leading-relaxed">
             Cena ma charakter orientacyjny. Ostateczna kwota moze sie roznic po potwierdzeniu
             rezerwacji i uwzglednieniu dodatkowych oplat (np. kaucja, przekroczenie limitu km).
         </p>
-        <p class="mt-4 text-sm">
-            <a href="{% url 'website:availability_search' %}" class="text-gray-700 underline hover:text-gray-900">
-                Sprawdz dostepnosc w tym terminie
-            </a>
-            ·
-            <a
-                href="{% url 'website:public_booking' %}?car={{ result.car.pk }}&start_at={{ result.start_at|date:'Y-m-d' }}T{{ result.start_at|time:'H:i' }}&end_at={{ result.end_at|date:'Y-m-d' }}T{{ result.end_at|time:'H:i' }}"
-                class="text-gray-700 underline hover:text-gray-900"
-            >
-                Zarezerwuj online
-            </a>
-        </p>
+        <div class="mt-6 flex flex-wrap gap-4 text-sm">
+            <a href="{% url 'website:availability_search' %}" class="link-brand">Sprawdz dostepnosc w tym terminie</a>
+            <a href="{% url 'website:public_booking' %}?car={{ result.car.pk }}&start_at={{ result.start_at|date:'Y-m-d' }}T{{ result.start_at|time:'H:i' }}&end_at={{ result.end_at|date:'Y-m-d' }}T{{ result.end_at|time:'H:i' }}" class="link-brand">Zarezerwuj online</a>
+        </div>
     </div>
     {% endif %}
 </section>

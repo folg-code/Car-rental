@@ -8,13 +8,13 @@ class TestInfoPages:
         response = client.get(reverse("website:terms"))
         assert response.status_code == 200
         assert b"Regulamin wypozyczalni" in response.content
-        assert b"Placeholder" in response.content
+        assert b"Postanowienia ogolne" in response.content
 
     def test_contact_returns_placeholder(self, client) -> None:
         response = client.get(reverse("website:contact"))
         assert response.status_code == 200
-        assert b"miejsce na dane kontaktowe" in response.content.lower()
-        assert b"Miejsce na adres" in response.content
+        assert b"Kontakt" in response.content
+        assert b"kontakt@car-rental.local" in response.content
 
     def test_faq_returns_sample_questions(self, client) -> None:
         response = client.get(reverse("website:faq"))

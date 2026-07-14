@@ -1,0 +1,28 @@
+<div class="data-table-wrap mt-8">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Pozycja</th>
+                <th class="text-right">Kwota</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for line in lines %}
+            <tr>
+                <td>{{ line.description }}</td>
+                <td class="text-right font-medium text-gray-900">
+                    {{ line.total_amount }}{% if currency %} {{ currency }}{% else %} PLN{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% if total %}
+            <tr class="bg-brand-50 font-semibold">
+                <td class="text-gray-900">{{ total_label|default:"Razem" }}</td>
+                <td class="text-right text-brand-800">
+                    {{ total }}{% if currency %} {{ currency }}{% else %} PLN{% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>

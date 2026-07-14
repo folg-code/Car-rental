@@ -3,86 +3,62 @@
 {% block title %}Rezerwacja online{% endblock %}
 
 {% block content %}
-<section class="bg-gray-50 border-b border-gray-200">
-    <div class="max-w-6xl mx-auto px-4 py-12">
-        <h1 class="text-3xl font-semibold text-gray-900">Rezerwacja online</h1>
-        <p class="mt-2 text-gray-600 max-w-2xl">
-            Wypelnij formularz — utworzymy rezerwacje ze statusem oczekuje platnosci.
-            Platnosc online bedzie dostepna wkrotce; skontaktujemy sie w sprawie potwierdzenia.
-        </p>
-    </div>
-</section>
+{% include "website/partials/page_header.html" with eyebrow="Rezerwacja" title="Rezerwacja online" subtitle="Wypelnij formularz — utworzymy rezerwacje ze statusem oczekuje platnosci. Platnosc online lub kontakt w sprawie potwierdzenia." %}
 
-<section class="max-w-6xl mx-auto px-4 py-8">
-    <form method="post" class="max-w-xl space-y-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+<section class="site-container py-8 md:py-12">
+    <form method="post" class="form-card max-w-xl">
         {% csrf_token %}
         {% if form.non_field_errors %}
-        <div class="rounded bg-red-50 text-red-800 text-sm px-4 py-3">
-            {{ form.non_field_errors }}
-        </div>
+        <div class="alert-error">{{ form.non_field_errors }}</div>
         {% endif %}
 
         <div>
-            <label for="{{ form.car.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.car.label }}
-            </label>
+            <label for="{{ form.car.id_for_label }}" class="form-label">{{ form.car.label }}</label>
             {{ form.car }}
-            {% if form.car.errors %}<p class="mt-1 text-sm text-red-600">{{ form.car.errors.0 }}</p>{% endif %}
+            {% if form.car.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.car.errors.0 }}</p>{% endif %}
         </div>
         <div>
-            <label for="{{ form.start_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.start_at.label }}
-            </label>
+            <label for="{{ form.start_at.id_for_label }}" class="form-label">{{ form.start_at.label }}</label>
             {{ form.start_at }}
-            {% if form.start_at.errors %}<p class="mt-1 text-sm text-red-600">{{ form.start_at.errors.0 }}</p>{% endif %}
+            {% if form.start_at.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.start_at.errors.0 }}</p>{% endif %}
         </div>
         <div>
-            <label for="{{ form.end_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.end_at.label }}
-            </label>
+            <label for="{{ form.end_at.id_for_label }}" class="form-label">{{ form.end_at.label }}</label>
             {{ form.end_at }}
-            {% if form.end_at.errors %}<p class="mt-1 text-sm text-red-600">{{ form.end_at.errors.0 }}</p>{% endif %}
+            {% if form.end_at.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.end_at.errors.0 }}</p>{% endif %}
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                    {{ form.first_name.label }}
-                </label>
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
                 {{ form.first_name }}
-                {% if form.first_name.errors %}<p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>{% endif %}
+                {% if form.first_name.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>{% endif %}
             </div>
             <div>
-                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                    {{ form.last_name.label }}
-                </label>
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
                 {{ form.last_name }}
-                {% if form.last_name.errors %}<p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>{% endif %}
+                {% if form.last_name.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>{% endif %}
             </div>
         </div>
         <div>
-            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.email.label }}
-            </label>
+            <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
             {{ form.email }}
-            {% if form.email.errors %}<p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>{% endif %}
+            {% if form.email.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.email.errors.0 }}</p>{% endif %}
         </div>
         <div>
-            <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.phone.label }}
-            </label>
+            <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}</label>
             {{ form.phone }}
-            {% if form.phone.errors %}<p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>{% endif %}
+            {% if form.phone.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.phone.errors.0 }}</p>{% endif %}
         </div>
 
         {% if form.extras.field.choices %}
         <div>
-            <p class="block text-sm font-medium text-gray-700 mb-2">{{ form.extras.label }}</p>
+            <p class="form-label">{{ form.extras.label }}</p>
             <div class="space-y-2">
                 {% for checkbox in form.extras %}
-                <label class="flex items-center gap-2 text-sm text-gray-700">
+                <label class="form-checkbox-row">
                     {{ checkbox.tag }}
-                    {{ checkbox.choice_label }}
+                    <span>{{ checkbox.choice_label }}</span>
                 </label>
                 {% endfor %}
             </div>
@@ -90,37 +66,26 @@
         {% endif %}
 
         <div>
-            <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                {{ form.notes.label }}
-            </label>
+            <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
             {{ form.notes }}
         </div>
 
-        <label class="flex items-start gap-2 text-sm text-gray-700">
+        <label class="form-checkbox-row">
             {{ form.accept_terms }}
             <span>
                 Akceptuje
-                <a href="{% url 'website:terms' %}" class="underline hover:no-underline" target="_blank">
-                    regulamin wynajmu
-                </a>
+                <a href="{% url 'website:terms' %}" class="link-brand" target="_blank" rel="noopener">regulamin wynajmu</a>
             </span>
         </label>
         {% if form.accept_terms.errors %}
         <p class="text-sm text-red-600">{{ form.accept_terms.errors.0 }}</p>
         {% endif %}
 
-        <button
-            type="submit"
-            class="inline-flex items-center rounded-lg bg-gray-900 px-5 py-3 text-sm font-medium text-white hover:bg-gray-800"
-        >
-            Zloz rezerwacje
-        </button>
+        <button type="submit" class="btn-primary w-full sm:w-auto">Zloz rezerwacje</button>
     </form>
 
     <p class="mt-6 text-sm text-gray-500">
-        <a href="{% url 'website:price_quote' %}" class="text-gray-700 underline hover:text-gray-900">
-            Najpierw sprawdz orientacyjna wycene
-        </a>
+        <a href="{% url 'website:price_quote' %}" class="link-brand">Najpierw sprawdz orientacyjna wycene</a>
     </p>
 </section>
 {% endblock %}

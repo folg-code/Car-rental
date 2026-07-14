@@ -3,38 +3,42 @@
 {% block title %}FAQ{% endblock %}
 
 {% block content %}
-<section class="max-w-3xl mx-auto px-4 py-16">
-    <h1 class="text-3xl font-semibold text-gray-900">Czesto zadawane pytania</h1>
-    <p class="mt-4 text-gray-600">
-        Przykladowe pytania na potrzeby layoutu — tresc do uzupelnienia przed produkcja.
-    </p>
+{% include "website/partials/page_header.html" with eyebrow="Pomoc" title="Czesto zadawane pytania" subtitle="Odpowiedzi na najczestsze pytania o rezerwacje, kaucje i zwrot pojazdu." %}
 
-    <dl class="mt-10 space-y-8">
-        <div class="rounded-lg border border-gray-200 p-6">
-            <dt class="font-semibold text-gray-900">Jak zarezerwowac auto online?</dt>
-            <dd class="mt-2 text-sm text-gray-600">
-                Sprawdz dostepnosc, zobacz orientacyjna wycene i wypelnij formularz
-                rezerwacji. Placeholder — szczegolowy opis krokow.
+<section class="site-container py-8 md:py-12 max-w-3xl">
+    <dl class="space-y-4">
+        <div class="faq-item">
+            <dt class="font-bold text-gray-900 text-lg">Jak zarezerwowac auto online?</dt>
+            <dd class="mt-2 text-sm text-gray-600 leading-relaxed">
+                Sprawdz dostepnosc w wybranym terminie, zobacz orientacyjna wycene i wypelnij formularz
+                rezerwacji. Po zlozeniu zamowienia otrzymasz potwierdzenie e-mailem.
             </dd>
         </div>
-        <div class="rounded-lg border border-gray-200 p-6">
-            <dt class="font-semibold text-gray-900">Czy potrzebuje konta, zeby zarezerwowac?</dt>
-            <dd class="mt-2 text-sm text-gray-600">
-                Nie — wystarczy formularz z danymi kontaktowymi. Placeholder.
+        <div class="faq-item">
+            <dt class="font-bold text-gray-900 text-lg">Czy potrzebuje konta, zeby zarezerwowac?</dt>
+            <dd class="mt-2 text-sm text-gray-600 leading-relaxed">
+                Nie — wystarczy formularz z danymi kontaktowymi. Po rezerwacji mozesz utworzyc konto klienta,
+                aby sledzic historie wynajmow i pobierac dokumenty.
             </dd>
         </div>
-        <div class="rounded-lg border border-gray-200 p-6">
-            <dt class="font-semibold text-gray-900">Jak dziala kaucja?</dt>
-            <dd class="mt-2 text-sm text-gray-600">
-                Miejsce na wyjasnienie kaucji i zwrotu po zakonczeniu wynajmu.
+        <div class="faq-item">
+            <dt class="font-bold text-gray-900 text-lg">Jak dziala kaucja?</dt>
+            <dd class="mt-2 text-sm text-gray-600 leading-relaxed">
+                Kaucja zalezy od kategorii pojazdu i jest blokowana przy wydaniu auta. Zwracamy ja po zwrocie,
+                jesli pojazd nie ma uszkodzen ani zaleglosci (np. brak paliwa).
             </dd>
         </div>
-        <div class="rounded-lg border border-gray-200 p-6">
-            <dt class="font-semibold text-gray-900">Czy moge anulowac rezerwacje?</dt>
-            <dd class="mt-2 text-sm text-gray-600">
-                Miejsce na zasady anulowania — patrz tez regulamin (placeholder).
+        <div class="faq-item">
+            <dt class="font-bold text-gray-900 text-lg">Czy moge anulowac rezerwacje?</dt>
+            <dd class="mt-2 text-sm text-gray-600 leading-relaxed">
+                Zasady anulowania opisuje regulamin wynajmu. Skontaktuj sie z biurem podajac numer rezerwacji.
             </dd>
         </div>
     </dl>
+
+    <div class="mt-10 text-center">
+        <p class="text-sm text-gray-600 mb-4">Nie znalazles odpowiedzi?</p>
+        <a href="{% url 'website:consultant' %}" class="btn-primary">Zapytaj asystenta AI</a>
+    </div>
 </section>
 {% endblock %}

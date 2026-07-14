@@ -1,13 +1,16 @@
 from datetime import timedelta
 from decimal import Decimal
+from pathlib import Path
 
+from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from apps.bookings.models import Customer, Reservation, ReservationStatus
 from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.bookings.services.rental import RentalService
-from apps.fleet.models import Car, CarCategory, CarStatus, FuelType
+from apps.fleet.models import Car, CarCategory, CarImage, CarStatus, FuelType
 from apps.pricing.models import (
     AmountType,
     DailyRate,
@@ -21,6 +24,26 @@ from apps.pricing.models import (
 
 class Command(BaseCommand):
     help = "Tworzy dane demo: kategorie, auta, klientow (idempotentne)."
+
+    _CAR_IMAGE_FILES = {
+        "suv": "car-suv.png",
+        "kompakt": "car-compact.png",
+    }
+
+    def _attach_demo_car_image(self, car: Car) -> None:
+        if car.images.exists():
+            return
+        filename = self._CAR_IMAGE_FILES.get(car.category.slug, "car-compact.png")
+        path = Path(settings.BASE_DIR) / "static" / "images" / "cars" / filename
+        if not path.is_file():
+            return
+        CarImage.objects.create(
+            car=car,
+            image=ContentFile(path.read_bytes(), name=filename),
+            is_primary=True,
+            caption=f"{car.make} {car.model}",
+        )
+        self.stdout.write(f"  Zdjecie demo: {car.registration_number}")
 
     def handle(self, *args, **options) -> None:
         kompakt, _ = CarCategory.objects.get_or_create(
@@ -87,6 +110,7 @@ class Command(BaseCommand):
             cars.append(car)
             action = "Utworzono" if created else "Istnieje"
             self.stdout.write(f"  {action} auto: {car.registration_number}")
+            self._attach_demo_car_image(car)
 
         customers_data = [
             {

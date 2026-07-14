@@ -3,33 +3,18 @@
 {% block title %}Platnosc testowa{% endblock %}
 
 {% block content %}
-<section class="max-w-lg mx-auto px-4 py-16">
-    <h1 class="text-2xl font-semibold text-gray-900">Mock bramki platnosci</h1>
-    <p class="mt-2 text-sm text-gray-600">
-        Srodowisko deweloperskie — symulacja platnosci online.
-    </p>
+{% include "website/partials/page_header.html" with eyebrow="Platnosci" title="Mock bramki platnosci" subtitle="Srodowisko deweloperskie — symulacja platnosci online." %}
 
-    <div class="mt-8 rounded-lg border border-gray-200 bg-gray-50 px-6 py-6 space-y-3 text-sm">
-        <p>
-            <span class="font-medium text-gray-900">Intencja:</span>
-            #{{ intent.pk }}
-        </p>
-        <p>
-            <span class="font-medium text-gray-900">Rezerwacja:</span>
-            #{{ intent.reservation_id }}
-        </p>
-        <p>
-            <span class="font-medium text-gray-900">Kwota:</span>
-            {{ intent.amount }} PLN
-        </p>
+<section class="site-container py-8 md:py-12 max-w-lg">
+    <div class="content-card space-y-3 text-sm">
+        <p><span class="font-semibold text-gray-900">Intencja:</span> #{{ intent.pk }}</p>
+        <p><span class="font-semibold text-gray-900">Rezerwacja:</span> #{{ intent.reservation_id }}</p>
+        <p><span class="font-semibold text-gray-900">Kwota:</span> {{ intent.amount }} PLN</p>
     </div>
 
     <form method="post" class="mt-8">
         {% csrf_token %}
-        <button
-            type="submit"
-            class="w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white hover:bg-gray-800"
-        >
+        <button type="submit" class="btn-primary w-full">
             Opłać {{ intent.amount }} PLN
         </button>
     </form>

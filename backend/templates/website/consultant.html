@@ -3,26 +3,14 @@
 {% block title %}Asystent{% endblock %}
 
 {% block content %}
-<section class="max-w-2xl mx-auto px-4 py-10 flex flex-col min-h-[70vh]">
-    <h1 class="text-2xl font-semibold text-gray-900">Asystent wypozyczalni</h1>
-    <p class="mt-2 text-sm text-gray-600">
-        Rozmowa z asystentem AI. Nie podawaj numeru PESEL ani wrazliwych danych.
-        Asystent nie tworzy rezerwacji — skorzystaj z
-        <a href="{% url 'website:public_booking' %}" class="text-blue-600 underline">
-            formularza online
-        </a>.
-    </p>
+{% include "website/partials/page_header.html" with eyebrow="Pomoc" title="Asystent wypozyczalni" subtitle="Rozmowa z asystentem AI. Nie podawaj numeru PESEL ani wrazliwych danych. Asystent nie tworzy rezerwacji — skorzystaj z formularza online." %}
 
+<section class="site-container py-8 md:py-12 max-w-2xl flex flex-col min-h-[60vh]">
     {% if error %}
-    <div class="mt-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-        {{ error }}
-    </div>
+    <div class="alert-error mb-4">{{ error }}</div>
     {% endif %}
 
-    <div
-        id="chat-messages"
-        class="mt-6 flex-1 space-y-4 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4 min-h-[320px]"
-    >
+    <div id="chat-messages" class="chat-panel">
         {% if not messages %}
         <p class="text-sm text-gray-500">
             Zadaj pytanie o rezerwacje, kaucje lub zasady wynajmu.
@@ -31,15 +19,11 @@
         {% for message in messages %}
             {% if message.role == "user" %}
             <div class="flex justify-end">
-                <div class="max-w-[85%] rounded-lg bg-blue-600 px-4 py-2 text-sm text-white">
-                    {{ message.content|linebreaksbr }}
-                </div>
+                <div class="chat-bubble-user">{{ message.content|linebreaksbr }}</div>
             </div>
             {% elif message.role == "assistant" %}
             <div class="flex justify-start">
-                <div class="max-w-[85%] rounded-lg bg-white border border-gray-200 px-4 py-2 text-sm text-gray-800">
-                    {{ message.content|linebreaksbr }}
-                </div>
+                <div class="chat-bubble-assistant">{{ message.content|linebreaksbr }}</div>
             </div>
             {% endif %}
         {% endfor %}
@@ -63,14 +47,14 @@
             required
             maxlength="4000"
             placeholder="Np. Jak dziala kaucja?"
-            class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            class="form-input flex-1"
         />
-        <button
-            type="submit"
-            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-            Wyslij
-        </button>
+        <button type="submit" class="btn-primary shrink-0 px-6">Wyslij</button>
     </form>
+
+    <p class="mt-4 text-xs text-gray-500 text-center">
+        Wolisz zarezerwowac samodzielnie?
+        <a href="{% url 'website:public_booking' %}" class="link-brand">Formularz rezerwacji</a>
+    </p>
 </section>
 {% endblock %}

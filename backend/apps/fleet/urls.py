@@ -18,4 +18,21 @@ urlpatterns = [
         name="block_delete",
     ),
     path("<int:car_pk>/uszkodzenie/", views.damage_create, name="damage_create"),
+    path("<int:car_pk>/zdjecie/", views.image_upload, name="image_upload"),
+    path(
+        "<int:car_pk>/zdjecie/<int:image_pk>/glowne/",
+        views.image_set_primary,
+        name="image_set_primary",
+    ),
+    path(
+        "<int:car_pk>/zdjecie/<int:image_pk>/usun/",
+        views.image_delete,
+        name="image_delete",
+    ),
+    path("<int:car_pk>/dokument/", views.document_upload, name="document_upload"),
+    path(
+        "<int:car_pk>/dokument/<int:document_pk>/usun/",
+        views.document_delete,
+        name="document_delete",
+    ),
 ]

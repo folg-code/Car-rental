@@ -1,0 +1,29 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Zdjecie — {{ car.registration_number }}{% endblock %}
+{% block page_heading %}Dodaj zdjecie pojazdu{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6 max-w-lg">
+    <p class="text-sm text-gray-600 mb-4">Pojazd: <strong>{{ car.registration_number }}</strong></p>
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="text-red-600 text-sm">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% for field in form %}
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<p class="text-xs text-gray-400 mt-1">{{ field.help_text }}</p>{% endif %}
+            {% if field.errors %}<p class="text-red-600 text-xs">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm">Zapisz zdjecie</button>
+        <a href="{% url 'fleet:car_detail' car.pk %}" class="text-sm text-gray-500 ml-3 hover:underline">Anuluj</a>
+    </form>
+</div>
+<style>
+    input[type="file"], input[type="text"] { width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem 0.75rem; }
+</style>
+{% endblock %}

@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
@@ -7,11 +9,15 @@ from apps.accounts.permissions import staff_required
 from apps.fleet.forms import (
     AvailabilityBlockForm,
     CarCategoryForm,
+    CarDocumentForm,
     CarForm,
+    CarImageForm,
     DamageForm,
 )
-from apps.fleet.models import AvailabilityBlock, Car, CarCategory
+from apps.fleet.models import AvailabilityBlock, Car, CarCategory, CarDocument, CarImage
 from apps.fleet.selectors.car import get_car_detail, list_cars, list_categories
+from apps.fleet.selectors.documents import DEFAULT_EXPIRY_ALERT_DAYS
+from apps.fleet.services.car_media import CarMediaService
 from apps.fleet.services.damage import DamageService
 from apps.fleet.services.maintenance import FleetMaintenanceService
 
@@ -37,7 +43,17 @@ def car_detail(request: HttpRequest, pk: int) -> HttpResponse:
     if car is None:
         messages.error(request, "Nie znaleziono pojazdu.")
         return redirect("fleet:car_list")
-    return render(request, "fleet/car_detail.html", {"car": car})
+    today = date.today()
+    return render(
+        request,
+        "fleet/car_detail.html",
+        {
+            "car": car,
+            "today": today,
+            "expiry_horizon": today + timedelta(days=DEFAULT_EXPIRY_ALERT_DAYS),
+            "expiry_alert_days": DEFAULT_EXPIRY_ALERT_DAYS,
+        },
+    )
 
 
 @staff_required
@@ -156,4 +172,110 @@ def damage_create(request: HttpRequest, car_pk: int) -> HttpResponse:
         request,
         "fleet/damage_form.html",
         {"form": form, "car": car},
+    )
+
+
+def _handle_media_form_errors(form, exc: ValidationError) -> None:
+    if hasattr(exc, "message_dict"):
+        for field, errs in exc.message_dict.items():
+            for err in errs:
+                form.add_error(field if field != "__all__" else None, err)
+    elif exc.messages:
+        form.add_error(None, exc.messages[0])
+    else:
+        form.add_error(None, str(exc))
+
+
+@staff_required
+def image_upload(request: HttpRequest, car_pk: int) -> HttpResponse:
+    car = get_object_or_404(Car, pk=car_pk)
+    form = CarImageForm(request.POST or None, request.FILES or None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            CarMediaService.add_image(
+                car,
+                image=form.cleaned_data["image"],
+                caption=form.cleaned_data.get("caption", ""),
+                is_primary=form.cleaned_data.get("is_primary", False),
+            )
+        except ValidationError as exc:
+            _handle_media_form_errors(form, exc)
+        else:
+            messages.success(request, "Dodano zdjecie pojazdu.")
+            return redirect("fleet:car_detail", pk=car.pk)
+    return render(
+        request,
+        "fleet/image_form.html",
+        {"form": form, "car": car},
+    )
+
+
+@staff_required
+def image_set_primary(request: HttpRequest, car_pk: int, image_pk: int) -> HttpResponse:
+    car = get_object_or_404(Car, pk=car_pk)
+    if request.method == "POST":
+        try:
+            CarMediaService.set_primary_image(car, image_pk)
+        except ValidationError as exc:
+            messages.error(request, exc.messages[0] if exc.messages else str(exc))
+        else:
+            messages.success(request, "Ustawiono zdjecie glowne.")
+    return redirect("fleet:car_detail", pk=car.pk)
+
+
+@staff_required
+def image_delete(request: HttpRequest, car_pk: int, image_pk: int) -> HttpResponse:
+    car = get_object_or_404(Car, pk=car_pk)
+    image = get_object_or_404(CarImage, pk=image_pk, car=car)
+    if request.method == "POST":
+        CarMediaService.delete_image(car, image.pk)
+        messages.success(request, "Usunieto zdjecie.")
+        return redirect("fleet:car_detail", pk=car.pk)
+    return render(
+        request,
+        "fleet/image_confirm_delete.html",
+        {"car": car, "image": image},
+    )
+
+
+@staff_required
+def document_upload(request: HttpRequest, car_pk: int) -> HttpResponse:
+    car = get_object_or_404(Car, pk=car_pk)
+    form = CarDocumentForm(request.POST or None, request.FILES or None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            CarMediaService.add_document(
+                car,
+                file=form.cleaned_data["file"],
+                document_type=form.cleaned_data["document_type"],
+                valid_from=form.cleaned_data.get("valid_from"),
+                valid_until=form.cleaned_data.get("valid_until"),
+                notes=form.cleaned_data.get("notes", ""),
+            )
+        except ValidationError as exc:
+            _handle_media_form_errors(form, exc)
+        else:
+            messages.success(request, "Dodano dokument pojazdu.")
+            return redirect("fleet:car_detail", pk=car.pk)
+    return render(
+        request,
+        "fleet/document_form.html",
+        {"form": form, "car": car},
+    )
+
+
+@staff_required
+def document_delete(
+    request: HttpRequest, car_pk: int, document_pk: int
+) -> HttpResponse:
+    car = get_object_or_404(Car, pk=car_pk)
+    document = get_object_or_404(CarDocument, pk=document_pk, car=car)
+    if request.method == "POST":
+        CarMediaService.delete_document(car, document.pk)
+        messages.success(request, "Usunieto dokument.")
+        return redirect("fleet:car_detail", pk=car.pk)
+    return render(
+        request,
+        "fleet/document_confirm_delete.html",
+        {"car": car, "document": document},
     )

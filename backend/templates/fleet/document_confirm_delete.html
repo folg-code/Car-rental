@@ -1,0 +1,18 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Usun dokument{% endblock %}
+{% block page_heading %}Usun dokument{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6 max-w-lg">
+    <p class="mb-4">
+        Usunac dokument <strong>{{ document.get_document_type_display }}</strong>
+        dla pojazdu <strong>{{ car.registration_number }}</strong>?
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded text-sm">Usun</button>
+        <a href="{% url 'fleet:car_detail' car.pk %}" class="text-sm text-gray-500 ml-3 hover:underline">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

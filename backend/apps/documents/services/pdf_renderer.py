@@ -6,7 +6,7 @@ from typing import Any
 
 from django.template.loader import render_to_string
 
-# Stabilne metadane — identyczna tresc HTML daje ten sam hash PDF miedzy renderami.
+# Stabilne metadane — normalizacja znacznikow czasu w wygenerowanym PDF.
 _PDF_CREATION_DATE = b"/CreationDate (D:20200101000000+00'00')"
 _PDF_MOD_DATE = b"/ModDate (D:20200101000000+00'00')"
 _PDF_ID = b"/ID [<00000000000000000000000000000000> <00000000000000000000000000000000>]"

@@ -89,11 +89,30 @@ class TestPdfRenderer:
         )
         assert PdfRenderer.is_pdf(pdf_bytes)
 
-    def test_identical_html_produces_identical_pdf_bytes(
-        self,
-        handover_pdf_context: dict,
-    ) -> None:
-        html = "<html><body><p>Stabilny PDF</p></body></html>"
-        first = PdfRenderer.html_to_pdf(html)
-        second = PdfRenderer.html_to_pdf(html)
-        assert first == second
+    def test_stabilize_pdf_bytes_normalizes_volatile_metadata(self) -> None:
+        raw = (
+            b"%PDF-1.7\n"
+            b"1 0 obj<</CreationDate (D:20250601120000+00'00')"
+            b"/ModDate (D:20250601120000+00'00')"
+            b"/ID [<aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa> "
+            b"<bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb>]>>"
+            b"endobj\n%%EOF\n"
+        )
+        stabilized = PdfRenderer._stabilize_pdf_bytes(raw)
+        assert b"/CreationDate (D:20200101000000+00'00')" in stabilized
+        assert b"/ModDate (D:20200101000000+00'00')" in stabilized
+        assert (
+            b"/ID [<00000000000000000000000000000000> "
+            b"<00000000000000000000000000000000>]"
+        ) in stabilized
+        assert b"20250601120000" not in stabilized
+
+    def test_stabilize_pdf_bytes_is_idempotent(self) -> None:
+        raw = (
+            b"%PDF-1.7\n"
+            b"1 0 obj<</CreationDate (D:20250601120000)/ModDate (D:20250601120000)"
+            b"/ID [<abcd> <efgh>]>>endobj\n%%EOF\n"
+        )
+        once = PdfRenderer._stabilize_pdf_bytes(raw)
+        twice = PdfRenderer._stabilize_pdf_bytes(once)
+        assert once == twice

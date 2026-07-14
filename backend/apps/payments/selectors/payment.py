@@ -9,6 +9,7 @@ from apps.payments.models import (
     REVENUE_PAYMENT_TYPES,
     Payment,
     PaymentType,
+    RentalCharge,
 )
 
 
@@ -68,6 +69,21 @@ def get_revenue_total_in_period(
     return (total or Decimal("0")).quantize(Decimal("0.01"))
 
 
+def _sum_charges(rental_id: int, payment_type: str) -> Decimal:
+    total = RentalCharge.objects.filter(
+        rental_id=rental_id,
+        payment_type=payment_type,
+    ).aggregate(total=Sum("amount"))["total"]
+    return total or Decimal("0")
+
+
+def _charge_due(accrued: Decimal, paid: Decimal) -> Decimal:
+    due = (accrued - paid).quantize(Decimal("0.01"))
+    if due < 0:
+        return Decimal("0")
+    return due
+
+
 def get_rental_payment_summary(rental_id: int) -> dict[str, Decimal]:
     rental = Rental.objects.select_related("reservation").filter(pk=rental_id).first()
     if rental is None:
@@ -78,6 +94,8 @@ def get_rental_payment_summary(rental_id: int) -> dict[str, Decimal]:
     rental_fees = _sum_by_type(rental_id, PaymentType.RENTAL_FEE)
     extra_charges = _sum_by_type(rental_id, PaymentType.EXTRA_CHARGE)
     damage_charges = _sum_by_type(rental_id, PaymentType.DAMAGE_CHARGE)
+    extra_accrued = _sum_charges(rental_id, PaymentType.EXTRA_CHARGE)
+    damage_accrued = _sum_charges(rental_id, PaymentType.DAMAGE_CHARGE)
     deposits = _sum_by_type(rental_id, PaymentType.DEPOSIT)
     refunds = _sum_by_type(rental_id, PaymentType.REFUND)
     revenue = get_rental_revenue_total(rental_id)
@@ -85,27 +103,37 @@ def get_rental_payment_summary(rental_id: int) -> dict[str, Decimal]:
     fees_due = (price_total - rental_fees).quantize(Decimal("0.01"))
     if fees_due < 0:
         fees_due = Decimal("0")
+    extra_charges_due = _charge_due(extra_accrued, extra_charges)
+    damage_charges_due = _charge_due(damage_accrued, damage_charges)
+    total_due = (fees_due + extra_charges_due + damage_charges_due).quantize(
+        Decimal("0.01")
+    )
 
     return {
         "price_total": price_total,
         "rental_fees_paid": rental_fees,
         "extra_charges_paid": extra_charges,
+        "extra_charges_accrued": extra_accrued,
+        "extra_charges_due": extra_charges_due,
         "damage_charges_paid": damage_charges,
+        "damage_charges_accrued": damage_accrued,
+        "damage_charges_due": damage_charges_due,
         "deposits_paid": deposits,
         "refunds_paid": refunds,
         "deposit_balance": deposit_balance,
         "revenue_total": revenue,
         "rental_fee_due": fees_due,
+        "total_due": total_due,
         "deposit_expected": rental.deposit_amount,
     }
 
 
 def get_rental_balance_due(rental_id: int) -> Decimal:
-    """Kwota naleznosci za wynajem (snapshot ceny minus wplacone rental_fee)."""
+    """Suma naleznosci: wynajem + doplaty + szkody minus wplaty."""
     summary = get_rental_payment_summary(rental_id)
     if not summary:
         return Decimal("0")
-    return summary["rental_fee_due"]
+    return summary["total_due"]
 
 
 def rental_has_balance_due(rental_id: int) -> bool:

@@ -204,6 +204,71 @@ class Payment(models.Model):
         super().save(*args, **kwargs)
 
 
+class RentalCharge(models.Model):
+    """Naliczona naleznosc powiazana z wynajmem (np. doplaty po zwrocie)."""
+
+    rental = models.ForeignKey(
+        "bookings.Rental",
+        on_delete=models.PROTECT,
+        related_name="charges",
+    )
+    return_protocol = models.ForeignKey(
+        "operations.ReturnProtocol",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="charges",
+    )
+    idempotency_key = models.CharField(max_length=64, unique=True)
+    payment_type = models.CharField(
+        max_length=32,
+        choices=PaymentType.choices,
+    )
+    source_code = models.CharField(max_length=32, blank=True)
+    description = models.CharField(max_length=255)
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+        verbose_name = "naliczenie wynajmu"
+        verbose_name_plural = "naliczenia wynajmu"
+        indexes = [
+            models.Index(fields=["rental", "payment_type"]),
+        ]
+        constraints = [
+            _check_constraint(
+                "rentalcharge_revenue_type_only",
+                models.Q(payment_type=PaymentType.EXTRA_CHARGE)
+                | models.Q(payment_type=PaymentType.DAMAGE_CHARGE),
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return (
+            f"Naliczenie #{self.pk or '—'} — "
+            f"{self.get_payment_type_display()} {self.amount} PLN"
+        )
+
+    def clean(self) -> None:
+        super().clean()
+        if self.payment_type not in (
+            PaymentType.EXTRA_CHARGE,
+            PaymentType.DAMAGE_CHARGE,
+        ):
+            raise ValidationError(
+                "Naliczenie moze dotyczyc tylko oplat dodatkowych lub za szkody."
+            )
+
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
 class PaymentProviderEvent(models.Model):
     """Log zdarzen z bramki (webhook) — przygotowanie pod integracje online."""
 

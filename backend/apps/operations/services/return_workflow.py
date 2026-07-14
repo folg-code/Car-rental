@@ -9,7 +9,12 @@ from apps.fleet.models import Car
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import ProtocolPhoto, ReturnProtocol, Signature
 from apps.operations.services.damage_snapshot import DamageSnapshotService
-from apps.operations.services.surcharge_preview import SurchargePreviewService
+from apps.operations.services.surcharge_preview import (
+    SurchargePreview,
+    SurchargePreviewService,
+)
+from apps.payments.services.rental_charge import AccruedChargeLine, RentalChargeService
+from apps.payments.services.settlement import SettlementService
 
 
 class ReturnService:
@@ -37,19 +42,28 @@ class ReturnService:
         return rental
 
     @staticmethod
-    def _build_surcharge_notes(
-        handover_mileage: int,
-        handover_fuel: int,
-        return_mileage: int,
-        return_fuel: int,
-    ) -> str:
-        preview = SurchargePreviewService.preview(
-            handover_mileage=handover_mileage,
-            handover_fuel=handover_fuel,
-            return_mileage=return_mileage,
-            return_fuel=return_fuel,
-        )
+    def _build_surcharge_notes(preview: SurchargePreview) -> str:
         return preview.summary_notes
+
+    @staticmethod
+    def _accrue_return_surcharges(
+        rental_id: int,
+        return_protocol_id: int,
+        preview: SurchargePreview,
+    ) -> None:
+        lines = tuple(
+            AccruedChargeLine(
+                source_code=line.code,
+                description=line.description,
+                amount=line.total,
+            )
+            for line in preview.lines
+        )
+        RentalChargeService.accrue_return_surcharges(
+            rental_id=rental_id,
+            return_protocol_id=return_protocol_id,
+            lines=lines,
+        )
 
     @staticmethod
     @transaction.atomic
@@ -78,12 +92,13 @@ class ReturnService:
                 f"wydaniu ({handover.mileage} km)."
             )
 
-        auto_surcharge = ReturnService._build_surcharge_notes(
-            handover.mileage,
-            handover.fuel_level_percent,
-            mileage,
-            fuel_level_percent,
+        preview = SurchargePreviewService.preview(
+            handover_mileage=handover.mileage,
+            handover_fuel=handover.fuel_level_percent,
+            return_mileage=mileage,
+            return_fuel=fuel_level_percent,
         )
+        auto_surcharge = ReturnService._build_surcharge_notes(preview)
         combined_surcharge = " ".join(
             part for part in (auto_surcharge, surcharge_notes.strip()) if part
         )
@@ -153,6 +168,13 @@ class ReturnService:
         car.save(update_fields=["mileage"])
 
         RentalService.mark_returned(rental, at=return_protocol.completed_at)
+
+        ReturnService._accrue_return_surcharges(
+            rental.pk,
+            return_protocol.pk,
+            preview,
+        )
+        SettlementService.try_close_rental_if_settled(rental.pk)
 
         DocumentService.generate_return_pdf(
             return_protocol.pk,

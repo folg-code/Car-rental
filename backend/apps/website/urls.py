@@ -15,4 +15,7 @@ urlpatterns = [
         views.booking_confirmation,
         name="booking_confirmation",
     ),
+    path("regulamin/", views.terms, name="terms"),
+    path("kontakt/", views.contact, name="contact"),
+    path("faq/", views.faq, name="faq"),
 ]

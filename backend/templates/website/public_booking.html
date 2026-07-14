@@ -98,7 +98,12 @@
 
         <label class="flex items-start gap-2 text-sm text-gray-700">
             {{ form.accept_terms }}
-            <span>{{ form.accept_terms.label }}</span>
+            <span>
+                Akceptuje
+                <a href="{% url 'website:terms' %}" class="underline hover:no-underline" target="_blank">
+                    regulamin wynajmu
+                </a>
+            </span>
         </label>
         {% if form.accept_terms.errors %}
         <p class="text-sm text-red-600">{{ form.accept_terms.errors.0 }}</p>

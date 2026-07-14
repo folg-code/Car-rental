@@ -150,3 +150,18 @@ def _booking_form_initial(request: HttpRequest) -> dict[str, object]:
         if raw := request.GET.get(field):
             initial[field] = raw
     return initial
+
+
+def terms(request: HttpRequest) -> HttpResponse:
+    """Regulamin — placeholder (task 8.13)."""
+    return render(request, "website/terms.html")
+
+
+def contact(request: HttpRequest) -> HttpResponse:
+    """Kontakt — placeholder (task 8.13)."""
+    return render(request, "website/contact.html")
+
+
+def faq(request: HttpRequest) -> HttpResponse:
+    """FAQ — przykladowe pytania, bez tresci produkcyjnej (task 8.13)."""
+    return render(request, "website/faq.html")

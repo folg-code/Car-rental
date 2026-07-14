@@ -30,7 +30,12 @@
                 <a href="{% url 'website:public_booking' %}" class="text-gray-600 hover:text-gray-900">
                     Rezerwacja
                 </a>
-                <span class="text-gray-400" title="Task 8.13">Kontakt</span>
+                <a href="{% url 'website:contact' %}" class="text-gray-600 hover:text-gray-900">
+                    Kontakt
+                </a>
+                <a href="{% url 'website:faq' %}" class="text-gray-600 hover:text-gray-900">
+                    FAQ
+                </a>
                 {% if user.is_authenticated and user.is_staff_member %}
                 <a href="{% url 'dashboard:home' %}" class="text-gray-600 hover:text-gray-900">
                     Panel
@@ -64,7 +69,11 @@
     <footer class="border-t border-gray-200 bg-gray-50 mt-auto">
         <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-gray-500 flex flex-col sm:flex-row justify-between gap-4">
             <p>&copy; Car Rental — wynajem samochodow</p>
-            <p class="text-gray-400">Rezerwacja online — platnosc wkrotce (Sprint 9+)</p>
+            <div class="flex flex-wrap gap-4 text-gray-600">
+                <a href="{% url 'website:terms' %}" class="hover:text-gray-900">Regulamin</a>
+                <a href="{% url 'website:contact' %}" class="hover:text-gray-900">Kontakt</a>
+                <a href="{% url 'website:faq' %}" class="hover:text-gray-900">FAQ</a>
+            </div>
         </div>
     </footer>
 </body>

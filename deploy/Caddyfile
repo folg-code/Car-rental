@@ -1,11 +1,18 @@
-# Przykład — zamień example.com na swoją domenę.
-# Wymaga: web nasłuchuje na 127.0.0.1:8000 (docker-compose.prod.yml).
+# Reverse proxy HTTPS (task 9.9).
+# Wymaga w .env.production: DOMAIN, opcjonalnie ACME_EMAIL (Let's Encrypt).
+# Uruchomienie: COMPOSE_PROFILES=https docker compose -f docker-compose.prod.yml up -d
 
-# example.com {
-#     encode gzip
-#     handle /static/* {
-#         root * /srv/static
-#         file_server
-#     }
-#     reverse_proxy web:8000
-# }
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode gzip
+
+	handle /static/* {
+		root * /srv/static
+		file_server
+	}
+
+	reverse_proxy web:8000
+}

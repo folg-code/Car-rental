@@ -229,3 +229,21 @@ PAYMENT_GATEWAY_WEBHOOK_SIGNATURE_HEADER = env(
 # --- Szkic podzialu dev / prod (rozszerzyc o osobne moduly settings przy deploy) ---
 # Dev:  DEBUG=True,  ALLOWED_HOSTS=localhost,127.0.0.1
 # Prod: DEBUG=False, ALLOWED_HOSTS=<domena>, SECURE_SSL_REDIRECT=True, SESSION_COOKIE_SECURE=True
+
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=31_536_000)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=False)
+
+    if not CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS = [
+            f"https://{host}"
+            for host in ALLOWED_HOSTS
+            if host not in {"localhost", "127.0.0.1", "0.0.0.0"}
+        ]

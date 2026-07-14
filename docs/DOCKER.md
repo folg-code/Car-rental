@@ -59,14 +59,19 @@ docker compose exec web python backend/manage.py shell -c "from apps.documents.t
 
 `CELERY_TASK_ALWAYS_EAGER=True` — bez Redis w CI.
 
-### Kolejny krok (9.9+)
+### Kolejny krok (9.10)
 
-Deploy produkcyjny — HTTPS, backup DB (task 9.9).
+Testy płatności — pełna integracja mock gateway + webhook + website flow.
+
+### Produkcja (9.9)
+
+HTTPS (Caddy), backup PostgreSQL + media, restore — [`docs/DEPLOY.md`](./DEPLOY.md).
 
 ---
 
 ## Powiązane pliki
 
 - [`docs/CICD.md`](./CICD.md) — build obrazu, deploy
+- [`docs/DEPLOY.md`](./DEPLOY.md) — HTTPS (Caddy), backup, restore
 - [`PROJECT_PLAN.md`](../PROJECT_PLAN.md) — Sprint 9
 - [`AGENT_CONTEXT.md`](../AGENT_CONTEXT.md) — decyzje techniczne

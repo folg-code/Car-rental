@@ -9,7 +9,7 @@ from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
 from apps.documents.constants import HANDOVER_PROTOCOL_PDF_TEMPLATE
-from apps.documents.dto.protocol import HandoverDocumentData
+from apps.documents.dto.protocol import HandoverDocumentData, image_field_to_uri
 from apps.documents.selectors.protocol_data import (
     build_handover_document_data,
     build_return_document_data,
@@ -176,3 +176,21 @@ class TestReturnDocumentData:
         assert data.mileage_driven == 250
         assert data.notes == "Zwrot bez problemow."
         assert data.signature_name == "Jan Kowalski"
+
+
+class TestImageFieldToUri:
+    def test_returns_data_uri_for_local_file(self, tmp_path) -> None:
+        file_path = tmp_path / "sig.png"
+        file_path.write_bytes(b"\x89PNG\r\n\x1a\n")
+
+        class _ImageField:
+            name = str(file_path)
+
+            @property
+            def path(self) -> str:
+                return str(file_path)
+
+        uri = image_field_to_uri(_ImageField())
+        assert uri is not None
+        assert uri.startswith("data:image/png;base64,")
+        assert not uri.startswith("file:")

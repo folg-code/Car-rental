@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 from django.utils import timezone
 
@@ -13,6 +14,7 @@ from apps.bookings.models import (
     Reservation,
     ReservationStatus,
 )
+from apps.dashboard.selectors.revenue import get_month_revenue
 from apps.dashboard.selectors.unpaid_rentals import count_unpaid_rentals
 from apps.fleet.services.availability import AvailabilityService
 
@@ -26,6 +28,7 @@ class DashboardMetrics:
     free_cars: int
     upcoming_returns: int
     unpaid_rentals: int
+    month_revenue: Decimal
 
 
 def get_dashboard_metrics(*, as_of: datetime | None = None) -> DashboardMetrics:
@@ -59,6 +62,7 @@ def get_dashboard_metrics(*, as_of: datetime | None = None) -> DashboardMetrics:
     )
 
     unpaid_rentals = count_unpaid_rentals()
+    month_revenue = get_month_revenue(as_of=now)
 
     return DashboardMetrics(
         active_reservations=active_reservations,
@@ -66,4 +70,5 @@ def get_dashboard_metrics(*, as_of: datetime | None = None) -> DashboardMetrics:
         free_cars=free_cars,
         upcoming_returns=upcoming_returns,
         unpaid_rentals=unpaid_rentals,
+        month_revenue=month_revenue,
     )

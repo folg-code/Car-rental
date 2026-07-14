@@ -200,6 +200,10 @@ STATIC_ROOT = ROOT_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = ROOT_DIR / "media"
 
+UPLOAD_MAX_BYTES = env.int("UPLOAD_MAX_BYTES", default=10 * 1024 * 1024)
+DATA_UPLOAD_MAX_MEMORY_SIZE = UPLOAD_MAX_BYTES
+FILE_UPLOAD_MAX_MEMORY_SIZE = UPLOAD_MAX_BYTES
+
 # Generated PDFs / invoices — outside public MEDIA_ROOT (not served in DEBUG static())
 DOCUMENTS_PRIVATE_ROOT = ROOT_DIR / "private_documents"
 

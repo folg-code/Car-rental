@@ -15,6 +15,7 @@ from apps.operations.services.surcharge_preview import (
 )
 from apps.payments.services.rental_charge import AccruedChargeLine, RentalChargeService
 from apps.payments.services.settlement import SettlementService
+from config.upload_validation import validate_image_upload, validate_image_uploads
 
 
 class ReturnService:
@@ -129,6 +130,8 @@ class ReturnService:
                 damage=damage,
             )
 
+        validate_image_uploads(photo_files or [])
+
         for image in photo_files or []:
             if image:
                 ProtocolPhoto.objects.create(
@@ -140,6 +143,7 @@ class ReturnService:
             raise ValidationError("Podaj imie i nazwisko klienta podpisujacego.")
         if not signature_image:
             raise ValidationError("Wymagany podpis (zdjecie lub plik).")
+        validate_image_upload(signature_image)
 
         Signature.objects.update_or_create(
             return_protocol=return_protocol,

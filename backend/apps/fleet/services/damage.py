@@ -1,4 +1,5 @@
 from apps.fleet.models import Damage, DamagePhoto, DamageStatus
+from config.upload_validation import validate_image_upload
 
 
 class DamageService:
@@ -17,4 +18,5 @@ class DamageService:
 
     @staticmethod
     def add_photo(damage: Damage, *, image) -> DamagePhoto:
+        validate_image_upload(image)
         return DamagePhoto.objects.create(damage=damage, image=image)

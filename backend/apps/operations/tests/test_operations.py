@@ -172,6 +172,44 @@ class TestHandoverService:
                 signature_image=_tiny_image(),
             )
 
+    def test_handover_rejects_invalid_protocol_photo(self, scheduled_rental) -> None:
+        invalid = SimpleUploadedFile(
+            "bad.exe",
+            b"MZ",
+            content_type="application/x-msdownload",
+        )
+        with pytest.raises(ValidationError, match="Dozwolone formaty zdjec"):
+            HandoverService.complete_handover(
+                scheduled_rental.pk,
+                mileage=10_200,
+                fuel_level_percent=90,
+                signer_name="Jan Kowalski",
+                signature_image=_tiny_image(),
+                photo_files=[invalid],
+            )
+
+    def test_return_rejects_invalid_signature(self, scheduled_rental) -> None:
+        HandoverService.complete_handover(
+            scheduled_rental.pk,
+            mileage=10_200,
+            fuel_level_percent=90,
+            signer_name="Jan Kowalski",
+            signature_image=_tiny_image(),
+        )
+        invalid = SimpleUploadedFile(
+            "bad.exe",
+            b"MZ",
+            content_type="application/x-msdownload",
+        )
+        with pytest.raises(ValidationError, match="Dozwolone formaty zdjec"):
+            ReturnService.complete_return(
+                scheduled_rental.pk,
+                mileage=10_350,
+                fuel_level_percent=70,
+                signer_name="Jan Kowalski",
+                signature_image=invalid,
+            )
+
 
 @pytest.mark.django_db
 class TestReturnService:

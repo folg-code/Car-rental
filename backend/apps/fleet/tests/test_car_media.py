@@ -10,7 +10,8 @@ from PIL import Image
 from apps.accounts.models import UserRole
 from apps.accounts.services.user import UserService
 from apps.fleet.models import Car, CarCategory, CarDocument, CarDocumentType, CarImage
-from apps.fleet.services.car_media import MAX_UPLOAD_BYTES, CarMediaService
+from apps.fleet.services.car_media import CarMediaService
+from config.upload_validation import get_max_upload_bytes
 
 
 def _tiny_image(name: str = "car.png") -> SimpleUploadedFile:
@@ -78,11 +79,33 @@ class TestCarMediaService:
     def test_rejects_oversized_file(self, car: Car) -> None:
         huge = SimpleUploadedFile(
             "big.png",
-            b"x" * (MAX_UPLOAD_BYTES + 1),
+            b"x" * (get_max_upload_bytes() + 1),
             content_type="image/png",
         )
         with pytest.raises(ValidationError, match="za duzy"):
             CarMediaService.add_image(car, image=huge)
+
+    def test_rejects_invalid_image_type(self, car: Car) -> None:
+        invalid = SimpleUploadedFile(
+            "script.exe",
+            b"MZ",
+            content_type="application/x-msdownload",
+        )
+        with pytest.raises(ValidationError, match="Dozwolone formaty zdjec"):
+            CarMediaService.add_image(car, image=invalid)
+
+    def test_rejects_invalid_document_type(self, car: Car) -> None:
+        invalid = SimpleUploadedFile(
+            "payload.exe",
+            b"MZ",
+            content_type="application/x-msdownload",
+        )
+        with pytest.raises(ValidationError, match="Dozwolone formaty dokumentow"):
+            CarMediaService.add_document(
+                car,
+                file=invalid,
+                document_type=CarDocumentType.INSURANCE,
+            )
 
     def test_add_document(self, car: Car) -> None:
         document = CarMediaService.add_document(

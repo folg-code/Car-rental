@@ -4,28 +4,10 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from apps.fleet.models import Car, CarDocument, CarImage
-
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
-ALLOWED_IMAGE_CONTENT_TYPES = frozenset(
-    {"image/jpeg", "image/png", "image/webp", "image/gif"}
-)
+from config.upload_validation import validate_document_upload, validate_image_upload
 
 
 class CarMediaService:
-    @staticmethod
-    def _validate_upload_size(uploaded_file) -> None:
-        if uploaded_file.size > MAX_UPLOAD_BYTES:
-            raise ValidationError(
-                f"Plik jest za duzy (max {MAX_UPLOAD_BYTES // (1024 * 1024)} MB)."
-            )
-
-    @staticmethod
-    def _validate_image(uploaded_file) -> None:
-        CarMediaService._validate_upload_size(uploaded_file)
-        content_type = getattr(uploaded_file, "content_type", "") or ""
-        if content_type and content_type not in ALLOWED_IMAGE_CONTENT_TYPES:
-            raise ValidationError("Dozwolone formaty zdjec: JPEG, PNG, WebP, GIF.")
-
     @staticmethod
     @transaction.atomic
     def add_image(
@@ -35,7 +17,7 @@ class CarMediaService:
         caption: str = "",
         is_primary: bool = False,
     ) -> CarImage:
-        CarMediaService._validate_image(image)
+        validate_image_upload(image)
         if is_primary:
             CarImage.objects.filter(car=car, is_primary=True).update(is_primary=False)
         elif not CarImage.objects.filter(car=car).exists():
@@ -84,7 +66,7 @@ class CarMediaService:
         valid_until=None,
         notes: str = "",
     ) -> CarDocument:
-        CarMediaService._validate_upload_size(file)
+        validate_document_upload(file)
         return CarDocument.objects.create(
             car=car,
             file=file,

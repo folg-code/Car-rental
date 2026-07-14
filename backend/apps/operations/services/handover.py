@@ -9,6 +9,7 @@ from apps.fleet.models import Car
 from apps.fleet.services.damage import DamageService
 from apps.operations.models import HandoverProtocol, ProtocolPhoto, Signature
 from apps.operations.services.damage_snapshot import DamageSnapshotService
+from config.upload_validation import validate_image_upload, validate_image_uploads
 
 
 class HandoverService:
@@ -77,6 +78,8 @@ class HandoverService:
                 damage=damage,
             )
 
+        validate_image_uploads(photo_files or [])
+
         for image in photo_files or []:
             if image:
                 ProtocolPhoto.objects.create(handover=handover, image=image)
@@ -85,6 +88,7 @@ class HandoverService:
             raise ValidationError("Podaj imie i nazwisko klienta podpisujacego.")
         if not signature_image:
             raise ValidationError("Wymagany podpis (zdjecie lub plik).")
+        validate_image_upload(signature_image)
 
         Signature.objects.update_or_create(
             handover=handover,

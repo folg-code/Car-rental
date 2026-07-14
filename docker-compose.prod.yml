@@ -29,9 +29,32 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     volumes:
       - media_data:/app/media
       - static_data:/app/staticfiles
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  celery:
+    image: ${WEB_IMAGE:-ghcr.io/folg-code/car-rental:latest}
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    command: celery -A config worker -l info --workdir backend --concurrency=2
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - media_data:/app/media
+      - private_documents_data:/app/private_documents
 
   # Odkomentuj po skonfigurowaniu domeny i Caddyfile na VPS.
   # caddy:
@@ -52,5 +75,7 @@ volumes:
   postgres_data:
   media_data:
   static_data:
+  redis_data:
+  private_documents_data:
   # caddy_data:
   # caddy_config:

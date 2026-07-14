@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 9 — produkcja i płatności online |
-| **Następny krok** | Task **9.7** — Redis + Celery |
+| **Następny krok** | Task **9.8** — email async (`documents`) |
 | **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -704,7 +704,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 | **9.4** | Webhook | endpoint w `payments` (nie `website`), log zdarzeń, weryfikacja podpisu (mock/stripe-ready) | ✅ |
 | **9.5** | Inicjacja z website | po rezerwacji: strona „Zapłać” / redirect; tylko orkiestracja w `website` | ✅ |
 | **9.6** | Orkiestracja po płatności | sukces → `PaymentService` + `ReservationService.confirm` | ✅ |
-| **9.7** | Redis + Celery | serwisy Docker, `config/celery.py`, worker; [`docs/DOCKER.md`](docs/DOCKER.md) | ⬜ |
+| **9.7** | Redis + Celery | serwisy Docker, `config/celery.py`, worker; [`docs/DOCKER.md`](docs/DOCKER.md) | ✅ |
 | **9.8** | Email async | task wysyłki PDF (`documents`) zamiast synchronicznego `EmailService` w request | ⬜ |
 | **9.9** | Deploy produkcyjny | HTTPS (Caddy/Nginx), backup PostgreSQL + media, test odtworzenia | ⬜ |
 | **9.10** | Testy płatności | pytest: mock gateway, webhook, flow website → intent → confirm | ⬜ |
@@ -719,7 +719,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ### Infrastruktura (9.7–9.9)
 
-- [ ] Celery + Redis w Compose
+- [x] Celery + Redis w Compose
 - [ ] Powiadomienia email w tle
 - [ ] Deploy VPS + HTTPS + backup
 

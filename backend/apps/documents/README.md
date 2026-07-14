@@ -53,7 +53,8 @@
 
 - `EmailService.send_document_email` — PDF w zalaczniku, `EmailLog` (sent/failed), `retry_email`
 - Szablony: `documents/email/handover_*`, `return_*`
-- **Docelowo (Sprint 9+):** wysyłka przez Celery task — [`docs/DOCKER.md`](../../../docs/DOCKER.md)
+- **Sprint 9.7:** infrastruktura Celery — [`docs/DOCKER.md`](../../../docs/DOCKER.md)
+- **Sprint 9.8:** wysyłka email przez Celery task (zamiast sync w request)
 
 ## Panel (Task 7.8 — zaimplementowane)
 

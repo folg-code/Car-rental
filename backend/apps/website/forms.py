@@ -104,8 +104,8 @@ class PriceQuoteForm(forms.Form):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.fields["car"].queryset = list_active_cars()
-        self.fields["car"].label_from_instance = (
-            lambda car: f"{car.make} {car.model} ({car.category.name})"
+        self.fields["car"].label_from_instance = lambda car: (
+            f"{car.make} {car.model} ({car.category.name})"
         )
         self._set_extra_choices()
 

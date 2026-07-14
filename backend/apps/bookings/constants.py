@@ -15,3 +15,8 @@ RESERVATION_EMAIL_TEMPLATES: dict[str, dict[str, str]] = {
         "html": "bookings/email/reservation_confirmed_body.html",
     },
 }
+
+RESERVATION_SMS_TEMPLATES: dict[str, str] = {
+    RESERVATION_EMAIL_PENDING: "bookings/sms/reservation_pending.txt",
+    RESERVATION_EMAIL_CONFIRMED: "bookings/sms/reservation_confirmed.txt",
+}

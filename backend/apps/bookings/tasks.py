@@ -14,3 +14,18 @@ def send_reservation_email_task(
         reservation_id,
         email_kind=email_kind,
     )
+
+
+@shared_task(name="bookings.send_reservation_sms")
+def send_reservation_sms_task(
+    reservation_id: int,
+    *,
+    sms_kind: str,
+) -> bool:
+    """Wyslij SMS potwierdzenia rezerwacji w tle."""
+    from apps.bookings.services.reservation_sms import ReservationSmsService
+
+    return ReservationSmsService.send_reservation_sms(
+        reservation_id,
+        sms_kind=sms_kind,
+    )

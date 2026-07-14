@@ -58,6 +58,7 @@ DJANGO_APPS = [
 LOCAL_APPS = [
     "apps.accounts",
     "apps.audit",
+    "apps.notifications",
     "apps.fleet",
     "apps.bookings",
     "apps.pricing",
@@ -256,6 +257,13 @@ PAYMENT_GATEWAY_WEBHOOK_SIGNATURE_HEADER = env(
     "PAYMENT_GATEWAY_WEBHOOK_SIGNATURE_HEADER",
     default="X-Payment-Signature",
 )
+
+# --- SMS (Sprint 9+) ---
+SMS_ENABLED = env.bool("SMS_ENABLED", default=False)
+SMS_PROVIDER = env("SMS_PROVIDER", default="mock")
+SMS_FROM_NUMBER = env("SMS_FROM_NUMBER", default="+48123456789")
+TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID", default="")
+TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN", default="")
 
 # --- Szkic podzialu dev / prod (rozszerzyc o osobne moduly settings przy deploy) ---
 # Dev:  DEBUG=True,  ALLOWED_HOSTS=localhost,127.0.0.1

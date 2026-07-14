@@ -17,6 +17,7 @@ from apps.bookings.services.customer import CustomerService
 from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.bookings.services.reservation import ReservationService
 from apps.bookings.services.reservation_email import ReservationEmailService
+from apps.bookings.services.reservation_sms import ReservationSmsService
 from apps.fleet.models import Car, CarStatus
 
 
@@ -76,6 +77,12 @@ class PublicBookingOrchestrator:
             lambda: ReservationEmailService.enqueue_reservation_email(
                 reservation_id,
                 email_kind=RESERVATION_EMAIL_PENDING,
+            ),
+        )
+        transaction.on_commit(
+            lambda: ReservationSmsService.enqueue_reservation_sms(
+                reservation_id,
+                sms_kind=RESERVATION_EMAIL_PENDING,
             ),
         )
         return PublicBookingResult(

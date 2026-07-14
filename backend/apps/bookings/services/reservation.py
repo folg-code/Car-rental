@@ -19,6 +19,7 @@ from apps.bookings.selectors.availability import get_overlapping_reservations
 from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation_email import ReservationEmailService
+from apps.bookings.services.reservation_sms import ReservationSmsService
 from apps.fleet.models import Car
 from apps.fleet.services.availability import AvailabilityService
 
@@ -147,6 +148,12 @@ class ReservationService:
             lambda: ReservationEmailService.enqueue_reservation_email(
                 reservation_id,
                 email_kind=RESERVATION_EMAIL_CONFIRMED,
+            ),
+        )
+        transaction.on_commit(
+            lambda: ReservationSmsService.enqueue_reservation_sms(
+                reservation_id,
+                sms_kind=RESERVATION_EMAIL_CONFIRMED,
             ),
         )
         return reservation

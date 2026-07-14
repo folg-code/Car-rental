@@ -19,6 +19,7 @@ from apps.documents.selectors.protocol_data import (
     build_handover_document_data,
     build_return_document_data,
 )
+from apps.documents.services.document_sms import DocumentSmsService
 from apps.documents.services.email import EmailService
 from apps.documents.services.pdf_renderer import PdfRenderer
 from apps.operations.models import HandoverProtocol, ReturnProtocol
@@ -115,6 +116,10 @@ class DocumentService:
         document.save()
         if send_email:
             EmailService.enqueue_document_email(
+                document.pk,
+                sent_by_id=generated_by_id,
+            )
+            DocumentSmsService.enqueue_document_sms(
                 document.pk,
                 sent_by_id=generated_by_id,
             )

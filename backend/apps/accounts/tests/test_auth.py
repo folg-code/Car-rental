@@ -64,7 +64,7 @@ class TestAuthViews:
             {"username": "client1", "password": "secure-pass-123"},
         )
         assert response.status_code == 302
-        assert response.url == reverse("website:home")
+        assert response.url == reverse("customer_portal:home")
 
     def test_anonymous_panel_redirects_to_login(self, client) -> None:
         response = client.get(reverse("dashboard:home"))

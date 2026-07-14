@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from django.db.models import Prefetch, QuerySet
+from django.db.models import Prefetch, Q, QuerySet
 
 from apps.documents.models import Document, DocumentType, EmailLog
 
@@ -25,12 +25,34 @@ def _document_queryset() -> QuerySet[Document]:
 def list_documents(
     *,
     rental_id: int | None = None,
+    customer_id: int | None = None,
     limit: int = 100,
 ) -> QuerySet[Document]:
     qs = _document_queryset().order_by("-generated_at")
     if rental_id is not None:
         qs = qs.filter(rental_id=rental_id)
+    if customer_id is not None:
+        qs = qs.filter(
+            Q(customer_id=customer_id)
+            | Q(rental__reservation__customer_id=customer_id),
+        )
     return qs[:limit]
+
+
+def get_document_for_customer(
+    document_uuid: UUID,
+    *,
+    customer_id: int,
+) -> Document | None:
+    document = get_document_by_uuid(document_uuid)
+    if document is None:
+        return None
+    if document.customer_id == customer_id:
+        return document
+    rental = document.rental
+    if rental is not None and rental.reservation.customer_id == customer_id:
+        return document
+    return None
 
 
 def get_document_by_uuid(document_uuid: UUID) -> Document | None:

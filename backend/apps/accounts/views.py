@@ -12,6 +12,8 @@ class AccountLoginView(LoginView):
         user = self.request.user
         if isinstance(user, User) and user.is_staff_member:
             return reverse("dashboard:home")
+        if isinstance(user, User) and user.is_customer_account:
+            return reverse("customer_portal:home")
         return reverse("website:home")
 
 

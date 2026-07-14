@@ -642,7 +642,7 @@
 
 ### Opcjonalnie (backlog w Sprint 8 / 8b)
 
-- [ ] Portal klienta — historia rezerwacji, pobranie dokumentów (wymaga auth `customer`)
+- [x] Portal klienta — historia rezerwacji, pobranie dokumentów (wymaga auth `customer`) — `/konto/`
 - [ ] HTMX partial refresh widgetów pulpitu
 - [ ] Inicjacja płatności online na stronie (wymaga bramki — Sprint 9+)
 

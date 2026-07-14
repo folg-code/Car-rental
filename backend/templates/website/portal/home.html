@@ -1,0 +1,122 @@
+{% extends "website/base_public.html" %}
+
+{% block title %}Moje konto{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-2xl font-semibold text-gray-900">Moje konto</h1>
+
+    {% if profile_missing %}
+    <div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-6 py-4 text-sm text-amber-900">
+        Twoje konto nie jest jeszcze powiazane z profilem klienta.
+        Skontaktuj sie z wypozyczalnia, aby aktywowac dostep do historii rezerwacji.
+    </div>
+    {% else %}
+    <p class="mt-2 text-gray-600">
+        Witaj, {{ customer.first_name }} {{ customer.last_name }}.
+    </p>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+        <a
+            href="{% url 'customer_portal:reservation_list' %}"
+            class="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+        >
+            Wszystkie rezerwacje
+        </a>
+        <a
+            href="{% url 'website:public_booking' %}"
+            class="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        >
+            Nowa rezerwacja
+        </a>
+    </div>
+
+    <div class="mt-10">
+        <h2 class="text-lg font-medium text-gray-900">Ostatnie rezerwacje</h2>
+        {% if reservations %}
+        <div class="mt-4 bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50 text-left text-gray-600">
+                    <tr>
+                        <th class="px-4 py-3">Nr</th>
+                        <th class="px-4 py-3">Pojazd</th>
+                        <th class="px-4 py-3">Termin</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for reservation in reservations %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3">#{{ reservation.pk }}</td>
+                        <td class="px-4 py-3">
+                            {{ reservation.car.make }} {{ reservation.car.model }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {{ reservation.start_at|date:"d.m.Y H:i" }} —
+                            {{ reservation.end_at|date:"d.m.Y H:i" }}
+                        </td>
+                        <td class="px-4 py-3">{{ reservation.get_status_display }}</td>
+                        <td class="px-4 py-3 text-right">
+                            <a
+                                href="{% url 'customer_portal:reservation_detail' reservation.pk %}"
+                                class="text-blue-600 hover:underline"
+                            >
+                                Szczegoly
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="mt-4 text-sm text-gray-500">Brak rezerwacji.</p>
+        {% endif %}
+    </div>
+
+    <div class="mt-10">
+        <h2 class="text-lg font-medium text-gray-900">Dokumenty</h2>
+        {% if documents %}
+        <div class="mt-4 bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50 text-left text-gray-600">
+                    <tr>
+                        <th class="px-4 py-3">Data</th>
+                        <th class="px-4 py-3">Typ</th>
+                        <th class="px-4 py-3">Wynajem</th>
+                        <th class="px-4 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for document in documents %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {{ document.generated_at|date:"d.m.Y H:i" }}
+                        </td>
+                        <td class="px-4 py-3">{{ document.get_document_type_display }}</td>
+                        <td class="px-4 py-3">
+                            {% if document.rental_id %}#{{ document.rental_id }}{% else %}—{% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <a
+                                href="{% url 'customer_portal:document_download' document.uuid %}"
+                                class="text-blue-600 hover:underline font-medium"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                Pobierz PDF
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="mt-4 text-sm text-gray-500">Brak dokumentow do pobrania.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

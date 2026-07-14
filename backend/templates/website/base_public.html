@@ -40,6 +40,13 @@
                 <a href="{% url 'dashboard:home' %}" class="text-gray-600 hover:text-gray-900">
                     Panel
                 </a>
+                {% elif user.is_authenticated and user.is_customer_account %}
+                <a href="{% url 'customer_portal:home' %}" class="text-gray-600 hover:text-gray-900">
+                    Moje konto
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="text-gray-600 hover:text-gray-900">
+                    Wyloguj
+                </a>
                 {% else %}
                 <a href="{% url 'accounts:login' %}" class="text-gray-600 hover:text-gray-900">
                     Logowanie

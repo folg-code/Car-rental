@@ -401,6 +401,24 @@ docker compose exec web python backend/manage.py seed_demo
 
 Aplikacja dostępna pod `http://localhost:8000`.
 
+### Dane demo (`seed_demo`)
+
+Komenda jest **idempotentna** — można ją uruchamiać wielokrotnie; istniejące rekordy nie są duplikowane (marker `DEMO_SEED:<klucz>` w polu `notes` rezerwacji).
+
+| Zasób | Zawartość |
+|-------|-----------|
+| **Flota** | 3 kategorie (kompakt, SUV, premium), 10 aut (`KR1DEMO1`–`KR1DEM10`, w tym nieaktywne i wycofane) |
+| **Klienci** | 8 klientów (osoby prywatne i firma) |
+| **Cennik** | Stawki dzienne, dopłata weekendowa, rabat 7+ dni, dodatki (fotelik, paliwo, km) |
+| **Rezerwacje / wynajmy** | 10 scenariuszy: historia zamkniętych najmów, zwrot bez zamknięcia, aktywny wynajem, zaplanowane wydania (blisko i dalej), potwierdzona rezerwacja bez wynajmu, oczekująca płatność, anulowana, szkic |
+
+Po seedzie warto zajrzeć do panelu: **Pulpit**, **Operacje** (wydania/zwroty), **Rezerwacje**, **Flota** i stronę publiczną z dostępnością floty.
+
+```bash
+# lokalnie (bez Dockera)
+cd backend && python manage.py seed_demo
+```
+
 ### Zmienne środowiskowe
 
 | Zmienna | Opis | Przykład |

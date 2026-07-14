@@ -25,11 +25,27 @@
             <tr class="hover:bg-gray-50">
                 <td class="px-4 py-3">{{ payment.paid_at|date:"Y-m-d H:i" }}</td>
                 <td class="px-4 py-3">
+                    {% if payment.rental_id %}
                     <a href="{% url 'payments:rental_payments' payment.rental_id %}" class="text-blue-600 hover:underline">
-                        #{{ payment.rental_id }}
+                        Wynajem #{{ payment.rental_id }}
                     </a>
+                    {% elif payment.reservation_id %}
+                    <a href="{% url 'bookings:reservation_detail' payment.reservation_id %}" class="text-blue-600 hover:underline">
+                        Rezerwacja #{{ payment.reservation_id }}
+                    </a>
+                    {% else %}
+                    —
+                    {% endif %}
                 </td>
-                <td class="px-4 py-3">{{ payment.rental.reservation.customer.full_name }}</td>
+                <td class="px-4 py-3">
+                    {% if payment.rental %}
+                    {{ payment.rental.reservation.customer.full_name }}
+                    {% elif payment.reservation %}
+                    {{ payment.reservation.customer.full_name }}
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
                 <td class="px-4 py-3">{{ payment.get_payment_type_display }}</td>
                 <td class="px-4 py-3">{{ payment.get_method_display }}</td>
                 <td class="px-4 py-3 text-right font-medium">{{ payment.amount }} PLN</td>

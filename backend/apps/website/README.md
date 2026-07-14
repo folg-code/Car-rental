@@ -36,8 +36,9 @@ Chat AI: Sprint **8b** — [`../../../docs/AI_CONSULTANT.md`](../../../docs/AI_C
 
 ### Stan wyjściowy
 
-- Aplikacja `website` w `INSTALLED_APPS` (szkielet)
-- Strona główna `/` — `website.views.landing` + `base_public.html` (task **8.8**)
+- Aplikacja `website` w `INSTALLED_APPS`
+- Kanał publiczny: `/`, `/flota/`, `/flota/dostepnosc/`, `/wycena/` (taski **8.8–8.11**)
+- Następny krok: rezerwacja online (task **8.12**)
 
 ---
 

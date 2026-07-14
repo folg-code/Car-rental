@@ -14,10 +14,10 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 8 — dashboard + website |
-| **Następny krok** | Task 8.5 — alerty fleet (wygasające OC/przeglądy) |
-| **Postęp ogólny** | ~84% (Sprint 0–7 zamknięte) |
+| **Następny krok** | Task **8.12** — rezerwacja online (`PublicBookingOrchestrator`) |
+| **Postęp ogólny** | ~88% (Sprint 0–7 zamknięte; Sprint 8: 11/14 tasków) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
-| **Branch** | `feat/dashboard-month-revenue` (Sprint 8) |
+| **Branch** | `main` |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
 
 ### Legenda postępu sprintu
@@ -36,7 +36,7 @@
 | 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
 | 7 | documents (PDF, faktury) | ✅ | 100% |
-| 8 | dashboard + website | 🟡 | ~30% |
+| 8 | dashboard + website | 🟡 | ~79% (11/14) |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Produkcja i integracje | ⬜ | backlog |
@@ -134,6 +134,12 @@
 - [x] Sprint 7 / Task 7.3: `PdfRenderer` (WeasyPrint), szablony PDF, seed szablonow `0004`, 3 testy renderera
 - [x] Sprint 7: `DocumentService`, `EmailService`, `InvoiceService`, panel `/panel/dokumenty/`, testy integracyjne (7.1–7.10)
 - [x] Sprint 7 — **zamknięty** (Definition of Done spelnione)
+- [x] Sprint 8 / Task 8.1–8.4: KPI dashboard (metryki, wolne auta, nieoplacone, przychod miesiaca)
+- [x] Sprint 8 / Task 8.5–8.7: alerty fleet, UI `panel.html`, testy dashboard (PR #19–#21)
+- [x] Sprint 8 / Task 8.8: infrastruktura website — landing `/`, `base_public.html` (PR #23)
+- [x] Sprint 8 / Task 8.9: publiczny katalog floty `/flota/` (PR #24)
+- [x] Sprint 8 / Task 8.10: wyszukiwarka dostepnosci `/flota/dostepnosc/` (PR #25)
+- [x] Sprint 8 / Task 8.11: orientacyjna wycena `/wycena/` (PR #26)
 
 ---
 
@@ -164,7 +170,10 @@
 | 2026-05-30 | 8 | Plan Sprint 8: taski 8.1–8.14 (dashboard KPI + website publiczna) |
 | 2026-05-30 | 8 | Task 8.1: `dashboard/selectors/metrics.py`, `DashboardMetricsService`, migracja z bookings |
 | 2026-07-14 | 8 | Task 8.3: selektor nieoplaconych wynajmow (`count_unpaid_rentals`, `get_rental_balance_due`) |
-| 2026-07-14 | 8 | Task 8.4: KPI przychodu miesiaca (`get_month_revenue`, `get_revenue_total_in_period`) |
+| 2026-07-14 | 8 | Task 8.5–8.7: alerty fleet, UI pulpitu, testy dashboard (PR #19–#21) |
+| 2026-07-14 | 8 | Task 8.8–8.9: website — landing, katalog `/flota/` (PR #23–#24) |
+| 2026-07-14 | 8 | Task 8.10: wyszukiwarka dostepnosci (PR #25) |
+| 2026-07-14 | 8 | Task 8.11: orientacyjna wycena `/wycena/` (PR #26) |
 | | | |
 
 ---
@@ -570,13 +579,13 @@
 | **8.2** | Wolne auta (`AvailabilityService`) | KPI „wolne auta” przez `fleet.AvailabilityService` (as_of=now), nie heurystyka busy | ✅ |
 | **8.3** | Nieopłacone wynajmy | Selektor wynajmów z saldem do zapłaty (`payments` summary) | ✅ |
 | **8.4** | Przychód okresu | KPI przychodu miesiąca — tylko `REVENUE_PAYMENT_TYPES` (kaucja ≠ przychód) | ✅ |
-| **8.5** | Alerty fleet | Wygasające OC/przeglądy z `CarDocument` (np. 30 dni) | ⬜ |
-| **8.6** | UI pulpitu | Rozszerzenie `panel.html` — widgety KPI, alerty, skróty do kolejek operacji/płatności | ⬜ |
-| **8.7** | Testy dashboard | pytest selektorów KPI + widoku panelu | ⬜ |
-| **8.8** | Infrastruktura website | `website/urls.py`, `base_public.html`, landing `/` (zastąpienie placeholder `config.views.home`) | ⬜ |
-| **8.9** | Katalog floty publiczny | `/flota/` — lista kategorii i aut (selektory `fleet`, bez logiki w szablonie) | ⬜ |
-| **8.10** | Wyszukiwarka dostępności | Formularz dat → `AvailabilityService` → lista wolnych aut | ⬜ |
-| **8.11** | Orientacyjna wycena | Kalkulator ceny read-only (`PricingService`) — bez zapisu rezerwacji | ⬜ |
+| **8.5** | Alerty fleet | Wygasające OC/przeglądy z `CarDocument` (np. 30 dni) | ✅ |
+| **8.6** | UI pulpitu | Rozszerzenie `panel.html` — widgety KPI, alerty, skróty do kolejek operacji/płatności | ✅ |
+| **8.7** | Testy dashboard | pytest selektorów KPI + widoku panelu | ✅ |
+| **8.8** | Infrastruktura website | `website/urls.py`, `base_public.html`, landing `/` (zastąpienie placeholder `config.views.home`) | ✅ |
+| **8.9** | Katalog floty publiczny | `/flota/` — lista kategorii i aut (selektory `fleet`, bez logiki w szablonie) | ✅ |
+| **8.10** | Wyszukiwarka dostępności | Formularz dat → `AvailabilityService` → lista wolnych aut | ✅ |
+| **8.11** | Orientacyjna wycena | Kalkulator ceny read-only (`PricingService`) — bez zapisu rezerwacji | ✅ |
 | **8.12** | Rezerwacja online | `PublicBookingOrchestrator` + formularz → `ReservationService` + snapshot ceny | ⬜ |
 | **8.13** | Strony informacyjne | Regulamin, kontakt, FAQ (szablony `website`) | ⬜ |
 | **8.14** | Testy website | pytest widoków publicznych + orchestratora rezerwacji | ⬜ |
@@ -588,17 +597,43 @@
 - [x] Wolne auta z `AvailabilityService.count_available_cars_at` (task 8.2)
 - [x] Nieopłacone wynajmy (saldo z `payments`, task 8.3)
 - [x] Przychód miesiąca (bez kaucji, task 8.4)
-- [ ] Alerty: wygasające ubezpieczenie, przeglądy (`CarDocument`)
-- [ ] Skróty: kolejka operacji (`/panel/operacje/`), ostatnie płatności
+- [x] Alerty: wygasające ubezpieczenie, przeglądy (`CarDocument`, task 8.5)
+- [x] UI pulpitu: widgety KPI, lista alertów, skróty (task 8.6)
+- [x] Testy dashboard: selektory + widok panelu (task 8.7)
 
 ### Website (8.8–8.14)
 
-- [ ] Layout publiczny oddzielony od `/panel/`
-- [ ] Publiczna lista floty
-- [ ] Wyszukiwanie dostępności (daty)
-- [ ] Orientacyjna wycena (read-only)
-- [ ] Formularz rezerwacji online (zapis przez serwisy domenowe)
-- [ ] Strony statyczne (regulamin, kontakt)
+- [x] Layout publiczny oddzielony od `/panel/` (task 8.8)
+- [x] Publiczna lista floty `/flota/` (task 8.9)
+- [x] Wyszukiwarka dostępności `/flota/dostepnosc/` (task 8.10)
+- [x] Orientacyjna wycena read-only `/wycena/` (task 8.11)
+- [ ] Formularz rezerwacji online (zapis przez serwisy domenowe, task 8.12)
+- [ ] Strony statyczne: regulamin, kontakt, FAQ (task 8.13)
+- [ ] Testy website: orchestrator + widoki publiczne (task 8.14)
+
+### Plan domknięcia Sprint 8 (8.12–8.14)
+
+**8.12 — Rezerwacja online** (priorytet)
+- `website/services/public_booking.py` — `PublicBookingOrchestrator.submit(...)`:
+  1. walidacja dostępności (`AvailabilityService.is_car_available`)
+  2. utworzenie / dopasowanie `Customer` (email + telefon, bez konta logowania)
+  3. `ReservationService.create(..., status=PENDING_PAYMENT lub CONFIRMED)` — decyzja produktowa
+  4. `PriceSnapshotService.freeze()` — snapshot ceny z `PricingService`
+- `PublicBookingForm` — dane klienta (min. email/telefon), auto, daty, opcjonalne extras
+- Widok `/rezerwacja/` + strona potwierdzenia; deep link z `/wycena/` i `/flota/dostepnosc/`
+- Rate limiting / CSRF (POST); brak zapisu `PriceLine` poza serwisami `bookings`
+
+**8.13 — Strony informacyjne**
+- Szablony: regulamin, kontakt, FAQ pod `/regulamin/`, `/kontakt/`, `/faq/`
+- Linki w `base_public.html` (zastąpić placeholdery)
+
+**8.14 — Testy website**
+- `tests/test_public_booking.py` — orchestrator (mock / DB) + widok POST
+- Uzupełnienie testów widoków publicznych (integracja flow: search → quote → reserve)
+
+**Definition of Done Sprint 8:** klient przechodzi pełny flow publiczny (szukaj → wycena → rezerwacja); właściciel ma pełny pulpit KPI + alerty.
+
+---
 
 ### Opcjonalnie (backlog w Sprint 8 / 8b)
 
@@ -753,8 +788,8 @@ Sprint 9+ (produkcja)
 | `apps/payments` — Payment, panel, kaucja ≠ przychod | ✅ | ✅ |
 | `apps/operations` — protokoly, panel mobilny | ✅ | ✅ |
 | `apps/documents` | ✅ | ✅ |
-| `apps/dashboard` | ✅ | 🟡 (podstawowe KPI — pełny Sprint 8) |
-| `apps/website` | 🟡 | ⬜ (szkielet app — brak widoków) |
+| `apps/dashboard` | ✅ | ✅ (KPI + alerty fleet, taski 8.1–8.7) |
+| `apps/website` | 🟡 | ✅ (8.8–8.11; brak rezerwacji online) |
 | Chat AI konsultant | ❌ | — (plan: Sprint 8b) |
 | `docs/AI_CONSULTANT.md` | ✅ | — |
 

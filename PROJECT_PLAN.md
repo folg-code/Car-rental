@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 8b / Sprint 9+ (Sprint 8 zamknięty) |
-| **Następny krok** | Sprint **8b** — Chat AI (opcjonalnie) lub Sprint **9+** — produkcja |
-| **Postęp ogólny** | ~95% (Sprint 8 zamknięty) |
+| **Aktualny etap** | Sprint 9 — produkcja i płatności online |
+| **Następny krok** | Task **9.1** — `PaymentIntent` powiązany z `Reservation` |
+| **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -37,9 +37,10 @@
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
 | 7 | documents (PDF, faktury) | ✅ | 100% |
 | 8 | dashboard + website | ✅ | 100% |
+| 9 | Produkcja i płatności online | 🟡 | 0% |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
-| 9+ | Produkcja i integracje | ⬜ | backlog |
+| 9+ | Rozszerzenia (raporty, SMS, i18n) | ⬜ | backlog |
 
 ---
 
@@ -54,8 +55,9 @@
 7. ~~**Sprint 5 — rental + payments**~~ ✅ — wynajem operacyjny, rejestracja platnosci (reczna)
 8. ~~**Sprint 6 — operations**~~ ✅ — protokoly wydania/zwrotu, snapshoty szkod
 9. ~~**Sprint 7 — documents**~~ ✅
-10. **Sprint 8** — dashboard KPI + website (taski 8.1–8.14)
-11. **Sprint 8b — Chat AI** — po podstawowym `website` (Task 8.8+) — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+10. ~~**Sprint 8**~~ ✅ — dashboard KPI + website (taski 8.1–8.14)
+11. **Sprint 9** — płatności online + Celery + deploy (taski 9.1–9.10)
+12. **Sprint 8b — Chat AI** — opcjonalnie równolegle po 9.5 — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ---
 
@@ -684,14 +686,56 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ---
 
-# Sprint 9+ — Backlog (produkcja i integracje)
+# Sprint 9 — produkcja i płatności online 🟡
 
-<!-- Nie przypisane do konkretnego sprintu — priorytetyzuj przed startem -->
+**Cel:** zamknięcie pętli **rezerwacja online → płatność → potwierdzenie** oraz fundament produkcyjny (async, deploy).
 
-### Płatności online
+**Zależności:** Sprint 8 (`pending_payment` na rezerwacji), Sprint 5 (`PaymentIntent`, `PaymentProviderEvent` — szkielet).
 
-- [ ] Integracja bramki płatności
-- [ ] `PaymentProviderEvent` + webhooki
+> **Luka do 9.1:** `PaymentIntent` ma dziś tylko FK `rental` — rezerwacja publiczna nie ma jeszcze wynajmu. Trzeba dodać powiązanie z `Reservation`.
+
+### Taski (kolejność implementacji)
+
+| ID | Task | Opis | Status |
+|----|------|------|--------|
+| **9.1** | Intent dla rezerwacji | `PaymentIntent.reservation` (opcjonalny), migracja; intent bez wynajmu | ⬜ |
+| **9.2** | Adapter bramki | `payments/adapters/gateway.py` — interface + implementacja **mock** (dev/test) | ⬜ |
+| **9.3** | `PaymentGatewayService` | `create_intent`, obsługa sukcesu/błędu, idempotencja na `PaymentProviderEvent` | ⬜ |
+| **9.4** | Webhook | endpoint w `payments` (nie `website`), log zdarzeń, weryfikacja podpisu (mock/stripe-ready) | ⬜ |
+| **9.5** | Inicjacja z website | po rezerwacji: strona „Zapłać” / redirect; tylko orkiestracja w `website` | ⬜ |
+| **9.6** | Orkiestracja po płatności | sukces → `PaymentService` + `ReservationService.confirm` | ⬜ |
+| **9.7** | Redis + Celery | serwisy Docker, `config/celery.py`, worker; [`docs/DOCKER.md`](docs/DOCKER.md) | ⬜ |
+| **9.8** | Email async | task wysyłki PDF (`documents`) zamiast synchronicznego `EmailService` w request | ⬜ |
+| **9.9** | Deploy produkcyjny | HTTPS (Caddy/Nginx), backup PostgreSQL + media, test odtworzenia | ⬜ |
+| **9.10** | Testy płatności | pytest: mock gateway, webhook, flow website → intent → confirm | ⬜ |
+
+### Płatności online (9.1–9.6)
+
+- [ ] Model / serwis intentu dla `Reservation` (nie tylko `Rental`)
+- [ ] Adapter bramki (mock na start; Stripe/Przelewy24 — adapter wymienny)
+- [ ] Webhook + `PaymentProviderEvent`
+- [ ] Strona płatności po publicznej rezerwacji
+- [ ] Potwierdzenie rezerwacji po zaksięgowaniu wpłaty
+
+### Infrastruktura (9.7–9.9)
+
+- [ ] Celery + Redis w Compose
+- [ ] Powiadomienia email w tle
+- [ ] Deploy VPS + HTTPS + backup
+
+### Definition of Done Sprint 9
+
+Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev); rezerwacja przechodzi w `confirmed`; email z dokumentami idzie asynchronicznie; środowisko produkcyjne ma HTTPS i backup DB.
+
+---
+
+# Sprint 9+ — Backlog (rozszerzenia)
+
+<!-- Nie przypisane do Sprint 9 — priorytetyzuj po 9.10 -->
+
+### Płatności (poza MVP Sprint 9)
+
+- [ ] Prawdziwa bramka produkcyjna (Stripe / Przelewy24 / PayU — wybór przy deploy)
 
 ### Bezpieczeństwo i compliance
 
@@ -702,21 +746,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ### Infrastruktura produkcyjna
 
-- [ ] Deploy VPS: Docker Compose + Gunicorn + Caddy/Nginx
-- [ ] Backup PostgreSQL + media + offsite
-- [ ] Test odtworzenia z backupu
-- [ ] **Celery + Redis** — kolejka powiadomień (klient + pracownik); szczegóły: [`docs/DOCKER.md`](docs/DOCKER.md)
-
-### Powiadomienia asynchroniczne (Celery + Redis)
-
-> MVP (Sprint 7): email do klienta **synchronicznie** w `EmailService`. Docelowo: taski w tle.
-
-- [ ] Serwisy Docker: `redis`, `celery`, opcjonalnie `celery-beat`
-- [ ] Task: wysyłka emaila z PDF protokołu (`documents`)
-- [ ] Task: alerty dla pracowników — kolejka operacji, nadchodzące zwroty, nieopłacone wynajmy (`dashboard`)
-- [ ] Task: przypomnienia dla klienta — zbliżający się zwrot, potwierdzenie rezerwacji
-- [ ] Retry + monitoring (`EmailLog`, dead-letter / admin retry)
-- [ ] Testy: `CELERY_TASK_ALWAYS_EAGER` w pytest
+- [ ] Monitoring / alerty (opcjonalnie)
 
 ### Rozszerzenia biznesowe
 
@@ -749,9 +779,11 @@ Sprint 7 (documents)  ← wymaga snapshotów z 4 i 6
     ↓
 Sprint 8 (dashboard + website)
     ↓
-Sprint 8b (chat AI — konsultant)  ← wymaga website; pełne tools po 2–4
+Sprint 8b (chat AI — opcjonalnie)
     ↓
-Sprint 9+ (produkcja)
+Sprint 9 (płatności online + Celery + deploy)
+    ↓
+Sprint 9+ (rozszerzenia)
 ```
 
 **Nie przeskakiwać:** operations i PDF przed fleet + bookings + snapshotami cen.

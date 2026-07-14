@@ -26,18 +26,18 @@ Chat AI: Sprint **8b** — [`../../../docs/AI_CONSULTANT.md`](../../../docs/AI_C
 
 | ID | Task | Pliki (plan) | Status |
 |----|------|--------------|--------|
-| **8.8** | Infrastruktura | `urls.py`, `views.py`, `templates/website/base_public.html`, routing w `config/urls.py` | ⬜ |
+| **8.8** | Infrastruktura | `urls.py`, `views.py`, `templates/website/base_public.html`, routing w `config/urls.py` | ✅ |
 | **8.9** | Katalog floty | `/flota/` — selektory `fleet`, szablon listy | ⬜ |
 | **8.10** | Wyszukiwarka dostępności | formularz dat → `AvailabilityService` | ⬜ |
 | **8.11** | Orientacyjna wycena | `PricingService.calculate()` read-only na stronie | ⬜ |
 | **8.12** | Rezerwacja online | `services/public_booking.py` → `ReservationService` | ⬜ |
 | **8.13** | Strony informacyjne | regulamin, kontakt, FAQ | ⬜ |
-| **8.14** | Testy | `tests/test_views.py`, `tests/test_public_booking.py` | ⬜ |
+| **8.14** | Testy | `tests/test_landing.py`, `tests/test_public_booking.py` | ⬜ |
 
 ### Stan wyjściowy
 
 - Aplikacja `website` w `INSTALLED_APPS` (szkielet)
-- Strona główna `/` — placeholder `config.views.home` → `base.html` (do zastąpienia w **8.8**)
+- Strona główna `/` — `website.views.landing` + `base_public.html` (task **8.8**)
 
 ---
 

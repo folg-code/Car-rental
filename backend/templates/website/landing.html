@@ -1,0 +1,59 @@
+{% extends "website/base_public.html" %}
+
+{% block title %}Strona glowna{% endblock %}
+
+{% block content %}
+<section class="bg-gray-900 text-white">
+    <div class="max-w-6xl mx-auto px-4 py-16 md:py-24">
+        <p class="text-sm uppercase tracking-wide text-gray-400 mb-3">Wynajem samochodow</p>
+        <h1 class="text-3xl md:text-5xl font-semibold max-w-2xl leading-tight">
+            Zarezerwuj auto szybko i wygodnie
+        </h1>
+        <p class="mt-4 text-gray-300 max-w-xl text-lg">
+            Sprawdz dostepnosc floty, porownaj kategorie i zloz rezerwacje online —
+            bez dzwonienia do biura.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+            <span
+                class="inline-flex items-center rounded-lg bg-white px-5 py-3 text-sm font-medium text-gray-900 opacity-80 cursor-not-allowed"
+                title="Katalog floty — task 8.9"
+            >
+                Przegladaj flote (wkrotce)
+            </span>
+            <a
+                href="{% url 'accounts:login' %}"
+                class="inline-flex items-center rounded-lg border border-gray-600 px-5 py-3 text-sm font-medium text-white hover:bg-gray-800"
+            >
+                Jestem pracownikiem
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-4 py-16">
+    <h2 class="text-2xl font-semibold mb-8">Jak to dziala</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="rounded-lg border border-gray-200 p-6">
+            <p class="text-sm font-medium text-gray-500 mb-2">Krok 1</p>
+            <h3 class="font-semibold mb-2">Wybierz termin</h3>
+            <p class="text-sm text-gray-600">
+                Podaj date odbioru i zwrotu — system pokaze wolne auta.
+            </p>
+        </div>
+        <div class="rounded-lg border border-gray-200 p-6">
+            <p class="text-sm font-medium text-gray-500 mb-2">Krok 2</p>
+            <h3 class="font-semibold mb-2">Zobacz wycene</h3>
+            <p class="text-sm text-gray-600">
+                Orientacyjna cena na podstawie cennika — bez ukrytych kosztow.
+            </p>
+        </div>
+        <div class="rounded-lg border border-gray-200 p-6">
+            <p class="text-sm font-medium text-gray-500 mb-2">Krok 3</p>
+            <h3 class="font-semibold mb-2">Zarezerwuj online</h3>
+            <p class="text-sm text-gray-600">
+                Potwierdzenie rezerwacji i dalszy kontakt z wypozyczalnia.
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

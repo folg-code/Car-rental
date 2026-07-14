@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 8b — zamknięty ✅ |
-| **Następny krok** | Sprint 9+ backlog (bramka prod, SMS, raporty) |
-| **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
+| **Aktualny etap** | Sprint 9+ — rozszerzenia (w toku) |
+| **Następny krok** | Bramka produkcyjna (P24/Stripe) lub SMS |
+| **Postęp ogólny** | ~97% (Sprint 0–9 + rozszerzenia paperless/finanse) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -65,15 +65,21 @@
 
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
-- [x] **SMTP** — konfiguracja `EMAIL_*` w settings + `.env.example` / `DEPLOY.md`
-- [ ] Upload zdjec/dokumentow w panelu floty (obecnie admin) — backlog / Sprint 2+
-- [ ] **Operations paperless** — pelna roadmapa: [Roadmap — operations (paperless)](#roadmap--operations-paperless) (HTMX kroki, PDF, email, doplaty, zamkniecie wynajmu)
+- [ ] **Bramka produkcyjna** — Stripe / Przelewy24 / PayU (Sprint 9+)
+- [ ] **Powiadomienia SMS** — adapter obok email (Celery)
 
 ---
 
 ## Zrobione (ostatnie)
 
 <!-- Przenoś tu ukończone TODO z sekcji powyżej -->
+
+- [x] Upload zdjec/dokumentow w panelu floty (PR #52)
+- [x] Operations paperless — doplaty po zwrocie, wizard zwrotu, porownanie szkod (PR #51–#53)
+- [x] Raporty finansowe `/panel/raporty/` (PR #54)
+- [x] Fix listy platnosci — rezerwacja bez wynajmu (PR #55)
+- [x] Bezpieczne uploady — walidacja typu/rozmiaru (PR #56)
+- [x] Audit log operacji krytycznych — `apps.audit` (PR w toku)
 
 - [x] Bootstrap Django + PostgreSQL
 - [x] Docker Compose (db + web)
@@ -181,6 +187,9 @@
 | 2026-07-14 | 8 | Task 8.10: wyszukiwarka dostepnosci (PR #25) |
 | 2026-07-14 | 8 | Task 8.12–8.14: rezerwacja online, strony info, testy flow (PR #27–#28) |
 | 2026-07-14 | 8 | **Sprint 8 zamknięty** — dashboard + website publiczna |
+| 2026-07-14 | 9+ | Paperless rozszerzenia: upload floty, doplaty, wizard zwrotu (PR #51–#53) |
+| 2026-07-14 | 9+ | Raporty finansowe, fix platnosci rezerwacja-only, bezpieczne uploady (PR #54–#56) |
+| 2026-07-14 | 9+ | Audit log operacji krytycznych — `apps.audit` |
 | | | |
 
 ---
@@ -456,13 +465,13 @@
 
 - [x] Formularze touch-friendly (`/panel/operacje/wydanie/`, `/zwrot/`)
 - [x] Upload zdjęć: `capture="environment"`
-- [ ] HTMX — partial updates kroków workflow — **backlog**
+- [x] Wizard krok po kroku (JS) — wydanie i zwrot
 
 ### Logika
 
 - [x] `HandoverService` — km, paliwo, zdjęcia, podpis, snapshot uszkodzeń, `RentalService.start`
-- [x] `ReturnService` — porównanie paliwa/km, nowe szkody, notatki doplat, `mark_returned`
-- [ ] Automatyczne doplaty → `payments` — **backlog** (obecnie notatki w protokole)
+- [x] `ReturnService` — porównanie paliwa/km, nowe szkody, doplaty, `mark_returned`
+- [x] Automatyczne doplaty → `payments` (`RentalCharge` + auto-close wynajmu)
 
 ### Testy
 
@@ -509,13 +518,13 @@
 | 2 | Wprowadzenie: przebiegu, paliwa, uwag | [x] |
 | 3 | Porównanie szkód z wydaniem (`DamageSnapshot` z handover vs stan przy zwrocie) | [x] snapshoty + UI porównania side-by-side |
 | 4 | Dodanie nowych szkód | [x] |
-| 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [x] podgląd HTMX (`SurchargePreviewService`); auto `payments` — [ ] |
+| 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [x] podgląd HTMX + auto `RentalCharge` → `payments` |
 | 6 | Podpis klienta | [x] |
 | 7 | Generacja PDF protokołu zwrotu | [x] |
 | 8 | Email do klienta z PDF | [x] |
-| 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] częściowo (`mark_returned`); pełne `close` po płatnościach — [ ] |
+| 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] `mark_returned` + auto `close` gdy saldo = 0 |
 
-**Backlog UX zwrotu:** ekran porównania szkód wydanie/zwrot — [x]; podgląd dopłat przed podpisem — [x] (HTMX); HTMX kroki — [ ].
+**Backlog UX zwrotu:** ekran porównania szkód wydanie/zwrot — [x]; podgląd dopłat przed podpisem — [x] (HTMX); wizard 3-krokowy — [x].
 
 ### Mapowanie na sprinty
 
@@ -743,8 +752,8 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 - [x] HTTPS na produkcji (Caddy + Let's Encrypt — task 9.9)
 - [ ] Szyfrowane PDF
-- [ ] Audit log operacji krytycznych
-- [ ] Bezpieczne uploady (walidacja typu/rozmiaru)
+- [x] Audit log operacji krytycznych — `apps.audit`, hooki w serwisach
+- [x] Bezpieczne uploady (walidacja typu/rozmiaru) — PR #56
 
 ### Infrastruktura produkcyjna
 
@@ -753,7 +762,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 ### Rozszerzenia biznesowe
 
 - [ ] Zaawansowany dynamic pricing
-- [ ] Raporty finansowe (przychód vs kaucje vs faktury)
+- [x] Raporty finansowe (przychód vs kaucje vs faktury) — `/panel/raporty/` (PR #54)
 - [ ] Powiadomienia SMS/push (po Celery — adapter obok email)
 - [ ] Wielojęzyczność UI
 - [ ] Chat AI — eskalacja do człowieka, analityka konwersji (jeśli nie w Sprint 8b)

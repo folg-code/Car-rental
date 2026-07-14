@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
+from apps.audit.models import AuditAction
+from apps.audit.services.audit import AuditService
 from apps.bookings.constants import RESERVATION_EMAIL_CONFIRMED
 from apps.bookings.models import (
     BLOCKING_RESERVATION_STATUSES,
@@ -131,8 +133,15 @@ class ReservationService:
             exclude_reservation_id=reservation.pk,
         )
         PriceSnapshotService.freeze(reservation)
+        old_status = reservation.status
         reservation.status = ReservationStatus.CONFIRMED
         reservation.save(update_fields=["status", "updated_at"])
+        AuditService.log_status_change(
+            AuditAction.RESERVATION_CONFIRMED,
+            reservation_id=reservation.pk,
+            old_status=old_status,
+            new_status=reservation.status,
+        )
         reservation_id = reservation.pk
         transaction.on_commit(
             lambda: ReservationEmailService.enqueue_reservation_email(
@@ -152,6 +161,7 @@ class ReservationService:
         if reservation.status == ReservationStatus.CANCELLED:
             raise ValidationError("Rezerwacja jest juz anulowana.")
 
+        old_status = reservation.status
         reservation.status = ReservationStatus.CANCELLED
         reservation.cancellation_reason = reason
         reservation.cancelled_at = timezone.now()
@@ -162,6 +172,13 @@ class ReservationService:
                 "cancelled_at",
                 "updated_at",
             ]
+        )
+        AuditService.log_status_change(
+            AuditAction.RESERVATION_CANCELLED,
+            reservation_id=reservation.pk,
+            old_status=old_status,
+            new_status=reservation.status,
+            metadata={"reason": reason},
         )
         return reservation
 

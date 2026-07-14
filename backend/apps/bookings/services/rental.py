@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
+from apps.audit.models import AuditAction
+from apps.audit.services.audit import AuditService
 from apps.bookings.models import (
     Rental,
     RentalStatus,
@@ -99,8 +101,21 @@ class RentalService:
         rental.full_clean()
         rental.save()
 
+        old_reservation_status = reservation.status
         reservation.status = ReservationStatus.CONVERTED_TO_RENTAL
         reservation.save(update_fields=["status", "updated_at"])
+
+        AuditService.log(
+            AuditAction.RENTAL_CREATED,
+            actor_id=created_by_id,
+            reservation_id=reservation.pk,
+            rental_id=rental.pk,
+            old_value={"reservation_status": old_reservation_status},
+            new_value={
+                "rental_status": rental.status,
+                "reservation_status": reservation.status,
+            },
+        )
         return rental
 
     @staticmethod
@@ -117,9 +132,17 @@ class RentalService:
             )
 
         started = at or timezone.now()
+        old_status = rental.status
         rental.status = RentalStatus.ACTIVE
         rental.actual_start_at = started
         rental.save(update_fields=["status", "actual_start_at", "updated_at"])
+        AuditService.log_status_change(
+            AuditAction.RENTAL_STARTED,
+            rental_id=rental.pk,
+            reservation_id=rental.reservation_id,
+            old_status=old_status,
+            new_status=rental.status,
+        )
         return rental
 
     @staticmethod
@@ -136,9 +159,17 @@ class RentalService:
             )
 
         returned = at or timezone.now()
+        old_status = rental.status
         rental.status = RentalStatus.RETURNED
         rental.actual_end_at = returned
         rental.save(update_fields=["status", "actual_end_at", "updated_at"])
+        AuditService.log_status_change(
+            AuditAction.RENTAL_RETURNED,
+            rental_id=rental.pk,
+            reservation_id=rental.reservation_id,
+            old_status=old_status,
+            new_status=rental.status,
+        )
         return rental
 
     @staticmethod
@@ -150,9 +181,17 @@ class RentalService:
                 "Zamknac mozna tylko wynajem po zarejestrowanym zwrocie."
             )
 
+        old_status = rental.status
         rental.status = RentalStatus.CLOSED
         rental.closed_at = timezone.now()
         rental.save(update_fields=["status", "closed_at", "updated_at"])
+        AuditService.log_status_change(
+            AuditAction.RENTAL_CLOSED,
+            rental_id=rental.pk,
+            reservation_id=rental.reservation_id,
+            old_status=old_status,
+            new_status=rental.status,
+        )
         return rental
 
     @staticmethod
@@ -168,6 +207,7 @@ class RentalService:
                 "Anulowac mozna tylko wynajem zaplanowany (przed wydaniem)."
             )
 
+        old_status = rental.status
         rental.status = RentalStatus.CANCELLED
         rental.cancellation_reason = reason
         rental.cancelled_at = timezone.now()
@@ -178,5 +218,13 @@ class RentalService:
                 "cancelled_at",
                 "updated_at",
             ]
+        )
+        AuditService.log_status_change(
+            AuditAction.RENTAL_CANCELLED,
+            rental_id=rental.pk,
+            reservation_id=rental.reservation_id,
+            old_status=old_status,
+            new_status=rental.status,
+            metadata={"reason": reason},
         )
         return rental

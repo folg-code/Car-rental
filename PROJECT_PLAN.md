@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 8 — dashboard + website |
-| **Następny krok** | Task **8.14** — testy website (flow publiczny) |
-| **Postęp ogólny** | ~93% (Sprint 0–7 zamknięte; Sprint 8: 13/14 tasków) |
+| **Aktualny etap** | Sprint 8b / Sprint 9+ (Sprint 8 zamknięty) |
+| **Następny krok** | Sprint **8b** — Chat AI (opcjonalnie) lub Sprint **9+** — produkcja |
+| **Postęp ogólny** | ~95% (Sprint 8 zamknięty) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -36,7 +36,7 @@
 | 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
 | 7 | documents (PDF, faktury) | ✅ | 100% |
-| 8 | dashboard + website | 🟡 | ~93% (13/14) |
+| 8 | dashboard + website | ✅ | 100% |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Produkcja i integracje | ⬜ | backlog |
@@ -139,7 +139,9 @@
 - [x] Sprint 8 / Task 8.8: infrastruktura website — landing `/`, `base_public.html` (PR #23)
 - [x] Sprint 8 / Task 8.9: publiczny katalog floty `/flota/` (PR #24)
 - [x] Sprint 8 / Task 8.10: wyszukiwarka dostepnosci `/flota/dostepnosc/` (PR #25)
-- [x] Sprint 8 / Task 8.11: orientacyjna wycena `/wycena/` (PR #26)
+- [x] Sprint 8 / Task 8.13: strony informacyjne placeholder (PR #28)
+- [x] Sprint 8 / Task 8.14: testy integracyjne flow publicznego
+- [x] Sprint 8 — **zamknięty** (Definition of Done: dashboard KPI + website publiczna)
 
 ---
 
@@ -173,7 +175,8 @@
 | 2026-07-14 | 8 | Task 8.5–8.7: alerty fleet, UI pulpitu, testy dashboard (PR #19–#21) |
 | 2026-07-14 | 8 | Task 8.8–8.9: website — landing, katalog `/flota/` (PR #23–#24) |
 | 2026-07-14 | 8 | Task 8.10: wyszukiwarka dostepnosci (PR #25) |
-| 2026-07-14 | 8 | Task 8.11: orientacyjna wycena `/wycena/` (PR #26) |
+| 2026-07-14 | 8 | Task 8.12–8.14: rezerwacja online, strony info, testy flow (PR #27–#28) |
+| 2026-07-14 | 8 | **Sprint 8 zamknięty** — dashboard + website publiczna |
 | | | |
 
 ---
@@ -565,7 +568,7 @@
 
 ---
 
-# Sprint 8 — dashboard + website 🟡
+# Sprint 8 — dashboard + website ✅
 
 **Cel:** widoczność operacji dla właściciela + kanał rezerwacji dla klienta.
 
@@ -588,7 +591,7 @@
 | **8.11** | Orientacyjna wycena | Kalkulator ceny read-only (`PricingService`) — bez zapisu rezerwacji | ✅ |
 | **8.12** | Rezerwacja online | `PublicBookingOrchestrator` + formularz → `ReservationService` + snapshot ceny | ✅ |
 | **8.13** | Strony informacyjne | Regulamin, kontakt, FAQ — szablony placeholder (`website`) | ✅ |
-| **8.14** | Testy website | pytest widoków publicznych + orchestratora rezerwacji | ⬜ |
+| **8.14** | Testy website | pytest widoków publicznych + orchestratora rezerwacji | ✅ |
 
 ### Dashboard (8.1–8.7)
 
@@ -609,7 +612,7 @@
 - [x] Orientacyjna wycena read-only `/wycena/` (task 8.11)
 - [x] Formularz rezerwacji online `/rezerwacja/` (task 8.12)
 - [x] Strony statyczne placeholder: `/regulamin/`, `/kontakt/`, `/faq/` (task 8.13)
-- [ ] Testy website: orchestrator + widoki publiczne (task 8.14)
+- [x] Testy website: flow search → quote → reserve (task 8.14)
 
 ### Plan domknięcia Sprint 8 (8.12–8.14)
 
@@ -789,7 +792,7 @@ Sprint 9+ (produkcja)
 | `apps/operations` — protokoly, panel mobilny | ✅ | ✅ |
 | `apps/documents` | ✅ | ✅ |
 | `apps/dashboard` | ✅ | ✅ (KPI + alerty fleet, taski 8.1–8.7) |
-| `apps/website` | 🟡 | ✅ (8.8–8.11; brak rezerwacji online) |
+| `apps/website` | ✅ | ✅ (8.8–8.14) |
 | Chat AI konsultant | ❌ | — (plan: Sprint 8b) |
 | `docs/AI_CONSULTANT.md` | ✅ | — |
 

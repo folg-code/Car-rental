@@ -50,6 +50,13 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
         enabled=True,
     ),
     PanelNavItem(
+        label="Raporty",
+        url_name="dashboard:financial_report",
+        section_key="reports",
+        icon="chart",
+        enabled=True,
+    ),
+    PanelNavItem(
         label="Dokumenty",
         url_name="documents:home",
         section_key="documents",

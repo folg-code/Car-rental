@@ -11,6 +11,10 @@ def panel_navigation(request):
         panel_section = "pricing"
     elif match and match.app_name == "payments":
         panel_section = "payments"
+    elif (
+        match and match.app_name == "dashboard" and match.url_name == "financial_report"
+    ):
+        panel_section = "reports"
     elif match and match.app_name == "operations":
         panel_section = "operations"
     elif match and match.app_name == "documents":

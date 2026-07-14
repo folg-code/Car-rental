@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from django.db.models import QuerySet
+from datetime import date
+from decimal import Decimal
+
+from django.db.models import Count, QuerySet, Sum
 
 from apps.documents.dto.invoice import InvoiceDocumentData, InvoiceItemData
 from apps.documents.models import Invoice, InvoiceStatus
@@ -54,3 +57,40 @@ def rental_has_active_invoice(rental_id: int) -> bool:
         .exclude(status=InvoiceStatus.CANCELLED)
         .exists()
     )
+
+
+def get_invoice_totals_in_period(
+    start_date: date,
+    end_date: date,
+) -> tuple[Decimal, int]:
+    """Suma faktur (bez anulowanych) wg daty wystawienia w przedziale dat."""
+    agg = (
+        Invoice.objects.filter(
+            issue_date__gte=start_date,
+            issue_date__lte=end_date,
+        )
+        .exclude(status=InvoiceStatus.CANCELLED)
+        .aggregate(total=Sum("total_amount"), count=Count("pk"))
+    )
+    total = (agg["total"] or Decimal("0")).quantize(Decimal("0.01"))
+    return total, int(agg["count"] or 0)
+
+
+def list_invoices_in_period(
+    start_date: date,
+    end_date: date,
+    *,
+    limit: int | None = None,
+) -> QuerySet[Invoice]:
+    qs = (
+        Invoice.objects.filter(
+            issue_date__gte=start_date,
+            issue_date__lte=end_date,
+        )
+        .exclude(status=InvoiceStatus.CANCELLED)
+        .select_related("customer", "rental")
+        .order_by("-issue_date", "-pk")
+    )
+    if limit is not None:
+        qs = qs[:limit]
+    return qs

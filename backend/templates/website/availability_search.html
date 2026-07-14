@@ -83,6 +83,14 @@
                     <p class="text-sm text-gray-600 mt-1">
                         Rok {{ car.year }} · {{ car.get_fuel_type_display }} · {{ car.seats }} miejsc
                     </p>
+                    {% if result %}
+                    <a
+                        href="{% url 'website:price_quote' %}?car={{ car.pk }}&start_at={{ result.start_at|date:'Y-m-d' }}T{{ result.start_at|time:'H:i' }}&end_at={{ result.end_at|date:'Y-m-d' }}T{{ result.end_at|time:'H:i' }}"
+                        class="inline-block mt-3 text-sm font-medium text-gray-900 underline hover:no-underline"
+                    >
+                        Orientacyjna wycena
+                    </a>
+                    {% endif %}
                 </div>
             </article>
             {% endfor %}

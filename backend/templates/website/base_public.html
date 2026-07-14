@@ -24,6 +24,9 @@
                 <a href="{% url 'website:availability_search' %}" class="text-gray-600 hover:text-gray-900">
                     Dostepnosc
                 </a>
+                <a href="{% url 'website:price_quote' %}" class="text-gray-600 hover:text-gray-900">
+                    Wycena
+                </a>
                 <span class="text-gray-400" title="Task 8.13">Kontakt</span>
                 {% if user.is_authenticated and user.is_staff_member %}
                 <a href="{% url 'dashboard:home' %}" class="text-gray-600 hover:text-gray-900">

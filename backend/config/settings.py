@@ -223,6 +223,10 @@ DEFAULT_FROM_EMAIL = env(
     "DEFAULT_FROM_EMAIL",
     default="noreply@car-rental.local",
 )
+PUBLIC_SITE_BASE_URL = env(
+    "PUBLIC_SITE_BASE_URL",
+    default="http://localhost:8000",
+)
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND",
     default="django.core.mail.backends.console.EmailBackend",

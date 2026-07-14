@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
+from apps.bookings.constants import RESERVATION_EMAIL_CONFIRMED
 from apps.bookings.models import (
     BLOCKING_RESERVATION_STATUSES,
     Rental,
@@ -15,6 +16,7 @@ from apps.bookings.models import (
 from apps.bookings.selectors.availability import get_overlapping_reservations
 from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.bookings.services.rental import RentalService
+from apps.bookings.services.reservation_email import ReservationEmailService
 from apps.fleet.models import Car
 from apps.fleet.services.availability import AvailabilityService
 
@@ -131,6 +133,13 @@ class ReservationService:
         PriceSnapshotService.freeze(reservation)
         reservation.status = ReservationStatus.CONFIRMED
         reservation.save(update_fields=["status", "updated_at"])
+        reservation_id = reservation.pk
+        transaction.on_commit(
+            lambda: ReservationEmailService.enqueue_reservation_email(
+                reservation_id,
+                email_kind=RESERVATION_EMAIL_CONFIRMED,
+            ),
+        )
         return reservation
 
     @staticmethod

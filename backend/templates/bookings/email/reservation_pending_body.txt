@@ -1,0 +1,22 @@
+Witaj {{ customer_name }},
+
+Dziekujemy za rezerwacje w Car Rental.
+
+Numer rezerwacji: {{ reservation_id }}
+Status: {{ status_display }}
+Pojazd: {{ car_label }} ({{ registration_number }})
+Kategoria: {{ category_name }}
+Termin: {{ start_at|date:"d.m.Y H:i" }} — {{ end_at|date:"d.m.Y H:i" }}
+Kwota do zaplaty: {{ total_amount }} PLN
+
+Oplac rezerwacje online:
+{{ payment_url }}
+
+Szczegoly rezerwacji:
+{{ confirmation_url }}
+
+W razie pytan odpowiedz na ten email lub skontaktuj sie z wypozyczalnia,
+podajac numer rezerwacji {{ reservation_id }}.
+
+Pozdrawiamy,
+Car Rental

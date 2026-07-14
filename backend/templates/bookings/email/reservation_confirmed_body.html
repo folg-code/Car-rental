@@ -1,0 +1,13 @@
+<p>Witaj {{ customer_name }},</p>
+<p>
+    Twoja platnosc zostala przyjeta.
+    Rezerwacja nr <strong>{{ reservation_id }}</strong> jest <strong>potwierdzona</strong>.
+</p>
+<ul>
+    <li><strong>Pojazd:</strong> {{ car_label }} ({{ registration_number }})</li>
+    <li><strong>Termin:</strong> {{ start_at|date:"d.m.Y H:i" }} — {{ end_at|date:"d.m.Y H:i" }}</li>
+    <li><strong>Oplacona kwota:</strong> {{ total_amount }} PLN</li>
+</ul>
+<p>Skontaktujemy sie w sprawie wydania pojazdu.</p>
+<p><a href="{{ confirmation_url }}">Szczegoly rezerwacji</a></p>
+<p>Pozdrawiamy,<br>Car Rental</p>

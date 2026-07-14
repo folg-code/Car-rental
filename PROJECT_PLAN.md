@@ -14,8 +14,8 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 8 — dashboard + website |
-| **Następny krok** | Task **8.12** — rezerwacja online (`PublicBookingOrchestrator`) |
-| **Postęp ogólny** | ~88% (Sprint 0–7 zamknięte; Sprint 8: 11/14 tasków) |
+| **Następny krok** | Task **8.13** — strony informacyjne (regulamin, kontakt, FAQ) |
+| **Postęp ogólny** | ~91% (Sprint 0–7 zamknięte; Sprint 8: 12/14 tasków) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -36,7 +36,7 @@
 | 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
 | 7 | documents (PDF, faktury) | ✅ | 100% |
-| 8 | dashboard + website | 🟡 | ~79% (11/14) |
+| 8 | dashboard + website | 🟡 | ~86% (12/14) |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Produkcja i integracje | ⬜ | backlog |
@@ -586,7 +586,7 @@
 | **8.9** | Katalog floty publiczny | `/flota/` — lista kategorii i aut (selektory `fleet`, bez logiki w szablonie) | ✅ |
 | **8.10** | Wyszukiwarka dostępności | Formularz dat → `AvailabilityService` → lista wolnych aut | ✅ |
 | **8.11** | Orientacyjna wycena | Kalkulator ceny read-only (`PricingService`) — bez zapisu rezerwacji | ✅ |
-| **8.12** | Rezerwacja online | `PublicBookingOrchestrator` + formularz → `ReservationService` + snapshot ceny | ⬜ |
+| **8.12** | Rezerwacja online | `PublicBookingOrchestrator` + formularz → `ReservationService` + snapshot ceny | ✅ |
 | **8.13** | Strony informacyjne | Regulamin, kontakt, FAQ (szablony `website`) | ⬜ |
 | **8.14** | Testy website | pytest widoków publicznych + orchestratora rezerwacji | ⬜ |
 
@@ -607,7 +607,7 @@
 - [x] Publiczna lista floty `/flota/` (task 8.9)
 - [x] Wyszukiwarka dostępności `/flota/dostepnosc/` (task 8.10)
 - [x] Orientacyjna wycena read-only `/wycena/` (task 8.11)
-- [ ] Formularz rezerwacji online (zapis przez serwisy domenowe, task 8.12)
+- [x] Formularz rezerwacji online `/rezerwacja/` (task 8.12)
 - [ ] Strony statyczne: regulamin, kontakt, FAQ (task 8.13)
 - [ ] Testy website: orchestrator + widoki publiczne (task 8.14)
 

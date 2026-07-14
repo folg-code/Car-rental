@@ -48,3 +48,30 @@ class CustomerService:
         )
         customer.save()
         return customer
+
+    @staticmethod
+    def get_or_create_for_public_booking(
+        *,
+        first_name: str,
+        last_name: str,
+        email: str = "",
+        phone: str = "",
+    ) -> tuple[Customer, bool]:
+        """Dopasuj istniejacego klienta po emailu lub telefonie albo utworz nowego."""
+        normalized_email = email.strip().lower()
+        normalized_phone = phone.strip()
+        if normalized_email:
+            existing = Customer.objects.filter(email__iexact=normalized_email).first()
+            if existing is not None:
+                return existing, False
+        if normalized_phone:
+            existing = Customer.objects.filter(phone=normalized_phone).first()
+            if existing is not None:
+                return existing, False
+        customer = CustomerService.create(
+            first_name=first_name.strip(),
+            last_name=last_name.strip(),
+            email=normalized_email,
+            phone=normalized_phone,
+        )
+        return customer, True

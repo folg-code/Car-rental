@@ -27,6 +27,9 @@
                 <a href="{% url 'website:price_quote' %}" class="text-gray-600 hover:text-gray-900">
                     Wycena
                 </a>
+                <a href="{% url 'website:public_booking' %}" class="text-gray-600 hover:text-gray-900">
+                    Rezerwacja
+                </a>
                 <span class="text-gray-400" title="Task 8.13">Kontakt</span>
                 {% if user.is_authenticated and user.is_staff_member %}
                 <a href="{% url 'dashboard:home' %}" class="text-gray-600 hover:text-gray-900">
@@ -61,7 +64,7 @@
     <footer class="border-t border-gray-200 bg-gray-50 mt-auto">
         <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-gray-500 flex flex-col sm:flex-row justify-between gap-4">
             <p>&copy; Car Rental — wynajem samochodow</p>
-            <p class="text-gray-400">Rezerwacja online — wkrotce (Sprint 8)</p>
+            <p class="text-gray-400">Rezerwacja online — platnosc wkrotce (Sprint 9+)</p>
         </div>
     </footer>
 </body>

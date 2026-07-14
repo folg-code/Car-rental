@@ -112,6 +112,13 @@
             <a href="{% url 'website:availability_search' %}" class="text-gray-700 underline hover:text-gray-900">
                 Sprawdz dostepnosc w tym terminie
             </a>
+            ·
+            <a
+                href="{% url 'website:public_booking' %}?car={{ result.car.pk }}&start_at={{ result.start_at|date:'Y-m-d' }}T{{ result.start_at|time:'H:i' }}&end_at={{ result.end_at|date:'Y-m-d' }}T{{ result.end_at|time:'H:i' }}"
+                class="text-gray-700 underline hover:text-gray-900"
+            >
+                Zarezerwuj online
+            </a>
         </p>
     </div>
     {% endif %}

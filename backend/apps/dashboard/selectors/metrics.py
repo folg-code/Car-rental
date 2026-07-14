@@ -13,7 +13,7 @@ from apps.bookings.models import (
     Reservation,
     ReservationStatus,
 )
-from apps.fleet.models import Car, CarStatus
+from apps.fleet.services.availability import AvailabilityService
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,23 +41,7 @@ def get_dashboard_metrics(*, as_of: datetime | None = None) -> DashboardMetrics:
         scheduled_end_at__gt=now,
     ).count()
 
-    busy_reservation_car_ids = set(
-        Reservation.objects.filter(
-            status__in=BLOCKING_RESERVATION_STATUSES,
-            start_at__lt=now,
-            end_at__gt=now,
-        ).values_list("car_id", flat=True)
-    )
-    busy_rental_car_ids = set(
-        Rental.objects.filter(
-            status__in=BLOCKING_RENTAL_STATUSES,
-            scheduled_start_at__lt=now,
-            scheduled_end_at__gt=now,
-        ).values_list("reservation__car_id", flat=True)
-    )
-    busy_now = len(busy_reservation_car_ids | busy_rental_car_ids)
-    total_active_cars = Car.objects.filter(status=CarStatus.ACTIVE).count()
-    free_cars = max(0, total_active_cars - busy_now)
+    free_cars = AvailabilityService.count_available_cars_at(now)
 
     upcoming_returns = (
         Reservation.objects.filter(

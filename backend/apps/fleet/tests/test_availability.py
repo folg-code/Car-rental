@@ -1,7 +1,8 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from apps.fleet.models import AvailabilityBlockType, Car, CarCategory, CarStatus
 from apps.fleet.services.availability import AvailabilityService
@@ -56,6 +57,21 @@ class TestAvailabilityService:
         start = datetime(2026, 6, 1, 10, 0, tzinfo=UTC)
         end = datetime(2026, 6, 5, 10, 0, tzinfo=UTC)
         assert AvailabilityService.is_car_available(car, start, end) is False
+
+    def test_count_available_cars_at_excludes_blocked(self, car: Car) -> None:
+        now = timezone.now()
+        FleetMaintenanceService.create_availability_block(
+            car_id=car.pk,
+            start_at=now - timedelta(hours=1),
+            end_at=now + timedelta(hours=1),
+            reason="Serwis",
+            block_type=AvailabilityBlockType.SERVICE,
+        )
+        assert AvailabilityService.count_available_cars_at(now) == 0
+
+    def test_count_available_cars_at_includes_free_car(self, car: Car) -> None:
+        now = timezone.now()
+        assert AvailabilityService.count_available_cars_at(now) == 1
 
 
 @pytest.mark.django_db

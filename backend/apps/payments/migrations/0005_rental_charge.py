@@ -2,9 +2,19 @@
 
 from decimal import Decimal
 
+import django
 import django.core.validators
 import django.db.models.deletion
 from django.db import migrations, models
+
+
+def _rentalcharge_revenue_type_constraint() -> models.CheckConstraint:
+    q = models.Q(payment_type="extra_charge") | models.Q(payment_type="damage_charge")
+    kw = "condition" if django.VERSION >= (5, 1) else "check"
+    return models.CheckConstraint(
+        **{kw: q},
+        name="rentalcharge_revenue_type_only",
+    )
 
 
 class Migration(migrations.Migration):
@@ -87,13 +97,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="rentalcharge",
-            constraint=models.CheckConstraint(
-                check=models.Q(
-                    ("payment_type", "extra_charge"),
-                    ("payment_type", "damage_charge"),
-                    _connector="OR",
-                ),
-                name="rentalcharge_revenue_type_only",
-            ),
+            constraint=_rentalcharge_revenue_type_constraint(),
         ),
     ]

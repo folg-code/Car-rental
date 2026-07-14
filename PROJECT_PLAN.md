@@ -14,10 +14,10 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 8 — dashboard + website |
-| **Następny krok** | Task 8.3 — nieopłacone wynajmy (saldo z `payments`) |
-| **Postęp ogólny** | ~82% (Sprint 0–7 zamknięte) |
-| **Ostatnia aktualizacja** | 2026-05-30 |
-| **Branch** | `feature/documents` (merge do `main` przed Sprint 8) |
+| **Następny krok** | Task 8.4 — przychód okresu (KPI miesiąca) |
+| **Postęp ogólny** | ~83% (Sprint 0–7 zamknięte) |
+| **Ostatnia aktualizacja** | 2026-07-14 |
+| **Branch** | `feat/dashboard-unpaid-rentals` (Sprint 8) |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
 
 ### Legenda postępu sprintu
@@ -36,7 +36,7 @@
 | 5 | Rental + payments MVP | ✅ | 100% |
 | 6 | operations (wydanie/zwrot) | ✅ | 100% |
 | 7 | documents (PDF, faktury) | ✅ | 100% |
-| 8 | dashboard + website | 🟡 | ~20% |
+| 8 | dashboard + website | 🟡 | ~25% |
 | 8b | Chat AI — konsultant klienta | ⬜ | 0% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Produkcja i integracje | ⬜ | backlog |
@@ -163,7 +163,7 @@
 | 2026-05-30 | 7 | Domkniecie Sprint 7 — `feature/documents` gotowy do merge |
 | 2026-05-30 | 8 | Plan Sprint 8: taski 8.1–8.14 (dashboard KPI + website publiczna) |
 | 2026-05-30 | 8 | Task 8.1: `dashboard/selectors/metrics.py`, `DashboardMetricsService`, migracja z bookings |
-| 2026-05-30 | 8 | Task 8.2: KPI wolne auta przez `AvailabilityService.count_available_cars_at` |
+| 2026-07-14 | 8 | Task 8.3: selektor nieoplaconych wynajmow (`count_unpaid_rentals`, `get_rental_balance_due`) |
 | | | |
 
 ---
@@ -567,7 +567,7 @@
 |----|------|------|--------|
 | **8.1** | Selektory KPI | `dashboard/selectors/metrics.py` — centralizacja metryk; migracja z `bookings.selectors.dashboard` | ✅ |
 | **8.2** | Wolne auta (`AvailabilityService`) | KPI „wolne auta” przez `fleet.AvailabilityService` (as_of=now), nie heurystyka busy | ✅ |
-| **8.3** | Nieopłacone wynajmy | Selektor wynajmów z saldem do zapłaty (`payments` summary) | ⬜ |
+| **8.3** | Nieopłacone wynajmy | Selektor wynajmów z saldem do zapłaty (`payments` summary) | ✅ |
 | **8.4** | Przychód okresu | KPI przychodu miesiąca — tylko `REVENUE_PAYMENT_TYPES` (kaucja ≠ przychód) | ⬜ |
 | **8.5** | Alerty fleet | Wygasające OC/przeglądy z `CarDocument` (np. 30 dni) | ⬜ |
 | **8.6** | UI pulpitu | Rozszerzenie `panel.html` — widgety KPI, alerty, skróty do kolejek operacji/płatności | ⬜ |
@@ -585,7 +585,7 @@
 - [x] Podstawowe widgety (Sprint 3): aktywne rezerwacje/wynajmy, wolne auta (heurystyka), zwroty w 7 dni
 - [x] `DashboardMetricsService` + `selectors/metrics.py` — centralizacja KPI (task 8.1)
 - [x] Wolne auta z `AvailabilityService.count_available_cars_at` (task 8.2)
-- [ ] Nieopłacone wynajmy (saldo z `payments`)
+- [x] Nieopłacone wynajmy (saldo z `payments`, task 8.3)
 - [ ] Przychód miesiąca (bez kaucji)
 - [ ] Alerty: wygasające ubezpieczenie, przeglądy (`CarDocument`)
 - [ ] Skróty: kolejka operacji (`/panel/operacje/`), ostatnie płatności

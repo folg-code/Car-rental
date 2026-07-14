@@ -62,6 +62,53 @@ Statyczne pliki (`/static/*`) serwuje Caddy z wolumenu `static_data`.
 
 ---
 
+## Email (SMTP)
+
+Rezerwacje i dokumenty wysyłają maile przez Celery. Domyślnie w dev: `console` (logi).
+
+### Dev — podgląd w logach
+
+```bash
+docker compose logs -f web celery
+```
+
+### Wysyłka na prawdziwą skrzynkę (np. Gmail)
+
+W `.env.docker` lub `.env.local`:
+
+```env
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=twoj-email@gmail.com
+EMAIL_HOST_PASSWORD=haslo-aplikacji-google
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=twoj-email@gmail.com
+```
+
+Po zmianie: `docker compose restart web celery`.
+
+**Gmail:** włącz 2FA i wygeneruj hasło aplikacji w koncie Google.
+
+**SendGrid / inny dostawca:** ustaw `EMAIL_HOST` i port według dokumentacji (TLS 587 lub SSL 465 + `EMAIL_USE_SSL=True`).
+
+### Produkcja
+
+W `.env.production`:
+
+```env
+PUBLIC_SITE_BASE_URL=https://twoja-domena.pl
+DEFAULT_FROM_EMAIL=noreply@twoja-domena.pl
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.twoj-dostawca.pl
+EMAIL_PORT=587
+EMAIL_HOST_USER=noreply@twoja-domena.pl
+EMAIL_HOST_PASSWORD=
+EMAIL_USE_TLS=True
+```
+
+---
+
 ## Backup
 
 ### Co jest backupowane
@@ -148,6 +195,7 @@ Skrypt:
 - [ ] Docker + Compose plugin
 - [ ] `.env.production` według `.env.example`
 - [ ] `DOMAIN` + `ACME_EMAIL` (HTTPS)
+- [ ] `EMAIL_BACKEND=smtp` + `EMAIL_HOST` / credentials (maile rezerwacji i PDF)
 - [ ] `docker login ghcr.io` (jeśli obraz prywatny)
 - [ ] GitHub Actions: `ENABLE_DEPLOY=true` + secrets SSH
 - [ ] `./scripts/deploy.sh`

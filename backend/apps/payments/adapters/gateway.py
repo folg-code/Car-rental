@@ -30,6 +30,7 @@ class GatewayWebhookEvent:
     event_type: str
     external_reference: str
     payload: dict[str, Any]
+    event_id: str = ""
 
 
 class PaymentGatewayClient(Protocol):
@@ -88,10 +89,12 @@ class MockPaymentGateway:
 
     def parse_webhook_event(self, payload: bytes) -> GatewayWebhookEvent:
         data = json.loads(payload.decode("utf-8"))
+        event_id = str(data.get("id") or data.get("event_id") or "")
         return GatewayWebhookEvent(
             event_type=str(data["event_type"]),
             external_reference=str(data["external_reference"]),
             payload=data,
+            event_id=event_id,
         )
 
 

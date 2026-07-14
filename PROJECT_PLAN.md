@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 9 — produkcja i płatności online |
-| **Następny krok** | Task **9.3** — `PaymentGatewayService` |
+| **Następny krok** | Task **9.4** — webhook endpoint w `payments` |
 | **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -700,7 +700,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 |----|------|------|--------|
 | **9.1** | Intent dla rezerwacji | `PaymentIntent.reservation` (opcjonalny), migracja; intent bez wynajmu | ✅ |
 | **9.2** | Adapter bramki | `payments/adapters/gateway.py` — interface + implementacja **mock** (dev/test) | ✅ |
-| **9.3** | `PaymentGatewayService` | `create_intent`, obsługa sukcesu/błędu, idempotencja na `PaymentProviderEvent` | ⬜ |
+| **9.3** | `PaymentGatewayService` | `create_intent`, obsługa sukcesu/błędu, idempotencja na `PaymentProviderEvent` | ✅ |
 | **9.4** | Webhook | endpoint w `payments` (nie `website`), log zdarzeń, weryfikacja podpisu (mock/stripe-ready) | ⬜ |
 | **9.5** | Inicjacja z website | po rezerwacji: strona „Zapłać” / redirect; tylko orkiestracja w `website` | ⬜ |
 | **9.6** | Orkiestracja po płatności | sukces → `PaymentService` + `ReservationService.confirm` | ⬜ |

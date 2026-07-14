@@ -200,6 +200,7 @@ class PaymentProviderEvent(models.Model):
         on_delete=models.CASCADE,
         related_name="provider_events",
     )
+    provider_event_id = models.CharField(max_length=128, unique=True)
     event_type = models.CharField(max_length=64)
     payload = models.TextField(blank=True)
     received_at = models.DateTimeField(auto_now_add=True)

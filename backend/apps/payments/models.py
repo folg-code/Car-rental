@@ -1,9 +1,16 @@
 from decimal import Decimal
 
+import django
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+
+
+def _check_constraint(name: str, q: models.Q) -> models.CheckConstraint:
+    """Django 5.1+ / 6.x use ``condition``; Django 4.x used ``check``."""
+    kw = "condition" if django.VERSION >= (5, 1) else "check"
+    return models.CheckConstraint(**{kw: q}, name=name)
 
 
 class PaymentMethod(models.TextChoices):
@@ -80,10 +87,9 @@ class PaymentIntent(models.Model):
         verbose_name = "intencja platnosci"
         verbose_name_plural = "intencje platnosci"
         constraints = [
-            models.CheckConstraint(
-                check=models.Q(rental__isnull=False)
-                | models.Q(reservation__isnull=False),
-                name="paymentintent_requires_rental_or_reservation",
+            _check_constraint(
+                "paymentintent_requires_rental_or_reservation",
+                models.Q(rental__isnull=False) | models.Q(reservation__isnull=False),
             ),
         ]
 

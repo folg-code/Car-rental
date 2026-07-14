@@ -11,9 +11,17 @@ class PaymentInline(admin.TabularInline):
 
 @admin.register(PaymentIntent)
 class PaymentIntentAdmin(admin.ModelAdmin):
-    list_display = ("id", "rental", "amount", "payment_type", "status", "created_at")
+    list_display = (
+        "id",
+        "rental",
+        "reservation",
+        "amount",
+        "payment_type",
+        "status",
+        "created_at",
+    )
     list_filter = ("status", "payment_type")
-    raw_id_fields = ("rental",)
+    raw_id_fields = ("rental", "reservation")
     inlines = (PaymentInline,)
 
 

@@ -44,6 +44,15 @@ class PaymentIntent(models.Model):
     rental = models.ForeignKey(
         "bookings.Rental",
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="payment_intents",
+    )
+    reservation = models.ForeignKey(
+        "bookings.Reservation",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name="payment_intents",
     )
     amount = models.DecimalField(
@@ -70,10 +79,42 @@ class PaymentIntent(models.Model):
         ordering = ["-created_at"]
         verbose_name = "intencja platnosci"
         verbose_name_plural = "intencje platnosci"
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(rental__isnull=False)
+                | models.Q(reservation__isnull=False),
+                name="paymentintent_requires_rental_or_reservation",
+            ),
+        ]
 
     def __str__(self) -> str:
-        return f"Intent #{self.pk or '—'} — "
-        f"{self.amount} PLN ({self.get_status_display()})"
+        if self.rental_id is not None:
+            target = f"wynajem #{self.rental_id}"
+        else:
+            target = f"rezerwacja #{self.reservation_id}"
+        return (
+            f"Intent #{self.pk or '—'} ({target}) — "
+            f"{self.amount} PLN ({self.get_status_display()})"
+        )
+
+    def clean(self) -> None:
+        super().clean()
+        if self.rental_id is None and self.reservation_id is None:
+            raise ValidationError(
+                "Intencja musi byc powiazana z wynajmem lub rezerwacja."
+            )
+        if (
+            self.rental_id is not None
+            and self.reservation_id is not None
+            and self.rental.reservation_id != self.reservation_id
+        ):
+            raise ValidationError(
+                "Rezerwacja intencji nie zgadza sie z rezerwacja wynajmu."
+            )
+
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class Payment(models.Model):

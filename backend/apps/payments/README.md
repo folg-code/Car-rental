@@ -35,7 +35,7 @@ Rejestracja **ruchu pieniężnego** — wpłaty, kaucje, zwroty, opłaty dodatko
 
 ## Modele (zaimplementowane — Sprint 5 MVP)
 
-- `PaymentIntent` — przygotowanie pod bramke online
+- `PaymentIntent` — przygotowanie pod bramke online; FK `rental` i/lub `reservation` (min. jedno)
 - `Payment` — FK do `Rental` (+ opcjonalnie `Reservation`, `PaymentIntent`)
 - `PaymentProviderEvent` — log webhookow (szkielet)
 - Typy: `rental_fee`, `deposit`, `refund`, `extra_charge`, `damage_charge`
@@ -56,7 +56,7 @@ Planowane (Sprint 9): `PaymentGatewayService`, adapter bramki, webhooki, intent 
 
 | ID | Task | Status |
 |----|------|--------|
-| **9.1** | `PaymentIntent` + FK `reservation` | ⬜ |
+| **9.1** | `PaymentIntent` + FK `reservation` | ✅ |
 | **9.2** | Adapter bramki (mock) | ⬜ |
 | **9.3** | `PaymentGatewayService` | ⬜ |
 | **9.4** | Webhook endpoint | ⬜ |

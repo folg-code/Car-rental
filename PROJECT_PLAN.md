@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 9 — produkcja i płatności online |
-| **Następny krok** | Task **9.1** — `PaymentIntent` powiązany z `Reservation` |
+| **Następny krok** | Task **9.2** — adapter bramki płatności (mock) |
 | **Postęp ogólny** | ~95% (Sprint 0–8 zamknięte) |
 | **Ostatnia aktualizacja** | 2026-07-14 |
 | **Branch** | `main` |
@@ -698,7 +698,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 | ID | Task | Opis | Status |
 |----|------|------|--------|
-| **9.1** | Intent dla rezerwacji | `PaymentIntent.reservation` (opcjonalny), migracja; intent bez wynajmu | ⬜ |
+| **9.1** | Intent dla rezerwacji | `PaymentIntent.reservation` (opcjonalny), migracja; intent bez wynajmu | ✅ |
 | **9.2** | Adapter bramki | `payments/adapters/gateway.py` — interface + implementacja **mock** (dev/test) | ⬜ |
 | **9.3** | `PaymentGatewayService` | `create_intent`, obsługa sukcesu/błędu, idempotencja na `PaymentProviderEvent` | ⬜ |
 | **9.4** | Webhook | endpoint w `payments` (nie `website`), log zdarzeń, weryfikacja podpisu (mock/stripe-ready) | ⬜ |
@@ -711,7 +711,7 @@ Dokumentacja techniczna: [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 
 ### Płatności online (9.1–9.6)
 
-- [ ] Model / serwis intentu dla `Reservation` (nie tylko `Rental`)
+- [x] Model / serwis intentu dla `Reservation` (nie tylko `Rental`)
 - [ ] Adapter bramki (mock na start; Stripe/Przelewy24 — adapter wymienny)
 - [ ] Webhook + `PaymentProviderEvent`
 - [ ] Strona płatności po publicznej rezerwacji

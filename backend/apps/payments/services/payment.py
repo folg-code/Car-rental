@@ -55,6 +55,8 @@ class PaymentService:
             intent = PaymentIntent.objects.filter(pk=intent_id).first()
             if intent is None:
                 raise ValidationError("Nie znaleziono intencji platnosci.")
+            if intent.rental_id is not None and intent.rental_id != rental_id:
+                raise ValidationError("Intencja nie dotyczy tego wynajmu.")
 
         payment = Payment(
             rental=rental,

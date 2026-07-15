@@ -3,7 +3,7 @@
 {% block title %}Rezerwacja online{% endblock %}
 
 {% block content %}
-{% include "website/partials/page_header.html" with eyebrow="Rezerwacja" title="Rezerwacja online" subtitle="Wypelnij formularz — utworzymy rezerwacje ze statusem oczekuje platnosci. Platnosc online lub kontakt w sprawie potwierdzenia." %}
+{% include "website/partials/page_header.html" with eyebrow="Rezerwacja" title="Rezerwacja online" subtitle="Wypełnij formularz — utworzymy rezerwację ze statusem oczekuje płatności. Płatność online lub kontakt w sprawie potwierdzenia." %}
 
 <section class="site-container py-8 md:py-12">
     <form method="post" class="form-card max-w-xl">
@@ -17,15 +17,17 @@
             {{ form.car }}
             {% if form.car.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.car.errors.0 }}</p>{% endif %}
         </div>
-        <div>
-            <label for="{{ form.start_at.id_for_label }}" class="form-label">{{ form.start_at.label }}</label>
-            {{ form.start_at }}
-            {% if form.start_at.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.start_at.errors.0 }}</p>{% endif %}
-        </div>
-        <div>
-            <label for="{{ form.end_at.id_for_label }}" class="form-label">{{ form.end_at.label }}</label>
-            {{ form.end_at }}
-            {% if form.end_at.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.end_at.errors.0 }}</p>{% endif %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label for="{{ form.start_at.id_for_label }}" class="form-label">{{ form.start_at.label }}</label>
+                {{ form.start_at }}
+                {% if form.start_at.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.start_at.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label for="{{ form.end_at.id_for_label }}" class="form-label">{{ form.end_at.label }}</label>
+                {{ form.end_at }}
+                {% if form.end_at.errors %}<p class="mt-1.5 text-sm text-red-600">{{ form.end_at.errors.0 }}</p>{% endif %}
+            </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -73,7 +75,7 @@
         <label class="form-checkbox-row">
             {{ form.accept_terms }}
             <span>
-                Akceptuje
+                Akceptuję
                 <a href="{% url 'website:terms' %}" class="link-brand" target="_blank" rel="noopener">regulamin wynajmu</a>
             </span>
         </label>
@@ -81,11 +83,11 @@
         <p class="text-sm text-red-600">{{ form.accept_terms.errors.0 }}</p>
         {% endif %}
 
-        <button type="submit" class="btn-primary w-full sm:w-auto">Zloz rezerwacje</button>
+        <button type="submit" class="btn-primary w-full sm:w-auto">Złóż rezerwację</button>
     </form>
 
     <p class="mt-6 text-sm text-gray-500">
-        <a href="{% url 'website:price_quote' %}" class="link-brand">Najpierw sprawdz orientacyjna wycene</a>
+        <a href="{% url 'website:price_quote' %}" class="link-brand">Najpierw sprawdź orientacyjną wycenę</a>
     </p>
 </section>
 {% endblock %}

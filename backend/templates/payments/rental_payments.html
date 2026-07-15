@@ -1,7 +1,7 @@
 {% extends "base_internal.html" %}
 
-{% block title %}Platnosci — wynajem #{{ rental.pk }}{% endblock %}
-{% block page_heading %}Platnosci wynajmu #{{ rental.pk }}{% endblock %}
+{% block title %}Płatności — wynajem #{{ rental.pk }}{% endblock %}
+{% block page_heading %}Płatności wynajmu #{{ rental.pk }}{% endblock %}
 {% block page_subheading %}
 <p class="text-sm text-gray-500 mt-1">
     {{ reservation.customer.full_name }} · {{ reservation.car.registration_number }}
@@ -11,38 +11,38 @@
 {% block content %}
 <div class="flex flex-wrap gap-3 mb-6">
     <a href="{% url 'bookings:rental_detail' rental.pk %}" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Wynajem</a>
-    <a href="{% url 'payments:payment_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Wszystkie platnosci</a>
+    <a href="{% url 'payments:payment_list' %}" class="text-sm text-gray-500 hover:underline ml-auto self-center">← Wszystkie płatności</a>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
-        <p class="text-sm text-gray-500">Do zaplaty (lacznie)</p>
+        <p class="text-sm text-gray-500">Do zapłaty (łącznie)</p>
         <p class="text-2xl font-semibold">{{ summary.total_due }} PLN</p>
         <p class="text-xs text-gray-400 mt-1">
             Wynajem: {{ summary.rental_fee_due }} PLN
             {% if summary.extra_charges_due > 0 %}
-            · doplaty: {{ summary.extra_charges_due }} PLN
+            · dopłaty: {{ summary.extra_charges_due }} PLN
             {% endif %}
         </p>
     </div>
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-amber-500">
         <p class="text-sm text-gray-500">Kaucja (saldo)</p>
         <p class="text-2xl font-semibold">{{ summary.deposit_balance }} PLN</p>
-        <p class="text-xs text-gray-400 mt-1">Oczekiwana: {{ summary.deposit_expected }} PLN · wplaty {{ summary.deposits_paid }} PLN</p>
+        <p class="text-xs text-gray-400 mt-1">Oczekiwana: {{ summary.deposit_expected }} PLN · wpłaty {{ summary.deposits_paid }} PLN</p>
     </div>
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
-        <p class="text-sm text-gray-500">Przychod (bez kaucji)</p>
+        <p class="text-sm text-gray-500">Przychód (bez kaucji)</p>
         <p class="text-2xl font-semibold">{{ summary.revenue_total }} PLN</p>
-        <p class="text-xs text-gray-400 mt-1">Oplata + dodatki + szkody</p>
+        <p class="text-xs text-gray-400 mt-1">Opłata + dodatki + szkody</p>
     </div>
 </div>
 
 {% if summary.extra_charges_accrued > 0 %}
 <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-900">
-    <p class="font-medium">Doplaty po zwrocie</p>
+    <p class="font-medium">Dopłaty po zwrocie</p>
     <p class="mt-1">
-        Naliczono {{ summary.extra_charges_accrued }} PLN · zaplacono {{ summary.extra_charges_paid }} PLN
-        · do zaplaty <strong>{{ summary.extra_charges_due }} PLN</strong>
+        Naliczono {{ summary.extra_charges_accrued }} PLN · zapłacono {{ summary.extra_charges_paid }} PLN
+        · do zapłaty <strong>{{ summary.extra_charges_due }} PLN</strong>
     </p>
 </div>
 {% endif %}
@@ -55,7 +55,7 @@
             <form method="post" action="{% url 'payments:record_deposit_quick' rental.pk %}">
                 {% csrf_token %}
                 <button type="submit" class="border px-3 py-2 rounded text-sm hover:bg-gray-50">
-                    Przyjmij kaucje ({{ summary.deposit_expected }} PLN)
+                    Przyjmij kaucję ({{ summary.deposit_expected }} PLN)
                 </button>
             </form>
             {% endif %}
@@ -63,11 +63,11 @@
             <form
                 method="post"
                 action="{% url 'payments:refund_deposit_quick' rental.pk %}"
-                onsubmit="return confirm('Zwrocic kaucje {{ summary.deposit_balance }} PLN?')"
+                onsubmit="return confirm('Zwrócić kaucję {{ summary.deposit_balance }} PLN?')"
             >
                 {% csrf_token %}
                 <button type="submit" class="border px-3 py-2 rounded text-sm hover:bg-gray-50">
-                    Zwroc kaucje ({{ summary.deposit_balance }} PLN)
+                    Zwróć kaucję ({{ summary.deposit_balance }} PLN)
                 </button>
             </form>
             {% endif %}
@@ -75,9 +75,14 @@
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="font-medium mb-4">Nowa platnosc</h2>
+        <h2 class="font-medium mb-4">Nowa płatność</h2>
         <form method="post" class="space-y-3">
             {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+                {{ form.non_field_errors.0 }}
+            </div>
+            {% endif %}
             {% for field in form %}
             <div>
                 <label class="block text-sm text-gray-600 mb-1">{{ field.label }}</label>
@@ -93,7 +98,7 @@
 </div>
 
 <div class="bg-white rounded-lg shadow p-6 mt-6">
-    <h2 class="font-medium mb-4">Historia platnosci</h2>
+    <h2 class="font-medium mb-4">Historia płatności</h2>
     <table class="min-w-full text-sm">
         <thead class="text-left text-gray-500 border-b">
             <tr>
@@ -115,7 +120,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" class="py-4 text-gray-500">Brak platnosci.</td>
+                <td colspan="5" class="py-4 text-gray-500">Brak płatności.</td>
             </tr>
             {% endfor %}
         </tbody>

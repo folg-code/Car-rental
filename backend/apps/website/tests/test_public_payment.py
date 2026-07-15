@@ -119,7 +119,7 @@ class TestPublicPaymentViews:
 
         success = client.get(post_response.url)
         assert success.status_code == 200
-        assert b"Platnosc przyjeta" in success.content
+        assert "Płatność przyjęta".encode() in success.content
 
     def test_start_payment_rejects_confirmed_reservation(
         self,

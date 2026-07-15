@@ -145,6 +145,9 @@ class PricingRule(models.Model):
             )
 
 
+POST_RENTAL_EXTRA_CODES: frozenset[str] = frozenset({"fuel_refill", "extra_km"})
+
+
 class ExtraServiceChargeType(models.TextChoices):
     PER_RENTAL = "per_rental", "Za caly wynajem"
     PER_DAY = "per_day", "Za dobe"

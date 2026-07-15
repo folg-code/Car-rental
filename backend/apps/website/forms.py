@@ -11,10 +11,23 @@ from apps.fleet.selectors.car import list_active_cars
 from apps.fleet.services.availability import AvailabilityService
 from apps.pricing.selectors.price_list import (
     get_price_list_for_date,
-    list_active_extras,
+    list_bookable_extras,
 )
 
 _FORM_INPUT = "form-input"
+_DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"]
+
+
+def _rental_datetime_widget() -> forms.DateTimeInput:
+    """Pole daty z Flatpickr (js-datetime-picker) zamiast natywnego datetime-local."""
+    return forms.DateTimeInput(
+        attrs={
+            "class": f"{_FORM_INPUT} js-datetime-picker",
+            "autocomplete": "off",
+            "placeholder": "Wybierz datę i godzinę",
+        },
+        format="%Y-%m-%dT%H:%M",
+    )
 
 
 class AvailabilitySearchForm(forms.Form):
@@ -22,17 +35,13 @@ class AvailabilitySearchForm(forms.Form):
 
     start_at = forms.DateTimeField(
         label="Data odbioru",
-        widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local", "class": "form-input"},
-            format="%Y-%m-%dT%H:%M",
-        ),
+        input_formats=_DATETIME_INPUT_FORMATS,
+        widget=_rental_datetime_widget(),
     )
     end_at = forms.DateTimeField(
         label="Data zwrotu",
-        widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local", "class": "form-input"},
-            format="%Y-%m-%dT%H:%M",
-        ),
+        input_formats=_DATETIME_INPUT_FORMATS,
+        widget=_rental_datetime_widget(),
     )
     category = forms.ModelChoiceField(
         label="Kategoria",
@@ -84,22 +93,16 @@ class PriceQuoteForm(forms.Form):
     )
     start_at = forms.DateTimeField(
         label="Data odbioru",
-        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
-        widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local", "class": _FORM_INPUT},
-            format="%Y-%m-%dT%H:%M",
-        ),
+        input_formats=_DATETIME_INPUT_FORMATS,
+        widget=_rental_datetime_widget(),
     )
     end_at = forms.DateTimeField(
         label="Data zwrotu",
-        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
-        widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local", "class": _FORM_INPUT},
-            format="%Y-%m-%dT%H:%M",
-        ),
+        input_formats=_DATETIME_INPUT_FORMATS,
+        widget=_rental_datetime_widget(),
     )
     extras = forms.MultipleChoiceField(
-        label="Uslugi dodatkowe",
+        label="Usługi dodatkowe",
         required=False,
         choices=(),
         widget=forms.CheckboxSelectMultiple,
@@ -133,7 +136,7 @@ class PriceQuoteForm(forms.Form):
             self.fields["extras"].choices = []
             return
         self.fields["extras"].choices = [
-            (extra.code, extra.name) for extra in list_active_extras(price_list)
+            (extra.code, extra.name) for extra in list_bookable_extras(price_list)
         ]
 
     def _make_aware(self, value):
@@ -171,22 +174,16 @@ class PublicBookingForm(forms.Form):
     )
     start_at = forms.DateTimeField(
         label="Data odbioru",
-        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
-        widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local", "class": _FORM_INPUT},
-            format="%Y-%m-%dT%H:%M",
-        ),
+        input_formats=_DATETIME_INPUT_FORMATS,
+        widget=_rental_datetime_widget(),
     )
     end_at = forms.DateTimeField(
         label="Data zwrotu",
-        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
-        widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local", "class": _FORM_INPUT},
-            format="%Y-%m-%dT%H:%M",
-        ),
+        input_formats=_DATETIME_INPUT_FORMATS,
+        widget=_rental_datetime_widget(),
     )
     first_name = forms.CharField(
-        label="Imie",
+        label="Imię",
         max_length=80,
         widget=forms.TextInput(attrs={"class": _FORM_INPUT}),
     )
@@ -207,7 +204,7 @@ class PublicBookingForm(forms.Form):
         widget=forms.TextInput(attrs={"class": _FORM_INPUT}),
     )
     extras = forms.MultipleChoiceField(
-        label="Uslugi dodatkowe",
+        label="Usługi dodatkowe",
         required=False,
         choices=(),
         widget=forms.CheckboxSelectMultiple,
@@ -219,7 +216,7 @@ class PublicBookingForm(forms.Form):
         widget=forms.Textarea(attrs={"rows": 3, "class": _FORM_INPUT}),
     )
     accept_terms = forms.BooleanField(
-        label="Akceptuje regulamin wynajmu",
+        label="Akceptuję regulamin wynajmu",
         required=True,
     )
 
@@ -251,7 +248,7 @@ class PublicBookingForm(forms.Form):
             self.fields["extras"].choices = []
             return
         self.fields["extras"].choices = [
-            (extra.code, extra.name) for extra in list_active_extras(price_list)
+            (extra.code, extra.name) for extra in list_bookable_extras(price_list)
         ]
 
     def _make_aware(self, value):

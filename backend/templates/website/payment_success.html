@@ -1,14 +1,14 @@
 {% extends "website/base_public.html" %}
 
-{% block title %}Platnosc zakonczona{% endblock %}
+{% block title %}Płatność zakończona{% endblock %}
 
 {% block content %}
 <section class="site-container py-12 md:py-16 max-w-2xl">
     <div class="alert-success">
-        <h1 class="text-2xl font-bold">Platnosc przyjeta</h1>
+        <h1 class="text-2xl font-bold">Płatność przyjęta</h1>
         <p class="mt-2 text-green-800">
-            Dziekujemy. Platnosc za rezerwacje nr <strong>{{ reservation.pk }}</strong>
-            zostala zaksiegowana.
+            Dziękujemy. Płatność za rezerwację nr <strong>{{ reservation.pk }}</strong>
+            została zaksięgowana.
         </p>
     </div>
 
@@ -20,14 +20,14 @@
 
     {% if reservation.status == "confirmed" %}
     <p class="mt-8 text-sm text-gray-600 leading-relaxed">
-        Rezerwacja zostala potwierdzona. Skontaktujemy sie w sprawie wydania pojazdu.
+        Rezerwacja została potwierdzona. Skontaktujemy się w sprawie wydania pojazdu.
     </p>
     {% else %}
     <p class="mt-8 text-sm text-gray-600 leading-relaxed">
-        Potwierdzenie rezerwacji nastapi po przetworzeniu platnosci.
+        Potwierdzenie rezerwacji nastąpi po przetworzeniu płatności.
     </p>
     {% endif %}
 
-    <a href="{% url 'website:home' %}" class="inline-block mt-6 link-brand">Wroc na strone glowna</a>
+    <a href="{% url 'website:home' %}" class="inline-block mt-6 link-brand">Wróć na stronę główną</a>
 </section>
 {% endblock %}

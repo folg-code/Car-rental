@@ -8,7 +8,11 @@ from apps.bookings.models import Customer, ReservationStatus
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
 from apps.fleet.models import Car, CarCategory, CarStatus
-from apps.payments.models import REVENUE_PAYMENT_TYPES, PaymentType
+from apps.payments.models import (
+    REVENUE_PAYMENT_TYPES,
+    PaymentMethod,
+    PaymentType,
+)
 from apps.payments.selectors.payment import (
     get_rental_balance_due,
     get_rental_deposit_balance,
@@ -152,3 +156,65 @@ class TestPaymentService:
         assert PaymentType.DEPOSIT not in REVENUE_PAYMENT_TYPES
         assert PaymentType.REFUND not in REVENUE_PAYMENT_TYPES
         assert PaymentType.RENTAL_FEE in REVENUE_PAYMENT_TYPES
+
+    def test_reservation_payment_included_in_rental_summary(self, rental) -> None:
+        reservation = rental.reservation
+        PaymentService.record_reservation_payment(
+            reservation_id=reservation.pk,
+            amount=Decimal("300.00"),
+            payment_type=PaymentType.RENTAL_FEE,
+            method=PaymentMethod.ONLINE_GATEWAY,
+        )
+        summary = get_rental_payment_summary(rental.pk)
+        assert summary["rental_fees_paid"] == Decimal("300.00")
+        assert summary["revenue_total"] == Decimal("300.00")
+
+    def test_convert_links_reservation_payments_to_rental(self, rental) -> None:
+        from apps.bookings.models import Customer, ReservationStatus
+        from apps.bookings.services.reservation import ReservationService
+        from apps.fleet.models import Car, CarStatus
+        from apps.payments.models import Payment
+
+        reservation = rental.reservation
+        PaymentService.record_reservation_payment(
+            reservation_id=reservation.pk,
+            amount=Decimal("150.00"),
+            payment_type=PaymentType.RENTAL_FEE,
+            method=PaymentMethod.CARD,
+        )
+        customer = Customer.objects.create(
+            first_name="B",
+            last_name="Test",
+            email="b2@test.com",
+        )
+        car = Car.objects.create(
+            category=reservation.car.category,
+            registration_number="LINK01",
+            make="Test",
+            model="Car",
+            year=2024,
+            status=CarStatus.ACTIVE,
+        )
+        other = ReservationService.create(
+            customer_id=customer.pk,
+            car_id=car.pk,
+            start_at=datetime(2026, 9, 1, 10, 0, tzinfo=UTC),
+            end_at=datetime(2026, 9, 5, 10, 0, tzinfo=UTC),
+            status=ReservationStatus.CONFIRMED,
+        )
+        PaymentService.record_reservation_payment(
+            reservation_id=other.pk,
+            amount=Decimal("99.00"),
+            payment_type=PaymentType.RENTAL_FEE,
+            method=PaymentMethod.CASH,
+        )
+        other_rental = RentalService.convert_from_reservation(other)
+        assert (
+            Payment.objects.filter(
+                reservation_id=other.pk,
+                rental_id=other_rental.pk,
+            ).count()
+            == 1
+        )
+        summary = get_rental_payment_summary(other_rental.pk)
+        assert summary["rental_fees_paid"] == Decimal("99.00")

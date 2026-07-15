@@ -7,8 +7,8 @@ class TestInfoPages:
     def test_terms_returns_placeholder(self, client) -> None:
         response = client.get(reverse("website:terms"))
         assert response.status_code == 200
-        assert b"Regulamin wypozyczalni" in response.content
-        assert b"Postanowienia ogolne" in response.content
+        assert "Regulamin wypożyczalni".encode() in response.content
+        assert "Postanowienia ogólne".encode() in response.content
 
     def test_contact_returns_placeholder(self, client) -> None:
         response = client.get(reverse("website:contact"))
@@ -19,8 +19,8 @@ class TestInfoPages:
     def test_faq_returns_sample_questions(self, client) -> None:
         response = client.get(reverse("website:faq"))
         assert response.status_code == 200
-        assert b"Czesto zadawane pytania" in response.content
-        assert b"Jak zarezerwowac auto online" in response.content
+        assert "Często zadawane pytania".encode() in response.content
+        assert "Jak zarezerwować auto online".encode() in response.content
 
     def test_nav_links_to_info_pages(self, client) -> None:
         response = client.get(reverse("website:home"))

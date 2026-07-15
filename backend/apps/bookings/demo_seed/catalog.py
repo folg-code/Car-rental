@@ -6,6 +6,20 @@ from apps.fleet.models import CarStatus, FuelType
 
 DEMO_SEED_PREFIX = "DEMO_SEED:"
 
+# Konto panelu po seed_demo (tylko srodowisko pokazowe / dev).
+DEMO_PANEL_USERNAME = "admin"
+DEMO_PANEL_PASSWORD = "demo1234"
+DEMO_PANEL_EMAIL = "admin@demo.car-rental.local"
+
+# Kierownik (panel operacyjny, bez superuser).
+DEMO_MANAGER_USERNAME = "manager"
+DEMO_MANAGER_PASSWORD = "demo1234"
+DEMO_MANAGER_EMAIL = "manager@demo.car-rental.local"
+
+# Portal klienta — powiazany z klientem aktywnego wynajmu (ops-active).
+DEMO_CUSTOMER_USERNAME = "klient"
+DEMO_CUSTOMER_PASSWORD = "demo1234"
+
 
 def demo_note(key: str) -> str:
     return f"{DEMO_SEED_PREFIX}{key}"
@@ -54,6 +68,17 @@ class ScenarioSpec:
     rental_state: str | None = None
     extra_codes: tuple[str, ...] = ()
     cancel_reason: str = ""
+    pricing_mode: str = "auto"
+    price_list_slug: str = ""
+    custom_total: Decimal | None = None
+    payment_profile: str = ""
+    ops_profile: str = "synthetic"
+    expire_after_create: bool = False
+    rental_cancelled: bool = False
+    link_customer_user: bool = False
+    create_invoice: bool = False
+    seed_sms: bool = False
+    date_mode: str = "offset"
 
 
 CATEGORIES: tuple[CategorySpec, ...] = (
@@ -201,6 +226,8 @@ SCENARIOS: tuple[ScenarioSpec, ...] = (
         -35,
         ReservationStatus.CONFIRMED,
         rental_state="closed",
+        payment_profile="settled",
+        create_invoice=True,
     ),
     ScenarioSpec(
         "history-closed-2",
@@ -211,6 +238,18 @@ SCENARIOS: tuple[ScenarioSpec, ...] = (
         ReservationStatus.CONFIRMED,
         rental_state="closed",
         extra_codes=("child_seat",),
+        payment_profile="partial",
+    ),
+    ScenarioSpec(
+        "history-weekend",
+        "KR1DEMO6",
+        "ewa.lis@demo.pl",
+        0,
+        0,
+        ReservationStatus.CONFIRMED,
+        rental_state="closed",
+        date_mode="weekend_past",
+        payment_profile="settled",
     ),
     ScenarioSpec(
         "ops-returned",
@@ -220,6 +259,18 @@ SCENARIOS: tuple[ScenarioSpec, ...] = (
         -2,
         ReservationStatus.CONFIRMED,
         rental_state="returned",
+        payment_profile="unpaid",
+    ),
+    ScenarioSpec(
+        "ops-return-surcharges",
+        "KR1DEMO7",
+        "anna.nowak@demo.pl",
+        -14,
+        -1,
+        ReservationStatus.CONFIRMED,
+        rental_state="returned",
+        ops_profile="surcharges",
+        payment_profile="unpaid",
     ),
     ScenarioSpec(
         "ops-active",
@@ -229,6 +280,17 @@ SCENARIOS: tuple[ScenarioSpec, ...] = (
         5,
         ReservationStatus.CONFIRMED,
         rental_state="active",
+        payment_profile="deposit_only",
+        link_customer_user=True,
+    ),
+    ScenarioSpec(
+        "ops-handover-today",
+        "KR1DEMO1",
+        "michal.baran@demo.pl",
+        0,
+        4,
+        ReservationStatus.CONFIRMED,
+        rental_state="scheduled",
     ),
     ScenarioSpec(
         "ops-scheduled-near",
@@ -250,6 +312,17 @@ SCENARIOS: tuple[ScenarioSpec, ...] = (
         rental_state="scheduled",
     ),
     ScenarioSpec(
+        "rental-cancelled",
+        "KR1DEMO2",
+        "maria.kowalczyk@demo.pl",
+        6,
+        10,
+        ReservationStatus.CONFIRMED,
+        rental_state="scheduled",
+        rental_cancelled=True,
+        cancel_reason="Klient odwolal wynajem przed wydaniem.",
+    ),
+    ScenarioSpec(
         "res-confirmed-future",
         "KR1DEMO7",
         "michal.baran@demo.pl",
@@ -264,6 +337,46 @@ SCENARIOS: tuple[ScenarioSpec, ...] = (
         35,
         38,
         ReservationStatus.PENDING_PAYMENT,
+        payment_profile="online_pending",
+        seed_sms=True,
+    ),
+    ScenarioSpec(
+        "pay-intent-succeeded",
+        "KR1DEMO8",
+        "jan.kowalski@demo.pl",
+        42,
+        44,
+        ReservationStatus.PENDING_PAYMENT,
+        payment_profile="online_succeeded",
+    ),
+    ScenarioSpec(
+        "res-price-list",
+        "KR1DEMO5",
+        "katarzyna.sokol@demo.pl",
+        40,
+        43,
+        ReservationStatus.CONFIRMED,
+        pricing_mode="price_list",
+        price_list_slug="promo-2026",
+    ),
+    ScenarioSpec(
+        "res-custom-total",
+        "KR1DEMO8",
+        "ewa.lis@demo.pl",
+        50,
+        52,
+        ReservationStatus.DRAFT,
+        pricing_mode="custom",
+        custom_total=Decimal("999.00"),
+    ),
+    ScenarioSpec(
+        "res-expired",
+        "KR1DEMO9",
+        "piotr.wisniewski@demo.pl",
+        -14,
+        -10,
+        ReservationStatus.DRAFT,
+        expire_after_create=True,
     ),
     ScenarioSpec(
         "res-cancelled",
@@ -288,4 +401,10 @@ DAILY_RATES: dict[str, Decimal] = {
     "kompakt": Decimal("120.00"),
     "suv": Decimal("180.00"),
     "premium": Decimal("260.00"),
+}
+
+PROMO_DAILY_RATES: dict[str, Decimal] = {
+    "kompakt": Decimal("99.00"),
+    "suv": Decimal("149.00"),
+    "premium": Decimal("219.00"),
 }

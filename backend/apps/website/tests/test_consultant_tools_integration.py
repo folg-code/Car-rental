@@ -55,7 +55,7 @@ class TestConsultantChatToolsIntegration:
             client_ip="127.0.0.1",
         )
         assert "Toyota" in assistant.content
-        assert reverse("website:public_booking") in assistant.content
+        assert reverse("website:car_offer") in assistant.content
 
     def test_customer_sees_reservation_status(
         self,

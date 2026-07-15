@@ -12,7 +12,7 @@ class TestConsultantViews:
     def test_consultant_page_returns_200(self, client) -> None:
         response = client.get(reverse("website:consultant"))
         assert response.status_code == 200
-        assert b"Asystent wypozyczalni" in response.content
+        assert "Asystent wypożyczalni".encode() in response.content
         assert b"PESEL" in response.content
 
     def test_consultant_sets_session_cookie(self, client) -> None:

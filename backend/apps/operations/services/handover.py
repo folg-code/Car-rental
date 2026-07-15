@@ -16,7 +16,7 @@ from config.upload_validation import validate_image_upload, validate_image_uploa
 
 class HandoverService:
     @staticmethod
-    def _get_scheduled_rental(rental_id: int) -> Rental:
+    def _get_rental_for_handover(rental_id: int) -> Rental:
         rental = (
             Rental.objects.select_related("reservation", "reservation__car")
             .filter(pk=rental_id)
@@ -24,11 +24,20 @@ class HandoverService:
         )
         if rental is None:
             raise ValidationError(f"Wynajem {rental_id} nie istnieje.")
-        if rental.status != RentalStatus.SCHEDULED:
-            raise ValidationError(
-                "Protokol wydania mozna zlozyc tylko dla wynajmu zaplanowanego."
+        if rental.status == RentalStatus.SCHEDULED:
+            return rental
+        if rental.status == RentalStatus.ACTIVE:
+            handover = (
+                HandoverProtocol.objects.filter(rental_id=rental_id)
+                .only("completed_at")
+                .first()
             )
-        return rental
+            if handover is None or not handover.is_completed:
+                return rental
+        raise ValidationError(
+            "Protokol wydania mozna zlozyc tylko dla wynajmu zaplanowanego "
+            "lub aktywnego bez zakonczonego protokolu."
+        )
 
     @staticmethod
     @transaction.atomic
@@ -44,7 +53,7 @@ class HandoverService:
         new_damages: list[dict] | None = None,
         performed_by_id: int | None = None,
     ) -> HandoverProtocol:
-        rental = HandoverService._get_scheduled_rental(rental_id)
+        rental = HandoverService._get_rental_for_handover(rental_id)
         if hasattr(rental, "handover_protocol"):
             existing = rental.handover_protocol
             if existing.is_completed:
@@ -116,7 +125,8 @@ class HandoverService:
         car.mileage = mileage
         car.save(update_fields=["mileage"])
 
-        RentalService.start(rental, at=handover.completed_at)
+        if rental.status == RentalStatus.SCHEDULED:
+            RentalService.start(rental, at=handover.completed_at)
 
         DocumentService.generate_handover_pdf(
             handover.pk,

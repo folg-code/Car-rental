@@ -1,0 +1,15 @@
+<nav class="flex flex-wrap gap-2 mb-8" aria-label="Kroki oferty">
+    <a
+        href="{% url 'website:car_offer' %}?krok=wycena{% if offer_query %}&{{ offer_query }}{% endif %}"
+        class="chip {% if step == 'wycena' %}chip-active{% else %}chip-inactive{% endif %}"
+    >
+        1. Wycena
+    </a>
+    <a
+        href="{% url 'website:car_offer' %}?krok=rezerwacja{% if offer_query %}&{{ offer_query }}{% endif %}"
+        class="chip {% if step == 'rezerwacja' %}chip-active{% else %}chip-inactive{% endif %}{% if not quoted %} opacity-60{% endif %}"
+        {% if not quoted %}aria-disabled="true"{% endif %}
+    >
+        2. Rezerwacja
+    </a>
+</nav>

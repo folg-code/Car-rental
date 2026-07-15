@@ -49,4 +49,48 @@ class TestPaymentViews:
             reverse("payments:rental_payments", kwargs={"rental_id": rental.pk})
         )
         assert response.status_code == 200
-        assert b"Do zaplaty" in response.content
+        assert "Do zapłaty".encode() in response.content
+
+    def test_record_deposit_quick_updates_summary(self, staff_client, rental) -> None:
+        url = reverse("payments:rental_payments", kwargs={"rental_id": rental.pk})
+        quick_url = reverse(
+            "payments:record_deposit_quick",
+            kwargs={"rental_id": rental.pk},
+        )
+        before = staff_client.get(url)
+        assert before.status_code == 200
+        assert b"0,00 PLN" in before.content or b"0.00 PLN" in before.content
+
+        response = staff_client.post(quick_url)
+        assert response.status_code == 302
+        assert response.url == url
+
+        after = staff_client.get(url)
+        assert after.status_code == 200
+        assert str(rental.deposit_amount).encode() in after.content
+
+    def test_record_payment_form_updates_summary(self, staff_client, rental) -> None:
+        from apps.bookings.services.price_snapshot import PriceSnapshotService
+
+        due = PriceSnapshotService.reservation_total(rental.reservation)
+        url = reverse("payments:rental_payments", kwargs={"rental_id": rental.pk})
+        response = staff_client.post(
+            url,
+            {
+                "payment_type": PaymentType.RENTAL_FEE,
+                "method": PaymentMethod.CASH,
+                "amount": str(due),
+                "paid_at": "2026-07-10T10:00",
+                "notes": "",
+            },
+        )
+        assert response.status_code == 302
+
+        page = staff_client.get(url)
+        assert page.status_code == 200
+        assert b"0,00 PLN" in page.content or b"0.00 PLN" in page.content
+        from apps.payments.selectors.payment import get_rental_payment_summary
+
+        summary = get_rental_payment_summary(rental.pk)
+        assert summary["rental_fees_paid"] == due
+        assert summary["revenue_total"] == due

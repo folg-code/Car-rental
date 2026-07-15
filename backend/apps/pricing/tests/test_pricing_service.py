@@ -69,7 +69,7 @@ class TestPricingService:
         assert len(result.lines) == 1
         assert result.lines[0].line_type == "daily_rental"
 
-    def test_weekend_surcharge_per_day(
+    def test_weekend_surcharge_on_handover(
         self,
         car: Car,
         daily_rate: DailyRate,
@@ -83,11 +83,51 @@ class TestPricingService:
             value=Decimal("20.00"),
             priority=10,
         )
-        # Pt 2026-06-05 – Nd 2026-06-07 (3 doby, wszystkie weekendowe)
+        # Sob 2026-06-06 – Pon 2026-06-08 (odbiór w weekend, zwrot w poniedziałek)
+        start = datetime(2026, 6, 6, 10, 0, tzinfo=UTC)
+        end = datetime(2026, 6, 8, 10, 0, tzinfo=UTC)
+        result = PricingService.calculate(car=car, start_at=start, end_at=end)
+        assert result.total == Decimal("220.00")  # 200 base + 20 weekend
+
+    def test_weekend_surcharge_not_for_weekday_handover(
+        self,
+        car: Car,
+        daily_rate: DailyRate,
+        price_list: PriceList,
+    ) -> None:
+        PricingRule.objects.create(
+            price_list=price_list,
+            rule_type=PricingRuleType.WEEKEND_SURCHARGE,
+            name="Weekend",
+            amount_type=AmountType.PER_DAY,
+            value=Decimal("20.00"),
+            priority=10,
+        )
+        # Pt–Pon 2026-06-05/08: wynajem obejmuje weekend, odbior/zwrot w dni robocze
         start = datetime(2026, 6, 5, 10, 0, tzinfo=UTC)
         end = datetime(2026, 6, 8, 10, 0, tzinfo=UTC)
         result = PricingService.calculate(car=car, start_at=start, end_at=end)
-        assert result.total == Decimal("360.00")  # 300 base + 60 weekend
+        assert result.total == Decimal("300.00")
+
+    def test_weekend_surcharge_both_handovers(
+        self,
+        car: Car,
+        daily_rate: DailyRate,
+        price_list: PriceList,
+    ) -> None:
+        PricingRule.objects.create(
+            price_list=price_list,
+            rule_type=PricingRuleType.WEEKEND_SURCHARGE,
+            name="Weekend",
+            amount_type=AmountType.PER_DAY,
+            value=Decimal("20.00"),
+            priority=10,
+        )
+        # Sob 2026-06-06 – Nd 2026-06-07 (odbiór i zwrot w weekend)
+        start = datetime(2026, 6, 6, 10, 0, tzinfo=UTC)
+        end = datetime(2026, 6, 7, 10, 0, tzinfo=UTC)
+        result = PricingService.calculate(car=car, start_at=start, end_at=end)
+        assert result.total == Decimal("140.00")  # 100 base + 40 weekend
 
     def test_long_rental_discount(
         self,
@@ -131,6 +171,29 @@ class TestPricingService:
             extra_codes=["child_seat"],
         )
         assert result.total == Decimal("240.00")  # 200 + 40
+
+    def test_post_rental_extra_rejected_at_booking(
+        self,
+        car: Car,
+        daily_rate: DailyRate,
+        price_list: PriceList,
+    ) -> None:
+        ExtraService.objects.create(
+            price_list=price_list,
+            code="fuel_refill",
+            name="Uzupelnienie paliwa",
+            charge_type=ExtraServiceChargeType.PER_UNIT,
+            amount=Decimal("5.00"),
+        )
+        start = datetime(2026, 6, 1, 10, 0, tzinfo=UTC)
+        end = datetime(2026, 6, 3, 10, 0, tzinfo=UTC)
+        with pytest.raises(ValidationError, match="po najmie"):
+            PricingService.calculate(
+                car=car,
+                start_at=start,
+                end_at=end,
+                extra_codes=["fuel_refill"],
+            )
 
     def test_snapshot_immutable_when_pricelist_changes(
         self,

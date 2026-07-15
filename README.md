@@ -410,9 +410,15 @@ Komenda jest **idempotentna** — można ją uruchamiać wielokrotnie; istnieją
 | **Flota** | 3 kategorie (kompakt, SUV, premium), 10 aut (`KR1DEMO1`–`KR1DEM10`, w tym nieaktywne i wycofane) |
 | **Klienci** | 8 klientów (osoby prywatne i firma) |
 | **Cennik** | Stawki dzienne, dopłata weekendowa, rabat 7+ dni, dodatki (fotelik, paliwo, km) |
-| **Rezerwacje / wynajmy** | 10 scenariuszy: historia zamkniętych najmów, zwrot bez zamknięcia, aktywny wynajem, zaplanowane wydania (blisko i dalej), potwierdzona rezerwacja bez wynajmu, oczekująca płatność, anulowana, szkic |
+| **Rezerwacje / wynajmy** | 18 scenariuszy: historia (zamknięte, weekend, częściowa płatność), zwrot z należnością i dopłatami km/paliwo, aktywny wynajem z kaucją, wydanie dziś, zaplanowane, anulowany wynajem, rezerwacje (przyszła, oczekująca płatność, wygasła, cennik promo, kwota ręczna, szkic, anulowana), płatność online (pending i succeeded) |
+| **Płatności** | Profile: rozliczony, częściowy, nieopłacony, kaucja, intencja bramki (pending / succeeded); `RentalCharge` przy zwrocie z dopłatami |
+| **Dokumenty** | Faktura dla zamkniętego wynajmu (`history-closed-1`) |
+| **Flota (utilities)** | Dokumenty pojazdów (ubezpieczenie wygasające), blokada serwisowa `KR1DEMO5`, uszkodzenia aktywne i naprawione |
+| **SMS** | Przykładowy log SMS dla rezerwacji oczekującej płatności |
+| **Panel (logowanie)** | Superuser: **`admin`** / **`demo1234`** (rola właściciel); kierownik: **`manager`** / **`demo1234`** |
+| **Portal klienta** | **`klient`** / **`demo1234`** — powiązany z klientem aktywnego wynajmu (`ops-active`) |
 
-Po seedzie warto zajrzeć do panelu: **Pulpit**, **Operacje** (wydania/zwroty), **Rezerwacje**, **Flota** i stronę publiczną z dostępnością floty.
+Po seedzie warto zajrzeć do panelu: **Pulpit**, **Operacje** (wydania/zwroty), **Rezerwacje**, **Flota** i stronę publiczną z dostępnością floty. Logowanie: `/accounts/login/`.
 
 ```bash
 # lokalnie (bez Dockera)

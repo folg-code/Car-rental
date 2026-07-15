@@ -36,9 +36,10 @@ def build_booking_deep_link(
     start_at: datetime,
     end_at: datetime,
 ) -> str:
-    path = reverse("website:public_booking")
+    path = reverse("website:car_offer")
     params = urlencode(
         {
+            "krok": "rezerwacja",
             "car": car_id,
             "start_at": start_at.strftime("%Y-%m-%dT%H:%M"),
             "end_at": end_at.strftime("%Y-%m-%dT%H:%M"),

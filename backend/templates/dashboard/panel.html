@@ -3,7 +3,7 @@
 {% block title %}Pulpit{% endblock %}
 {% block page_heading %}Pulpit{% endblock %}
 {% block page_subheading %}
-<p class="text-sm text-gray-500 mt-1">Przeglad operacyjny firmy</p>
+<p class="text-sm text-gray-500 mt-1">Przegląd operacyjny firmy</p>
 {% endblock %}
 
 {% block content %}
@@ -12,14 +12,14 @@
         <p class="text-sm text-gray-500">Aktywne rezerwacje</p>
         <p class="text-2xl font-semibold text-gray-900">{{ metrics.active_reservations }}</p>
         <p class="text-xs text-gray-400 mt-1">
-            <a href="{% url 'bookings:reservation_list' %}" class="hover:underline">Zobacz liste</a>
+            <a href="{% url 'bookings:reservation_list' %}" class="hover:underline">Zobacz listę</a>
         </p>
     </div>
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-indigo-500">
         <p class="text-sm text-gray-500">Aktywne wynajmy</p>
         <p class="text-2xl font-semibold text-gray-900">{{ metrics.active_rentals }}</p>
         <p class="text-xs text-gray-400 mt-1">
-            <a href="{% url 'bookings:rental_list' %}" class="hover:underline">Zobacz liste</a>
+            <a href="{% url 'bookings:rental_list' %}" class="hover:underline">Zobacz listę</a>
         </p>
     </div>
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
@@ -38,14 +38,14 @@
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-rose-500">
-        <p class="text-sm text-gray-500">Nieoplacone wynajmy</p>
+        <p class="text-sm text-gray-500">Nieopłacone wynajmy</p>
         <p class="text-2xl font-semibold text-gray-900">{{ metrics.unpaid_rentals }}</p>
         <p class="text-xs text-gray-400 mt-1">
-            <a href="{% url 'payments:payment_list' %}" class="hover:underline">Platnosci</a>
+            <a href="{% url 'payments:payment_list' %}" class="hover:underline">Płatności</a>
         </p>
     </div>
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-emerald-500">
-        <p class="text-sm text-gray-500">Przychod (ten miesiac)</p>
+        <p class="text-sm text-gray-500">Przychód (ten miesiąc)</p>
         <p class="text-2xl font-semibold text-gray-900">{{ metrics.month_revenue }} PLN</p>
         <p class="text-xs text-gray-400 mt-1">
             <a href="{% url 'dashboard:financial_report' %}" class="hover:underline">Raport finansowy</a>
@@ -53,9 +53,9 @@
         </p>
     </div>
     <div class="bg-white rounded-lg shadow p-5 border-l-4 border-orange-500">
-        <p class="text-sm text-gray-500">Alerty dokumentow floty</p>
+        <p class="text-sm text-gray-500">Alerty dokumentów floty</p>
         <p class="text-2xl font-semibold text-gray-900">{{ metrics.expiring_fleet_documents }}</p>
-        <p class="text-xs text-gray-400 mt-1">OC / przeglad — 30 dni</p>
+        <p class="text-xs text-gray-400 mt-1">OC / przegląd — 30 dni</p>
     </div>
 </div>
 
@@ -70,7 +70,7 @@
         href="{% url 'payments:payment_list' %}"
         class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
     >
-        Ostatnie platnosci
+        Ostatnie płatności
     </a>
     <a
         href="{% url 'fleet:car_list' %}"
@@ -83,9 +83,9 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-medium">Nieoplacone wynajmy</h2>
+            <h2 class="text-lg font-medium">Nieopłacone wynajmy</h2>
             <a href="{% url 'payments:payment_list' %}" class="text-sm text-blue-600 hover:underline">
-                Wszystkie platnosci
+                Wszystkie płatności
             </a>
         </div>
         <ul class="space-y-3">
@@ -102,18 +102,18 @@
                     href="{% url 'payments:rental_payments' rental.pk %}"
                     class="bg-black text-white px-3 py-2 rounded-lg text-sm font-medium shrink-0"
                 >
-                    Platnosc
+                    Płatność
                 </a>
             </li>
             {% empty %}
-            <li class="text-gray-500 text-sm">Brak wynajmow z saldem do zaplaty.</li>
+            <li class="text-gray-500 text-sm">Brak wynajmów z saldem do zapłaty.</li>
             {% endfor %}
         </ul>
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-medium">Alerty dokumentow floty</h2>
+            <h2 class="text-lg font-medium">Alerty dokumentów floty</h2>
             <a href="{% url 'fleet:car_list' %}" class="text-sm text-blue-600 hover:underline">
                 Flota
             </a>
@@ -129,9 +129,9 @@
                     </p>
                     <p class="text-xs {% if doc.valid_until < today %}text-red-600{% else %}text-amber-600{% endif %}">
                         {% if doc.valid_until < today %}
-                        Wygasl: {{ doc.valid_until|date:"Y-m-d" }}
+                        Wygasł: {{ doc.valid_until|date:"Y-m-d" }}
                         {% else %}
-                        Wazny do: {{ doc.valid_until|date:"Y-m-d" }}
+                        Ważny do: {{ doc.valid_until|date:"Y-m-d" }}
                         {% endif %}
                     </p>
                 </div>
@@ -143,7 +143,7 @@
                 </a>
             </li>
             {% empty %}
-            <li class="text-gray-500 text-sm">Brak alertow dokumentow.</li>
+            <li class="text-gray-500 text-sm">Brak alertów dokumentów.</li>
             {% endfor %}
         </ul>
     </div>
@@ -176,7 +176,7 @@
                 </a>
             </li>
             {% empty %}
-            <li class="text-gray-500 text-sm">Brak wynajmow do wydania.</li>
+            <li class="text-gray-500 text-sm">Brak wynajmów do wydania.</li>
             {% endfor %}
         </ul>
     </div>
@@ -207,7 +207,7 @@
                 </a>
             </li>
             {% empty %}
-            <li class="text-gray-500 text-sm">Brak aktywnych wynajmow do zwrotu.</li>
+            <li class="text-gray-500 text-sm">Brak aktywnych wynajmów do zwrotu.</li>
             {% endfor %}
         </ul>
     </div>

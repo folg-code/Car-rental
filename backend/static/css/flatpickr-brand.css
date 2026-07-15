@@ -1,0 +1,86 @@
+/* Flatpickr — dopasowanie do palety brand Car Rental */
+
+.flatpickr-calendar {
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 40px -8px rgb(15 118 104 / 0.22);
+  font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-weekdays,
+.flatpickr-weekdaycontainer {
+  background: #ecfdf8;
+}
+
+.flatpickr-current-month {
+  color: #115e55;
+  font-weight: 600;
+}
+
+span.flatpickr-weekday {
+  color: #0f7668;
+  font-weight: 600;
+}
+
+.flatpickr-day {
+  border-radius: 0.5rem;
+  color: #374151;
+}
+
+.flatpickr-day:hover,
+.flatpickr-day:focus {
+  background: #d1faf0;
+  border-color: #d1faf0;
+}
+
+.flatpickr-day.today {
+  border-color: #14b89a;
+}
+
+.flatpickr-day.today:hover {
+  background: #a7f3e0;
+  border-color: #14b89a;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange {
+  background: #0d947c;
+  border-color: #0d947c;
+  color: #fff;
+}
+
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+  background: #0f7668;
+  border-color: #0f7668;
+}
+
+.flatpickr-time input:hover,
+.flatpickr-time .flatpickr-am-pm:hover,
+.flatpickr-time input:focus,
+.flatpickr-time .flatpickr-am-pm:focus {
+  background: #ecfdf8;
+}
+
+.flatpickr-time input,
+.flatpickr-time .flatpickr-am-pm {
+  font-weight: 600;
+  color: #115e55;
+}
+
+input.flatpickr-input.form-input[readonly] {
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+  fill: #0d947c;
+}

@@ -48,13 +48,13 @@
                 <td class="px-4 py-3">{{ rental.scheduled_end_at|date:"Y-m-d H:i" }}</td>
                 <td class="px-4 py-3">{{ rental.get_status_display }}</td>
                 <td class="px-4 py-3 text-right">
-                    <a href="{% url 'bookings:rental_detail' rental.pk %}" class="text-blue-600 hover:underline">Szczegoly</a>
+                    <a href="{% url 'bookings:rental_detail' rental.pk %}" class="text-blue-600 hover:underline">Szczegóły</a>
                 </td>
             </tr>
             {% empty %}
             <tr>
                 <td colspan="8" class="px-4 py-8 text-center text-gray-500">
-                    Brak wynajmow. Utworz wynajem z potwierdzonej rezerwacji.
+                    Brak wynajmów. Utwórz wynajem z potwierdzonej rezerwacji.
                 </td>
             </tr>
             {% endfor %}

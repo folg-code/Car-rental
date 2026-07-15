@@ -3,6 +3,12 @@ from django.utils import timezone
 
 from apps.payments.models import PaymentMethod, PaymentType
 
+_DATETIME_INPUT_FORMATS = [
+    "%Y-%m-%dT%H:%M",
+    "%Y-%m-%d %H:%M:%S",
+    "%Y-%m-%d %H:%M",
+]
+
 
 class PaymentRecordForm(forms.Form):
     payment_type = forms.ChoiceField(
@@ -27,8 +33,9 @@ class PaymentRecordForm(forms.Form):
         widget=forms.NumberInput(attrs={"step": "0.01", "min": "0.01"}),
     )
     paid_at = forms.DateTimeField(
-        label="Data platnosci",
+        label="Data płatności",
         required=False,
+        input_formats=_DATETIME_INPUT_FORMATS,
         widget=forms.DateTimeInput(
             attrs={"type": "datetime-local"},
             format="%Y-%m-%dT%H:%M",

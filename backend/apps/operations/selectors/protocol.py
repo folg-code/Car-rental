@@ -18,7 +18,10 @@ def list_rentals_pending_handover() -> QuerySet[Rental]:
 
 def list_rentals_pending_return() -> QuerySet[Rental]:
     return (
-        Rental.objects.filter(status=RentalStatus.ACTIVE)
+        Rental.objects.filter(
+            status=RentalStatus.ACTIVE,
+            handover_protocol__completed_at__isnull=False,
+        )
         .select_related(
             "reservation",
             "reservation__customer",

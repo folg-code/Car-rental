@@ -3,13 +3,13 @@
 {% block title %}Kontakt{% endblock %}
 
 {% block content %}
-{% include "website/partials/page_header.html" with eyebrow="Informacje" title="Kontakt" subtitle="Skontaktuj sie z nami — odpowiemy na pytania o flote, rezerwacje i wynajem." %}
+{% include "website/partials/page_header.html" with eyebrow="Informacje" title="Kontakt" subtitle="Skontaktuj się z nami — odpowiemy na pytania o flotę, rezerwacje i wynajem." %}
 
 <section class="site-container py-8 md:py-12 max-w-4xl">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div class="content-card-muted">
             <p class="font-semibold text-gray-900">Adres biura</p>
-            <p class="mt-2 text-gray-600">ul. Przykładowa 12<br>30-001 Krakow</p>
+            <p class="mt-2 text-gray-600">ul. Przykładowa 12<br>30-001 Kraków</p>
         </div>
         <div class="content-card-muted">
             <p class="font-semibold text-gray-900">Telefon</p>
@@ -28,11 +28,11 @@
     <div class="content-card mt-10">
         <h2 class="text-lg font-bold text-gray-900 mb-2">Potrzebujesz szybkiej odpowiedzi?</h2>
         <p class="text-sm text-gray-600 mb-4">
-            Skorzystaj z asystenta AI lub zloz rezerwacje online — dostepne 24/7.
+            Skorzystaj z asystenta AI lub sprawdź dostępność online — dostępne 24/7.
         </p>
         <div class="flex flex-wrap gap-3">
             <a href="{% url 'website:consultant' %}" class="btn-primary">Chat z asystentem</a>
-            <a href="{% url 'website:public_booking' %}" class="btn-secondary">Rezerwacja online</a>
+            <a href="{% url 'website:availability_search' %}" class="btn-secondary">Sprawdź dostępność</a>
         </div>
     </div>
 </section>

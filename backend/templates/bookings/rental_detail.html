@@ -12,21 +12,25 @@
 <div class="flex flex-wrap gap-3 mb-6">
     {% if rental.status == "scheduled" %}
     <a href="{% url 'operations:handover_create' rental.pk %}" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">
-        Protokol wydania
+        Protokół wydania
     </a>
     <form
         method="post"
         action="{% url 'bookings:rental_cancel' rental.pk %}"
-        onsubmit="return confirm('Anulowac zaplanowany wynajem?')"
+        onsubmit="return confirm('Anulować zaplanowany wynajem?')"
     >
         {% csrf_token %}
         <input type="hidden" name="reason" value="Anulowano przed wydaniem" />
         <button type="submit" class="border border-red-200 text-red-700 px-4 py-2 rounded text-sm hover:bg-red-50">Anuluj wynajem</button>
     </form>
     {% endif %}
-    {% if rental.status == "active" %}
+    {% if rental.status == "active" and handover_completed %}
     <a href="{% url 'operations:return_create' rental.pk %}" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">
-        Protokol zwrotu
+        Protokół zwrotu
+    </a>
+    {% elif rental.status == "active" %}
+    <a href="{% url 'operations:handover_create' rental.pk %}" class="bg-amber-600 text-white px-4 py-2 rounded text-sm hover:bg-amber-700">
+        Dokończ protokół wydania
     </a>
     {% endif %}
     {% if rental.status == "returned" %}
@@ -72,7 +76,7 @@
             <dd>{{ rental.actual_end_at|date:"Y-m-d H:i" }}</dd>
             {% endif %}
             {% if rental.closed_at %}
-            <dt class="text-gray-500">Zamknieto</dt>
+            <dt class="text-gray-500">Zamknięto</dt>
             <dd>{{ rental.closed_at|date:"Y-m-d H:i" }}</dd>
             {% endif %}
         </dl>
@@ -87,9 +91,9 @@
 
     <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
         <div class="flex justify-between items-start mb-4">
-            <h2 class="font-medium">Koszty i platnosci</h2>
+            <h2 class="font-medium">Koszty i płatności</h2>
             <a href="{% url 'payments:rental_payments' rental.pk %}" class="text-sm text-blue-600 hover:underline">
-                Zarzadzaj platnosciami →
+                Zarządzaj płatnościami →
             </a>
         </div>
         <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
@@ -98,19 +102,19 @@
                 <dd class="font-semibold">{{ price_total }} PLN</dd>
             </div>
             <div>
-                <dt class="text-gray-500">Do zaplaty</dt>
-                <dd class="font-semibold">{{ payment_summary.rental_fee_due }} PLN</dd>
+                <dt class="text-gray-500">Do zapłaty</dt>
+                <dd class="font-semibold">{{ payment_summary.total_due }} PLN</dd>
             </div>
             <div>
                 <dt class="text-gray-500">Kaucja (saldo)</dt>
                 <dd class="font-semibold">{{ payment_summary.deposit_balance }} PLN</dd>
             </div>
             <div>
-                <dt class="text-gray-500">Przychod</dt>
+                <dt class="text-gray-500">Przychód</dt>
                 <dd class="font-semibold">{{ payment_summary.revenue_total }} PLN</dd>
             </div>
         </dl>
-        <p class="text-xs text-gray-500">Kaucja nie wlicza sie do przychodu.</p>
+        <p class="text-xs text-gray-500">Kaucja nie wlicza się do przychodu.</p>
     </div>
 
     <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
@@ -140,7 +144,7 @@
             {% endfor %}
         </ul>
         {% else %}
-        <p class="text-sm text-gray-500">Brak wygenerowanych dokumentow dla tego wynajmu.</p>
+        <p class="text-sm text-gray-500">Brak wygenerowanych dokumentów dla tego wynajmu.</p>
         {% endif %}
     </div>
 

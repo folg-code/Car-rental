@@ -36,7 +36,7 @@ class TestOperationsViews:
             )
         )
         assert response.status_code == 200
-        assert b"Protokol wydania" in response.content
+        assert "Protokół wydania".encode() in response.content
         assert b"op-wizard-nav" in response.content
         assert b"Krok 1: Dane pojazdu" in response.content
 
@@ -57,12 +57,12 @@ class TestOperationsViews:
             )
         )
         assert response.status_code == 200
-        assert b"Protokol zwrotu" in response.content
+        assert "Protokół zwrotu".encode() in response.content
         assert b"op-wizard-nav" in response.content
         assert b"Krok 1: Stan przy zwrocie" in response.content
-        assert b"Podglad doplat" in response.content
+        assert "Podgląd dopłat".encode() in response.content
         assert b"hx-get" in response.content
-        assert b"Porownanie szkod" in response.content
+        assert "Porównanie szkód".encode() in response.content
 
     def test_return_surcharge_preview_endpoint(
         self, staff_client, scheduled_rental
@@ -81,3 +81,40 @@ class TestOperationsViews:
         response = staff_client.get(url, {"mileage": 10350, "fuel_level_percent": 70})
         assert response.status_code == 200
         assert b"Przejechane km" in response.content or b"km" in response.content
+
+    def test_return_redirects_to_handover_when_missing(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        from apps.bookings.models import RentalStatus
+        from apps.bookings.services.rental import RentalService
+
+        RentalService.start(scheduled_rental)
+        scheduled_rental.refresh_from_db()
+        assert scheduled_rental.status == RentalStatus.ACTIVE
+
+        response = staff_client.get(
+            reverse(
+                "operations:return_create",
+                kwargs={"rental_id": scheduled_rental.pk},
+            )
+        )
+        assert response.status_code == 302
+        assert response.url == reverse(
+            "operations:handover_create",
+            kwargs={"rental_id": scheduled_rental.pk},
+        )
+
+    def test_handover_form_for_active_rental_without_protocol(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        from apps.bookings.services.rental import RentalService
+
+        RentalService.start(scheduled_rental)
+        response = staff_client.get(
+            reverse(
+                "operations:handover_create",
+                kwargs={"rental_id": scheduled_rental.pk},
+            )
+        )
+        assert response.status_code == 200
+        assert "Protokół wydania".encode() in response.content

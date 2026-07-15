@@ -100,7 +100,7 @@ def handover_create(request: HttpRequest, rental_id: int) -> HttpResponse:
         except ValidationError as exc:
             _add_validation_errors_to_form(form, exc)
         else:
-            messages.success(request, "Zakonczono protokol wydania. Wynajem aktywny.")
+            messages.success(request, "Zakończono protokół wydania. Wynajem aktywny.")
             return redirect("operations:handover_detail", rental_id=rental_id)
 
     from apps.fleet.models import Damage, DamageStatus
@@ -126,7 +126,7 @@ def handover_detail(request: HttpRequest, rental_id: int) -> HttpResponse:
     rental = get_rental_by_id(rental_id)
     handover = get_handover_for_rental(rental_id)
     if rental is None or handover is None:
-        messages.error(request, "Brak protokolu wydania.")
+        messages.error(request, "Brak protokołu wydania.")
         return redirect("operations:home")
     return render(
         request,
@@ -148,8 +148,8 @@ def return_create(request: HttpRequest, rental_id: int) -> HttpResponse:
 
     handover = get_handover_for_rental(rental_id)
     if handover is None or not handover.is_completed:
-        messages.error(request, "Najpierw zakoncz protokol wydania.")
-        return redirect("operations:home")
+        messages.warning(request, "Najpierw zakończ protokół wydania.")
+        return redirect("operations:handover_create", rental_id=rental_id)
 
     existing = get_return_for_rental(rental_id)
     if existing and existing.is_completed:
@@ -180,7 +180,7 @@ def return_create(request: HttpRequest, rental_id: int) -> HttpResponse:
         except ValidationError as exc:
             _add_validation_errors_to_form(form, exc)
         else:
-            messages.success(request, "Zakonczono protokol zwrotu.")
+            messages.success(request, "Zakończono protokół zwrotu.")
             return redirect("operations:return_detail", rental_id=rental_id)
 
     from apps.fleet.models import Damage, DamageStatus
@@ -241,7 +241,7 @@ def return_detail(request: HttpRequest, rental_id: int) -> HttpResponse:
     rental = get_rental_by_id(rental_id)
     return_protocol = get_return_for_rental(rental_id)
     if rental is None or return_protocol is None:
-        messages.error(request, "Brak protokolu zwrotu.")
+        messages.error(request, "Brak protokołu zwrotu.")
         return redirect("operations:home")
     return render(
         request,

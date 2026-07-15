@@ -4,16 +4,14 @@
             <div>
                 <p class="text-lg font-bold text-white">Car Rental</p>
                 <p class="mt-3 text-sm text-gray-400 leading-relaxed">
-                    Wynajem samochodow online — sprawdz flote, wycene i zarezerwuj auto w kilka minut.
+                    Wynajem samochodów online — sprawdź flotę, dostępność i zarezerwuj auto w kilka minut.
                 </p>
             </div>
             <div>
                 <p class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">Oferta</p>
                 <ul class="space-y-2 text-sm">
                     <li><a href="{% url 'website:fleet_list' %}" class="hover:text-white transition-colors">Flota</a></li>
-                    <li><a href="{% url 'website:availability_search' %}" class="hover:text-white transition-colors">Dostepnosc</a></li>
-                    <li><a href="{% url 'website:price_quote' %}" class="hover:text-white transition-colors">Wycena</a></li>
-                    <li><a href="{% url 'website:public_booking' %}" class="hover:text-white transition-colors">Rezerwacja</a></li>
+                    <li><a href="{% url 'website:availability_search' %}" class="hover:text-white transition-colors">Dostępność</a></li>
                 </ul>
             </div>
             <div>
@@ -27,7 +25,7 @@
             </div>
         </div>
         <div class="mt-10 pt-6 border-t border-gray-800 text-sm text-gray-500 flex flex-col sm:flex-row justify-between gap-2">
-            <p>&copy; {% now "Y" %} Car Rental — wynajem samochodow</p>
+            <p>&copy; {% now "Y" %} Car Rental — wynajem samochodów</p>
             <p>Projekt demo · Django + Tailwind</p>
         </div>
     </div>

@@ -55,3 +55,6 @@ DJANGO_SETTINGS_MODULE = "config.settings"
 pythonpath = ["backend"]
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 testpaths = ["tests", "backend/apps"]
+env = [
+    "DEMO_SITE=False",
+]

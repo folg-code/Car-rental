@@ -21,7 +21,7 @@
                 <tr class="border-b border-gray-100">
                     <td class="py-2 font-medium">{{ cat.name }}</td>
                     <td class="py-2">{{ cat.deposit }} PLN</td>
-                    <td class="py-2 text-gray-500">{{ cat.cars.count }}</td>
+                    <td class="py-2 text-gray-500">{{ cat.car_count }}</td>
                     <td class="py-2 text-right">
                         <a href="{% url 'fleet:category_edit' cat.pk %}" class="text-blue-600 hover:underline">Edytuj</a>
                     </td>

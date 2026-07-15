@@ -1,4 +1,4 @@
-from django.db.models import Prefetch, QuerySet
+from django.db.models import Count, Prefetch, QuerySet
 
 from apps.fleet.models import (
     AvailabilityBlock,
@@ -48,6 +48,10 @@ def list_active_cars() -> QuerySet[Car]:
 
 def list_categories() -> QuerySet[CarCategory]:
     return CarCategory.objects.order_by("sort_order", "name")
+
+
+def list_categories_with_car_counts() -> QuerySet[CarCategory]:
+    return list_categories().annotate(car_count=Count("cars"))
 
 
 def list_active_damages_for_car(car_id: int) -> QuerySet[Damage]:

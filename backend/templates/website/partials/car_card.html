@@ -1,9 +1,9 @@
 {% load static %}
 <article class="group rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
     <div class="relative aspect-[16/10] overflow-hidden bg-gray-100">
-        {% if car.images.all %}
+        {% if car.primary_images %}
         <img
-            src="{{ car.images.all.0.image.url }}"
+            src="{{ car.primary_images.0.image.url }}"
             alt="{{ car.make }} {{ car.model }}"
             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"

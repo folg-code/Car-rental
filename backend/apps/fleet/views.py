@@ -15,7 +15,12 @@ from apps.fleet.forms import (
     DamageForm,
 )
 from apps.fleet.models import AvailabilityBlock, Car, CarCategory, CarDocument, CarImage
-from apps.fleet.selectors.car import get_car_detail, list_cars, list_categories
+from apps.fleet.selectors.car import (
+    get_car_detail,
+    list_cars,
+    list_categories,
+    list_categories_with_car_counts,
+)
 from apps.fleet.selectors.documents import DEFAULT_EXPIRY_ALERT_DAYS
 from apps.fleet.services.car_media import CarMediaService
 from apps.fleet.services.damage import DamageService
@@ -95,7 +100,7 @@ def category_list(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "fleet/category_list.html",
-        {"categories": list_categories(), "form": form},
+        {"categories": list_categories_with_car_counts(), "form": form},
     )
 
 

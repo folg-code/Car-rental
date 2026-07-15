@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
+from django.db.models import Prefetch
 
-from apps.fleet.models import Car, CarStatus
+from apps.fleet.models import Car, CarImage, CarStatus
 from apps.fleet.selectors.availability import (
     get_booking_busy_intervals,
     get_overlapping_blocks,
@@ -116,7 +117,13 @@ class AvailabilityService:
         cars = (
             Car.objects.filter(status=CarStatus.ACTIVE)
             .select_related("category")
-            .prefetch_related("images")
+            .prefetch_related(
+                Prefetch(
+                    "images",
+                    queryset=CarImage.objects.order_by("-is_primary", "-uploaded_at"),
+                    to_attr="primary_images",
+                )
+            )
             .order_by("make", "model")
         )
         if category_id is not None:

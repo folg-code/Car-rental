@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 
-from apps.fleet.models import Car, CarCategory, CarStatus
+from apps.fleet.models import Car, CarCategory, CarImage, CarStatus
 from apps.fleet.selectors.car import list_active_cars, list_categories
 
 
@@ -30,7 +30,13 @@ def get_public_fleet_catalog(
             )
         )
     )
-    cars_qs = list_active_cars().prefetch_related("images")
+    cars_qs = list_active_cars().prefetch_related(
+        Prefetch(
+            "images",
+            queryset=CarImage.objects.order_by("-is_primary", "-uploaded_at"),
+            to_attr="primary_images",
+        )
+    )
     selected_slug = (category_slug or "").strip() or None
     if selected_slug:
         cars_qs = cars_qs.filter(category__slug=selected_slug)

@@ -1,10 +1,22 @@
-from django.db.models import Q, QuerySet
+from django.db.models import Prefetch, Q, QuerySet
 
-from apps.bookings.models import Customer
+from apps.bookings.models import Customer, Reservation
 
 
 def get_customer_by_id(customer_id: int) -> Customer | None:
-    return Customer.objects.select_related("user").filter(pk=customer_id).first()
+    return (
+        Customer.objects.select_related("user")
+        .prefetch_related(
+            Prefetch(
+                "reservations",
+                queryset=Reservation.objects.select_related("car").order_by(
+                    "-start_at"
+                ),
+            )
+        )
+        .filter(pk=customer_id)
+        .first()
+    )
 
 
 def get_customer_by_user_id(user_id: int) -> Customer | None:

@@ -435,7 +435,7 @@ Checklist: [`docs/DEPLOY.md`](docs/DEPLOY.md). Po deploy:
 docker compose -f docker-compose.prod.yml exec web python backend/manage.py seed_demo
 ```
 
-Konta demo (`admin` / `demo1234`) są **zamierzone** na wersji pokazowej.
+Konta demo (`admin` / `demo1234`) są **zamierzone** na wersji pokazowej. Pełny runbook: [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md).
 
 ### Zmienne środowiskowe
 
@@ -579,7 +579,12 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 8 | Dashboard KPI + Website publiczna | ✅ |
 | 8b | AI Chatbot — konsultant klienta | ✅ |
 | 9 | Produkcja i płatności online (mock) | ✅ |
-| 9+ | Demo prod + rozszerzenia (raporty, SMS) | 🟡 |
+| 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ |
+| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** |
+| 11 | Utrzymanie demo (health, logging, Beat) | ⬜ |
+| 12+ | Backlog (RBAC, i18n, pełna prod) | Backlog |
+
+Szczegóły tasków Sprint 10–12: [`PROJECT_PLAN.md`](PROJECT_PLAN.md#sprint-10--demo-produkcyjne-vps-pokazowy-).
 
 ### Sprint 8 — taski (szczegóły w [`PROJECT_PLAN.md`](PROJECT_PLAN.md))
 

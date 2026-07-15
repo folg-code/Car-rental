@@ -217,7 +217,7 @@ Wdrożenie na VPS **nie wymaga** prawdziwej bramki płatności ani regulaminu od
 | Konta po seedzie | `admin` / `demo1234` | Silne hasła, bez seed_demo |
 | SMS | `SMS_ENABLED=False` lub mock | Twilio |
 
-Po deploy uruchom `seed_demo` — 18 scenariuszy (wynajmy, płatności mock, portal klienta). Szczegóły kont: [`README.md`](../README.md#dane-demo-seed_demo).
+Po deploy uruchom `seed_demo` — 18 scenariuszy (wynajmy, płatności mock, portal klienta). Szczegóły kont: [`README.md`](../README.md#dane-demo-seed_demo). **Runbook prezentacji:** [`docs/DEMO_RUNBOOK.md`](DEMO_RUNBOOK.md).
 
 ---
 

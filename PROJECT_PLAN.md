@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Demo produkcyjne — hardening wdrożenia |
-| **Następny krok** | Checklist demo prod (HTTPS, seed, wolumeny Docker) |
-| **Postęp ogólny** | ~97% funkcji; wdrożenie demo prod w toku |
+| **Aktualny etap** | Sprint 10 — Demo produkcyjne |
+| **Następny krok** | Task 10.5 — pierwszy deploy VPS + `seed_demo` |
+| **Postęp ogólny** | Funkcje ~97%; Sprint 10 ~45% |
 | **Ostatnia aktualizacja** | 2026-07-15 |
 | **Branch** | `main` |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
@@ -40,7 +40,10 @@
 | 9 | Produkcja i płatności online | ✅ | 100% |
 | 8b | Chat AI — konsultant klienta | ✅ | 100% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
-| 9+ | Rozszerzenia (raporty, SMS, i18n) | 🟡 | w toku |
+| 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ | 100% |
+| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~45%** |
+| 11 | Utrzymanie i observability demo | ⬜ | 0% |
+| 12+ | Backlog opcjonalny (po starcie demo) | ⬜ | — |
 
 ---
 
@@ -57,34 +60,20 @@
 9. ~~**Sprint 7 — documents**~~ ✅
 10. ~~**Sprint 8**~~ ✅ — dashboard KPI + website (taski 8.1–8.14)
 11. ~~**Sprint 9**~~ ✅ — płatności online + Celery + deploy (taski 9.1–9.10)
-12. **Sprint 8b — Chat AI** — Faza A MVP ✅ / Faza B tool calls — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+12. ~~**Sprint 8b — Chat AI**~~ ✅ — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
+13. ~~**Sprint 9+**~~ ✅ — raporty, SMS, rozbudowany `seed_demo`
+14. **Sprint 10 — Demo produkcyjne** — VPS, HTTPS, smoke testy, runbook (taski 10.1–10.18)
+15. **Sprint 11 — Utrzymanie demo** — health, logging, Celery Beat (opcjonalnie po 10)
 
 ---
 
 ## Aktywne TODO
 
-<!-- Bieżące zadania — edytuj na bieżąco -->
+<!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-### Demo produkcyjne (wersja pokazowa)
+**Sprint 10 (bieżący):** taski **10.5–10.10, 10.14** — deploy VPS, seed, smoke testy, backup.
 
-Cel: system działa na VPS jak produkcja (HTTPS, Docker, backup, pełny flow), ale **bez prawdziwych płatności i bez dokumentów prawnych**. Mock bramki i placeholder regulaminu są **zamierzone**.
-
-- [ ] **Checklist demo prod** — `DEBUG=False`, SMTP (console lub testowa skrzynka), `seed_demo`, weryfikacja flow end-to-end na VPS
-- [ ] **Health check** — endpoint `/health/` (DB + Redis) opcjonalnie dla monitoringu uptime
-- [ ] **LOGGING** — podstawowa konfiguracja `LOGGING` w settings (plik/stdout na VPS)
-
-**Poza zakresem wersji demo (nie planujemy):**
-
-- Prawdziwa bramka (Stripe / P24 / PayU)
-- Regulamin / polityka prywatności od prawnika, cookie consent RODO
-- Twilio SMS produkcyjny (wystarczy mock / wyłączone)
-
-**Backlog opcjonalny (po starcie demo):**
-
-- [ ] Monitoring / alerty (uptime, Celery queue)
-- [ ] Celery Beat — auto-wygasanie `pending_payment`
-- [ ] Redis cache zamiast LocMem (rate limit chatu)
-- [ ] RBAC per rola (accountant vs employee)
+**Poza zakresem wersji demo:** prawdziwa bramka płatności, regulamin/RODO od prawnika, Twilio SMS prod.
 
 ---
 
@@ -99,9 +88,14 @@ Cel: system działa na VPS jak produkcja (HTTPS, Docker, backup, pełny flow), a
 - [x] Raporty finansowe `/panel/raporty/` (PR #54)
 - [x] Fix listy platnosci — rezerwacja bez wynajmu (PR #55)
 - [x] Bezpieczne uploady — walidacja typu/rozmiaru (PR #56)
-- [x] Audit log operacji krytycznych — `apps.audit` (PR w toku)
+- [x] Rozbudowany `seed_demo` — 18 scenariuszy (Sprint 9+)
+- [x] Dokumentacja zakresu demo prod (Sprint 10.2)
+- [x] Wolumen `private_documents` na web w prod compose (Sprint 10.1)
+- [x] `.env.production.example` + CI deploy check (Sprint 10.3–10.4)
+- [x] Runbook demo `docs/DEMO_RUNBOOK.md` (Sprint 10.11)
+- [x] Baner demo `DEMO_SITE` (Sprint 10.12)
 
-- [x] Bootstrap Django + PostgreSQL
+---
 - [x] Docker Compose (db + web)
 - [x] TailwindCSS + HTMX w szablonie bazowym
 - [x] Pytest + Ruff + pre-commit
@@ -760,33 +754,118 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 ---
 
-# Sprint 9+ — Backlog (rozszerzenia)
+# Sprint 10 — Demo produkcyjne (VPS pokazowy) 🟡
 
-<!-- Nie przypisane do Sprint 9 — priorytetyzuj po 9.10 -->
+**Cel:** system działa na publicznym VPS jak produkcja (HTTPS, Docker, backup, pełny flow operacyjny), ale **bez prawdziwych płatności i bez dokumentów prawnych**. Mock bramki (`PAYMENT_GATEWAY_PROVIDER=mock`) i placeholder regulaminu są **zamierzone**.
 
-### Płatności (poza MVP Sprint 9)
+**Zakres wyłączony:** Stripe/P24/PayU, regulamin/RODO od prawnika, Twilio SMS prod.
 
-- [ ] ~~Prawdziwa bramka produkcyjna~~ — **poza zakresem wersji demo**; mock (`PAYMENT_GATEWAY_PROVIDER=mock`) jest docelowy dla wdrożenia pokazowego
+**Dokumentacja:** [`docs/DEPLOY.md`](docs/DEPLOY.md), [`README.md`](README.md#demo-produkcyjne-vps-pokazowy).
 
-### Bezpieczeństwo i compliance
+### Taski (kolejność implementacji)
+
+| ID | Task | Opis | Moduł / pliki | Status |
+|----|------|------|---------------|--------|
+| **10.1** | Wolumeny Docker prod | `private_documents_data` na `web` i `celery` — PDF widoczne dla emaili i backupu | `docker-compose.prod.yml` | ✅ |
+| **10.2** | Dokumentacja zakresu demo | Strategia demo prod vs pełna prod; checklist deploy | `PROJECT_PLAN.md`, `DEPLOY.md`, `README.md` | ✅ |
+| **10.3** | Szablon `.env.production` | `.env.production.example` + odniesienie w `.env.example` | ✅ |
+| **10.4** | CI deploy check | `django check --deploy` w `.github/workflows/ci.yml` | ✅ |
+| **10.5** | Pierwszy deploy VPS | `./scripts/deploy.sh`, `ENABLE_DEPLOY=true`, secrets SSH | `scripts/deploy.sh`, `docs/CICD.md` | ⬜ |
+| **10.6** | HTTPS + domena | Caddy + Let's Encrypt; `DOMAIN`, `ACME_EMAIL` | `docker-compose.prod.yml`, `deploy/Caddyfile` | ⬜ |
+| **10.7** | Seed na prod | `seed_demo` po deploy; konta `admin`/`manager`/`klient` | `bookings/management/commands/seed_demo.py` | ⬜ |
+| **10.8** | Smoke: flow publiczny | Wyszukiwarka → rezerwacja → mock payment → `confirmed` → email w logach | ręcznie / `website/tests/` | ⬜ |
+| **10.9** | Smoke: flow panelu | Wydanie → aktywny → zwrot z dopłatami → płatność → zamknięcie | ręcznie / `operations/tests/` | ⬜ |
+| **10.10** | Smoke: portal klienta | Login `klient` / `demo1234` → lista rezerwacji → szczegóły | ręcznie / `website/tests/test_portal_views.py` | ⬜ |
+| **10.11** | Runbook demo | Ścieżki testowe, konta, znane ograniczenia mock | `docs/DEMO_RUNBOOK.md` | ✅ |
+| **10.12** | Baner „wersja demo” | `DEMO_SITE=True` + baner na `base_public.html` | `settings.py`, `demo_banner.html` | ✅ |
+| **10.13** | Etykieta mock checkout | Tekst „wersja demonstracyjna” na `/platnosc/mock/` | `mock_payment_checkout.html` | ✅ |
+| **10.14** | Backup po deploy | Cron `backup.sh` + weryfikacja `backup-restore-selftest.sh` na VPS | `scripts/backup.sh`, `docs/DEPLOY.md` | ⬜ |
+
+### Observability (opcjonalnie w Sprint 10 lub przenieś do 11)
+
+| ID | Task | Opis | Status |
+|----|------|------|--------|
+| **10.15** | Health endpoint | `GET /health/` — DB + Redis (200/503) | ⬜ |
+| **10.16** | LOGGING | Konfiguracja `LOGGING` w `settings.py` (stdout, poziom INFO) | ⬜ |
+| **10.17** | Healthcheck compose | Redis + celery w `docker-compose.prod.yml` | ⬜ |
+| **10.18** | Uptime monitoring | Dokumentacja UptimeRobot / cron `curl /health/` | `docs/DEPLOY.md` | ⬜ |
+
+### Definition of Done Sprint 10
+
+- [ ] Aplikacja dostępna pod publiczną domeną HTTPS
+- [ ] `seed_demo` załadowany — 18 scenariuszy do prezentacji
+- [ ] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end
+- [ ] Pełny flow panelu (wydanie → zwrot → rozliczenie) działa na danych seed
+- [ ] Backup DB skonfigurowany (cron)
+- [ ] Runbook demo dla prezentacji (`docs/DEMO_RUNBOOK.md`)
+
+**Szacunek:** 3–5 dni roboczych (10.1–10.4, 10.11–10.13 ✅; pozostałe 10.5–10.10, 10.14).
+
+---
+
+# Sprint 11 — Utrzymanie i observability demo ⬜
+
+**Cel:** stabilność demo na VPS w czasie — bez zmiany zakresu biznesowego (nadal mock płatności).
+
+**Zależności:** Sprint 10 ukończony (demo live).
+
+### Taski
+
+| ID | Task | Opis | Status |
+|----|------|------|--------|
+| **11.1** | Health + logging | Domknięcie 10.15–10.16 jeśli nie zrobione w Sprint 10 | ⬜ |
+| **11.2** | Uptime alerty | Monitoring zewnętrzny + alert email przy 5xx | ⬜ |
+| **11.3** | Celery Beat | Auto-wygasanie rezerwacji `pending_payment` (np. 48 h) | ⬜ |
+| **11.4** | Redis cache | Zamiana `LocMemCache` na Redis — rate limit chatu między workerami | ⬜ |
+| **11.5** | Backup offsite | Sync backupów na S3/rsync (dokumentacja + skrypt) | ⬜ |
+| **11.6** | Purge chat cron | Weryfikacja `purge_chat_messages` na prod | ⬜ |
+| **11.7** | Smoke test w CI | Opcjonalny job post-deploy (curl health + login panel) | ⬜ |
+
+### Definition of Done Sprint 11
+
+- [ ] Health endpoint monitorowany zewnętrznie
+- [ ] Logi aplikacji czytelne na VPS (`docker compose logs`)
+- [ ] Rezerwacje `pending_payment` wygasają automatycznie
+- [ ] Backup offsite skonfigurowany lub udokumentowany jako świadoma rezygnacja demo
+
+**Szacunek:** 2–3 dni roboczych (opcjonalny — po starcie demo).
+
+---
+
+# Sprint 12+ — Backlog (poza wersją demo)
+
+<!-- Rozszerzenia po wdrożeniu demo — priorytetyzuj według potrzeb biznesowych -->
+
+### Płatności (poza zakresem demo)
+
+- [ ] ~~Prawdziwa bramka produkcyjna~~ — **poza zakresem wersji demo**; mock jest docelowy dla wdrożenia pokazowego
+- [ ] Stripe / Przelewy24 / PayU — tylko przy przejściu na pełną produkcję biznesową (Sprint 12+)
+
+### Bezpieczeństwo i compliance (poza zakresem demo)
 
 - [x] HTTPS na produkcji (Caddy + Let's Encrypt — task 9.9)
 - [ ] Szyfrowane PDF
-- [x] Audit log operacji krytycznych — `apps.audit`, hooki w serwisach
-- [x] Bezpieczne uploady (walidacja typu/rozmiaru) — PR #56
-- [ ] Dokumenty prawne RODO — **poza zakresem wersji demo** (placeholder regulaminu wystarczy)
+- [x] Audit log operacji krytycznych — `apps.audit`
+- [x] Bezpieczne uploady — PR #56
+- [ ] Dokumenty prawne RODO — **poza zakresem demo**
+- [ ] RBAC per rola (accountant vs employee) — task 12.1
 
-### Infrastruktura produkcyjna
+### Infrastruktura
 
-- [ ] Monitoring / alerty (opcjonalnie)
+- [ ] Monitoring / alerty zaawansowane (Sentry, Prometheus) — częściowo Sprint 11
 
 ### Rozszerzenia biznesowe
 
-- [ ] Zaawansowany dynamic pricing
-- [x] Raporty finansowe (przychód vs kaucje vs faktury) — `/panel/raporty/` (PR #54)
-- [x] Powiadomienia SMS (po Celery — adapter mock/Twilio obok email)
-- [ ] Wielojęzyczność UI
-- [ ] Chat AI — eskalacja do człowieka, analityka konwersji (jeśli nie w Sprint 8b)
+| ID | Task | Opis |
+|----|------|------|
+| 12.1 | RBAC granular | `owner_or_manager_required` na wrażliwych widokach |
+| 12.2 | Dynamic pricing | Zaawansowany cennik sezonowy |
+| 12.3 | i18n UI | Wielojęzyczność |
+| 12.4 | HTMX dashboard | Partial refresh widgetów pulpitu |
+| 12.5 | Chat eskalacja | Eskalacja do człowieka, analityka konwersji |
+
+- [x] Raporty finansowe — `/panel/raporty/` (PR #54)
+- [x] Powiadomienia SMS mock — `apps.notifications`
 
 ---
 
@@ -815,7 +894,13 @@ Sprint 8b (chat AI — opcjonalnie)
     ↓
 Sprint 9 (płatności online + Celery + deploy)
     ↓
-Sprint 9+ (rozszerzenia)
+Sprint 9+ (raporty, SMS, seed rozbudowany) ✅
+    ↓
+Sprint 10 (demo produkcyjne — VPS pokazowy)  ← BIEŻĄCY
+    ↓
+Sprint 11 (utrzymanie demo — opcjonalnie)
+    ↓
+Sprint 12+ (backlog — pełna prod biznesowa, i18n, RBAC, …)
 ```
 
 **Nie przeskakiwać:** operations i PDF przed fleet + bookings + snapshotami cen.

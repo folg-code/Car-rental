@@ -100,6 +100,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.dashboard.context_processors.panel_navigation",
+                "apps.website.context_processors.site_flags",
             ],
         },
     },
@@ -264,6 +265,9 @@ SMS_PROVIDER = env("SMS_PROVIDER", default="mock")
 SMS_FROM_NUMBER = env("SMS_FROM_NUMBER", default="+48123456789")
 TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID", default="")
 TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN", default="")
+
+# --- Demo produkcyjne (Sprint 10) — baner na stronie publicznej ---
+DEMO_SITE = env.bool("DEMO_SITE", default=False)
 
 # --- Szkic podzialu dev / prod (rozszerzyc o osobne moduly settings przy deploy) ---
 # Dev:  DEBUG=True,  ALLOWED_HOSTS=localhost,127.0.0.1

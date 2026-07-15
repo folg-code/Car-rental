@@ -66,6 +66,13 @@ jobs:
       - name: Django system check
         run: python backend/manage.py check
 
+      - name: Django deploy check (production env)
+        env:
+          DEBUG: "False"
+          ALLOWED_HOSTS: example.com,www.example.com
+          SECRET_KEY: test-deploy-check-secret-key-min-50-chars-long-enough
+        run: python backend/manage.py check --deploy
+
       - name: Pytest
         run: pytest -q
 

@@ -195,13 +195,29 @@ Skrypt:
 - [ ] Docker + Compose plugin
 - [ ] `.env.production` według `.env.example`
 - [ ] `DOMAIN` + `ACME_EMAIL` (HTTPS)
-- [ ] `EMAIL_BACKEND=smtp` + `EMAIL_HOST` / credentials (maile rezerwacji i PDF)
+- [ ] `DEBUG=False`, silny `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`
+- [ ] `PAYMENT_GATEWAY_PROVIDER=mock` — **zamierzone** dla wersji demo (strona `/platnosc/mock/`)
+- [ ] `EMAIL_BACKEND=smtp` lub `console` (demo: maile w logach wystarczą)
 - [ ] `docker login ghcr.io` (jeśli obraz prywatny)
 - [ ] GitHub Actions: `ENABLE_DEPLOY=true` + secrets SSH
 - [ ] `./scripts/deploy.sh`
+- [ ] `docker compose -f docker-compose.prod.yml exec web python backend/manage.py seed_demo`
 - [ ] `./scripts/backup-restore-selftest.sh`
 - [ ] `./scripts/backup.sh` + cron
-- [ ] Offsite sync backupów
+- [ ] Offsite sync backupów (opcjonalnie dla demo)
+
+### Wersja demo produkcyjna (pokazowa)
+
+Wdrożenie na VPS **nie wymaga** prawdziwej bramki płatności ani regulaminu od prawnika. System ma demonstrować pełny flow operacyjny:
+
+| Element | Demo prod | Pełna produkcja biznesowa |
+|---------|-----------|---------------------------|
+| Płatności online | Mock (`/platnosc/mock/`) | Stripe / P24 / PayU |
+| Regulamin / RODO | Placeholder w UI | Treści prawne |
+| Konta po seedzie | `admin` / `demo1234` | Silne hasła, bez seed_demo |
+| SMS | `SMS_ENABLED=False` lub mock | Twilio |
+
+Po deploy uruchom `seed_demo` — 18 scenariuszy (wynajmy, płatności mock, portal klienta). Szczegóły kont: [`README.md`](../README.md#dane-demo-seed_demo). **Runbook prezentacji:** [`docs/DEMO_RUNBOOK.md`](DEMO_RUNBOOK.md).
 
 ---
 

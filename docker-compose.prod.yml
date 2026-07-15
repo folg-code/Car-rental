@@ -34,6 +34,7 @@ services:
     volumes:
       - media_data:/app/media
       - static_data:/app/staticfiles
+      - private_documents_data:/app/private_documents
 
   redis:
     image: redis:7-alpine

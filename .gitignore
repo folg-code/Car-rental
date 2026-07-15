@@ -16,3 +16,4 @@ dist
 .env*
 !.env.example
 !.env.ci
+!.env.production.example

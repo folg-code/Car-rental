@@ -836,6 +836,32 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 <!-- Rozszerzenia po wdrożeniu demo — priorytetyzuj według potrzeb biznesowych -->
 
+### Demo polish / UX v2
+
+Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla klienta i pracownika, a nie tylko zestaw gotowych modułów.
+
+| ID | Task | Opis |
+|----|------|------|
+| 12.1 | Asystent klienta v2 | Poprawić rozumienie intencji: dostępność aut, daty względne („jutro”, „weekend”), kaucje, zasady wynajmu; zamiast generycznej odpowiedzi ma zadawać pytania doprecyzowujące albo pokazać auta/link do rezerwacji. |
+| 12.2 | Panel klienta — dostęp | Logowanie klienta po emailu albo po numerze rezerwacji; wymagane zabezpieczenia przed podglądem cudzych danych (rate limit, weryfikacja email/telefon lub magic link). |
+| 12.3 | Panel klienta — widoki | Klient może podejrzeć swoje rezerwacje, najmy oraz dokumenty przypięte do najmów/rezerwacji; dokumenty dostępne do pobrania z poziomu panelu. |
+| 12.4 | Email po rezerwacji klienta | Utworzenie rezerwacji przez klienta wysyła potwierdzenie na email: status, auto/kategoria, termin, cena/kaucja, link do panelu klienta. |
+| 12.5 | Email po wydaniu/zwrocie | Po zakończeniu wydania albo zwrotu pojazdu klient dostaje email z dokumentem/protokołem; obsługa błędów przez `EmailLog` i retry Celery. |
+| 12.6 | Panel pracownika — ekran startowy | Po wejściu do panelu pracownik widzi kafelki zamiast od razu dashboardu: „Panel administratora” oraz „Wydaj / zwróć pojazd”. |
+| 12.7 | Panel administratora bez operacji | Operacje wydania/zwrotu nie są częścią panelu administratora, bo są przeznaczone do pracy mobilnej w terenie. Admin zostaje dla dashboardów, floty, rezerwacji, płatności, dokumentów, raportów i konfiguracji. |
+| 12.8 | Panel wydaj / zwróć pojazd | Widok mobilny z dwoma kafelkami: „Wydaj pojazd” oraz „Zwróć pojazd”. |
+| 12.9 | Kolejka zwrotów | Lista wydanych pojazdów do zwrotu posortowana tak, żeby najbliżej kończące się najmy były na górze; najmy przeterminowane wyróżnione. |
+| 12.10 | Kolejka wydań | Lista rezerwacji/najmów gotowych do wydania, z priorytetem na dzisiaj i zaległe; szybkie wejście w workflow wydania. |
+
+#### Definition of Done — Demo polish / UX v2
+
+- [ ] Asystent poprawnie obsługuje pytania typu „czy są wolne auta na jutro?” i „sprawdź dostępność samochodów”.
+- [ ] Klient ma bezpieczny sposób wejścia do swoich rezerwacji, najmów i dokumentów.
+- [ ] Rezerwacja z kanału publicznego wysyła email potwierdzający.
+- [ ] Wydanie i zwrot wysyłają klientowi dokument/protokół emailem.
+- [ ] Pracownik po wejściu do panelu wybiera ścieżkę: administracja albo praca terenowa.
+- [ ] Operacje wydania/zwrotu są mobile-first i oddzielone od panelu administratora.
+
 ### Płatności (poza zakresem demo)
 
 - [ ] ~~Prawdziwa bramka produkcyjna~~ — **poza zakresem wersji demo**; mock jest docelowy dla wdrożenia pokazowego

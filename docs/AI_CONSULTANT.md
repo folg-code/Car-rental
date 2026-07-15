@@ -143,6 +143,47 @@ Model **nie** dostaje surowego SQL ani querysetów — tylko wynik JSON z serwis
 
 ---
 
+## Plan dopracowania asystenta
+
+Obecny problem UX: asystent odpowiada zbyt generycznie na pytania typu „czy są wolne auta na jutro?” albo „sprawdź dostępność samochodów”. Docelowo ma rozpoznawać intencję, zebrać brakujące dane i przeprowadzić klienta do rezerwacji.
+
+### Intencje do obsłużenia
+
+| Intencja klienta | Przykłady | Oczekiwane zachowanie |
+|------------------|-----------|------------------------|
+| Dostępność aut | „czy są wolne auta na jutro”, „sprawdź dostępność samochodów” | Jeśli brakuje dat/godzin — dopytaj. Jeśli daty są jasne — użyj `search_available_cars` i pokaż dostępne auta/kategorie. |
+| Cena / kaucja | „ile kosztuje SUV na weekend”, „jaka kaucja za kombi” | Użyj `estimate_price` albo FAQ/kategorii auta; jasno oznacz wycenę jako orientacyjną. |
+| Zasady wynajmu | „czy mogę oddać po godzinach”, „jakie dokumenty są potrzebne” | Odpowiedz z FAQ/polityk firmy, bez wymyślania warunków. |
+| Status rezerwacji | „co z moją rezerwacją” | Dla zalogowanego klienta: tylko jego dane; anonimowego skieruj do panelu klienta/logowania po rezerwacji. |
+| Przejście do rezerwacji | „chcę zarezerwować”, „wezmę to auto” | Podaj link do formularza rezerwacji z parametrami, ale nie twórz rezerwacji w czacie. |
+
+### Daty i doprecyzowanie
+
+- Obsłużyć daty względne po polsku: „jutro”, „pojutrze”, „w weekend”, „od piątku do niedzieli”.
+- Jeśli użytkownik poda tylko dzień, dopytać o godzinę odbioru i zwrotu albo użyć bezpiecznej domyślnej pary godzin z konfiguracji.
+- Jeśli pytanie brzmi tylko „sprawdź dostępność samochodów”, asystent powinien zapytać: „Na jaki termin mam sprawdzić dostępność?” zamiast odpowiadać ogólnikiem.
+- Jeśli brak kategorii auta, pokazać kilka kategorii lub zapytać o preferencję: małe, rodzinne, SUV, dostawcze.
+
+### Wynik dla klienta
+
+Dobra odpowiedź asystenta powinna zawierać:
+
+1. krótkie potwierdzenie zrozumienia pytania,
+2. ewentualne pytanie doprecyzowujące albo listę wyników,
+3. cenę/kaucję tylko wtedy, gdy da się ją policzyć,
+4. link lub CTA do formularza rezerwacji,
+5. informację, że rezerwacja i płatność odbywają się poza czatem.
+
+### Przykładowe scenariusze testowe
+
+- „czy są wolne auta na jutro” → asystent rozpoznaje datę względną, dopytuje o godzinę albo pokazuje dostępność dla domyślnych godzin.
+- „sprawdź dostępność samochodów” → asystent dopytuje o termin.
+- „ile kaucji za SUV” → asystent odpowiada na podstawie kategorii/FAQ.
+- „chcę zarezerwować auto rodzinne na weekend” → asystent prowadzi do wyboru terminu i linku rezerwacji.
+- Anonimowy klient pyta o status rezerwacji → asystent nie ujawnia danych, kieruje do panelu klienta.
+
+---
+
 ## Testy (planowane)
 
 - Mock `LLMClient` — deterministyczne odpowiedzi w pytest.

@@ -10,7 +10,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from config.health_views import health_check
+
 urlpatterns = [
+    path("health/", health_check, name="health_check"),
     path("", include("apps.website.urls")),
     path("admin/", admin.site.urls),
     path("konto/", include(("apps.website.portal_urls", "customer_portal"))),

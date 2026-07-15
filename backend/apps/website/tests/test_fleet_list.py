@@ -42,4 +42,4 @@ class TestPublicFleetListView:
 
         response_other = client.get(f"{url}?kategoria=nieistniejaca")
         assert response_other.status_code == 200
-        assert b"Brak pojazdow" in response_other.content
+        assert "Brak pojazdów".encode() in response_other.content

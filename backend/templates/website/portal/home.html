@@ -8,8 +8,8 @@
 <section class="site-container py-8 md:py-12 max-w-4xl">
     {% if profile_missing %}
     <div class="alert-warning">
-        Twoje konto nie jest jeszcze powiazane z profilem klienta.
-        Skontaktuj sie z wypozyczalnia, aby aktywowac dostep do historii rezerwacji.
+        Twoje konto nie jest jeszcze powiązane z profilem klienta.
+        Skontaktuj się z wypożyczalnią, aby aktywować dostęp do historii rezerwacji.
     </div>
     {% else %}
     <p class="text-gray-600 text-lg">
@@ -18,7 +18,7 @@
 
     <div class="mt-8 flex flex-wrap gap-3">
         <a href="{% url 'customer_portal:reservation_list' %}" class="btn-secondary">Wszystkie rezerwacje</a>
-        <a href="{% url 'website:public_booking' %}" class="btn-primary">Nowa rezerwacja</a>
+        <a href="{% url 'website:availability_search' %}" class="btn-primary">Nowa rezerwacja</a>
     </div>
 
     <div class="mt-10">
@@ -43,7 +43,7 @@
                         <td class="whitespace-nowrap">{{ reservation.start_at|date:"d.m.Y H:i" }} — {{ reservation.end_at|date:"d.m.Y H:i" }}</td>
                         <td>{{ reservation.get_status_display }}</td>
                         <td class="text-right">
-                            <a href="{% url 'customer_portal:reservation_detail' reservation.pk %}" class="link-brand">Szczegoly</a>
+                            <a href="{% url 'customer_portal:reservation_detail' reservation.pk %}" class="link-brand">Szczegóły</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -83,7 +83,7 @@
             </table>
         </div>
         {% else %}
-        <p class="text-sm text-gray-500">Brak dokumentow do pobrania.</p>
+        <p class="text-sm text-gray-500">Brak dokumentów do pobrania.</p>
         {% endif %}
     </div>
     {% endif %}

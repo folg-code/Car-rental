@@ -1,7 +1,7 @@
 {% extends "base_internal.html" %}
 
 {% block title %}Wydanie #{{ rental.pk }}{% endblock %}
-{% block page_heading %}Protokol wydania{% endblock %}
+{% block page_heading %}Protokół wydania{% endblock %}
 {% block page_subheading %}
 <p class="text-sm text-gray-500 mt-1">
     {{ rental.reservation.car.make }} {{ rental.reservation.car.model }}
@@ -30,7 +30,7 @@
                 {{ form.fuel_level_percent }}
             </div>
         </div>
-        <button type="button" class="op-btn-primary op-wizard-next" data-next="2">Dalej — szkody i zdjecia</button>
+        <button type="button" class="op-btn-primary op-wizard-next" data-next="2">Dalej — szkody i zdjęcia</button>
     </div>
 
     <div class="op-wizard-step hidden" data-step="2">
@@ -60,7 +60,7 @@
                 multiple
                 class="op-input"
             />
-            <p class="text-xs text-gray-500 mt-2">Mozesz wybrac kilka zdjec naraz.</p>
+            <p class="text-xs text-gray-500 mt-2">Możesz wybrać kilka zdjęć naraz.</p>
         </div>
         <div class="flex gap-3">
             <button type="button" class="op-btn-secondary op-wizard-prev" data-prev="1">Wstecz</button>
@@ -106,7 +106,7 @@
     const label = document.getElementById("wizard-step-label");
     const stepLabels = {
         1: "Krok 1: Dane pojazdu",
-        2: "Krok 2: Szkody i zdjecia",
+        2: "Krok 2: Szkody i zdjęcia",
         3: "Krok 3: Podpis klienta",
     };
 

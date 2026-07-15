@@ -8,7 +8,7 @@
 
 <div class="bg-white rounded-lg shadow p-6 max-w-md">
     <p class="text-sm mb-4">
-        Anulowac rezerwacje dla <strong>{{ reservation.customer.full_name }}</strong>
+        Anulować rezerwację dla <strong>{{ reservation.customer.full_name }}</strong>
         / {{ reservation.car.registration_number }}?
     </p>
     <form method="post" class="space-y-4">
@@ -20,7 +20,7 @@
             {{ form.reason }}
         </div>
         <div class="flex gap-3">
-            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded text-sm">Anuluj rezerwacje</button>
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded text-sm">Anuluj rezerwację</button>
             <a href="{% url 'bookings:reservation_detail' reservation.pk %}" class="text-sm self-center hover:underline">Wroc</a>
         </div>
     </form>

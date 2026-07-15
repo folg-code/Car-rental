@@ -16,7 +16,7 @@
     {% if can_recalculate_price %}
     <form method="post" action="{% url 'bookings:reservation_recalculate_price' reservation.pk %}" class="flex flex-wrap gap-2 items-center border rounded px-3 py-2 bg-gray-50">
         {% csrf_token %}
-        <span class="text-sm text-gray-600 mr-2">Przelicz cene:</span>
+        <span class="text-sm text-gray-600 mr-2">Przelicz cenę:</span>
         {% for extra in available_extras %}
         <label class="text-sm flex items-center gap-1">
             <input type="checkbox" name="extra_codes" value="{{ extra.code }}" />
@@ -30,11 +30,11 @@
     <form
         method="post"
         action="{% url 'bookings:reservation_convert_to_rental' reservation.pk %}"
-        onsubmit="return confirm('Utworzyc wynajem z tej rezerwacji?')"
+        onsubmit="return confirm('Utworzyć wynajem z tej rezerwacji?')"
     >
         {% csrf_token %}
         <button type="submit" class="bg-emerald-700 text-white px-4 py-2 rounded text-sm hover:bg-emerald-800">
-            Utworz wynajem
+            Utwórz wynajem
         </button>
     </form>
     {% endif %}
@@ -46,12 +46,12 @@
     {% if reservation.status == "draft" or reservation.status == "pending_payment" %}
     <form method="post" action="{% url 'bookings:reservation_confirm' reservation.pk %}">
         {% csrf_token %}
-        <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">Potwierdz</button>
+        <button type="submit" class="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">Potwierdź</button>
     </form>
     <form
         method="post"
         action="{% url 'bookings:reservation_expire' reservation.pk %}"
-        onsubmit="return confirm('Oznaczyc rezerwacje jako wygasla?')"
+        onsubmit="return confirm('Oznaczyć rezerwację jako wygasłą?')"
     >
         {% csrf_token %}
         <button type="submit" class="border px-4 py-2 rounded text-sm hover:bg-gray-50">Wygas</button>
@@ -79,7 +79,7 @@
             <dd>{{ reservation.car.category.name }}</dd>
             <dt class="text-gray-500">Kaucja (kategoria)</dt>
             <dd>{{ category_deposit }} PLN</dd>
-            <dt class="text-gray-500">Sposob ceny</dt>
+            <dt class="text-gray-500">Sposób ceny</dt>
             <dd>{{ reservation.get_pricing_mode_display }}{% if reservation.price_list %} — {{ reservation.price_list.name }}{% endif %}</dd>
         </dl>
     </div>
@@ -109,8 +109,8 @@
 
     {% if reservation.status == "expired" %}
     <div class="bg-white rounded-lg shadow p-6 lg:col-span-2 border-l-4 border-amber-300">
-        <h2 class="font-medium mb-2 text-amber-800">Wygasla</h2>
-        <p class="text-sm text-gray-600">Rezerwacja nie zostala potwierdzona w terminie.</p>
+        <h2 class="font-medium mb-2 text-amber-800">Wygasła</h2>
+        <p class="text-sm text-gray-600">Rezerwacja nie została potwierdzona w terminie.</p>
     </div>
     {% endif %}
 
@@ -121,7 +121,7 @@
             <thead class="text-left text-gray-500 border-b">
                 <tr>
                     <th class="py-2 pr-4">Pozycja</th>
-                    <th class="py-2 pr-4 text-right">Ilosc</th>
+                    <th class="py-2 pr-4 text-right">Ilość</th>
                     <th class="py-2 pr-4 text-right">Cena jedn.</th>
                     <th class="py-2 text-right">Razem</th>
                 </tr>
@@ -146,7 +146,7 @@
         {% else %}
         <p class="text-sm text-gray-500">
             Brak naliczonej ceny.
-            {% if can_recalculate_price %}Uzyj „Oblicz” lub potwierdz rezerwacje.{% endif %}
+            {% if can_recalculate_price %}Użyj „Oblicz” lub potwierdź rezerwację.{% endif %}
         </p>
         {% endif %}
     </div>

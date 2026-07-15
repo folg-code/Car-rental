@@ -77,7 +77,7 @@ def rental_payments(request: HttpRequest, rental_id: int) -> HttpResponse:
         except ValueError as exc:
             form.add_error(None, str(exc))
         else:
-            messages.success(request, "Zarejestrowano platnosc.")
+            messages.success(request, "Zarejestrowano płatność.")
             return redirect("payments:rental_payments", rental_id=rental_id)
 
     if not form.is_bound and summary:

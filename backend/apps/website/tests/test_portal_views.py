@@ -156,7 +156,7 @@ class TestCustomerPortalViews:
         client.force_login(customer_user)
         response = client.get(reverse("customer_portal:home"))
         assert response.status_code == 200
-        assert b"nie jest jeszcze powiazane" in response.content
+        assert "nie jest jeszcze powiązane".encode() in response.content
 
     def test_customer_sees_reservations_on_home(
         self,

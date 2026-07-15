@@ -3,41 +3,41 @@
 {% block title %}FAQ{% endblock %}
 
 {% block content %}
-{% include "website/partials/page_header.html" with eyebrow="Pomoc" title="Czesto zadawane pytania" subtitle="Odpowiedzi na najczestsze pytania o rezerwacje, kaucje i zwrot pojazdu." %}
+{% include "website/partials/page_header.html" with eyebrow="Pomoc" title="Często zadawane pytania" subtitle="Odpowiedzi na najczęstsze pytania o rezerwacje, kaucje i zwrot pojazdu." %}
 
 <section class="site-container py-8 md:py-12 max-w-3xl">
     <dl class="space-y-4">
         <div class="faq-item">
-            <dt class="font-bold text-gray-900 text-lg">Jak zarezerwowac auto online?</dt>
+            <dt class="font-bold text-gray-900 text-lg">Jak zarezerwować auto online?</dt>
             <dd class="mt-2 text-sm text-gray-600 leading-relaxed">
-                Sprawdz dostepnosc w wybranym terminie, zobacz orientacyjna wycene i wypelnij formularz
-                rezerwacji. Po zlozeniu zamowienia otrzymasz potwierdzenie e-mailem.
+                Sprawdź dostępność w wybranym terminie, zobacz orientacyjną wycenę i wypełnij formularz
+                rezerwacji. Po złożeniu zamówienia otrzymasz potwierdzenie e-mailem.
             </dd>
         </div>
         <div class="faq-item">
-            <dt class="font-bold text-gray-900 text-lg">Czy potrzebuje konta, zeby zarezerwowac?</dt>
+            <dt class="font-bold text-gray-900 text-lg">Czy potrzebuję konta, żeby zarezerwować?</dt>
             <dd class="mt-2 text-sm text-gray-600 leading-relaxed">
-                Nie — wystarczy formularz z danymi kontaktowymi. Po rezerwacji mozesz utworzyc konto klienta,
-                aby sledzic historie wynajmow i pobierac dokumenty.
+                Nie — wystarczy formularz z danymi kontaktowymi. Po rezerwacji możesz utworzyć konto klienta,
+                aby śledzić historię wynajmów i pobierać dokumenty.
             </dd>
         </div>
         <div class="faq-item">
-            <dt class="font-bold text-gray-900 text-lg">Jak dziala kaucja?</dt>
+            <dt class="font-bold text-gray-900 text-lg">Jak działa kaucja?</dt>
             <dd class="mt-2 text-sm text-gray-600 leading-relaxed">
-                Kaucja zalezy od kategorii pojazdu i jest blokowana przy wydaniu auta. Zwracamy ja po zwrocie,
-                jesli pojazd nie ma uszkodzen ani zaleglosci (np. brak paliwa).
+                Kaucja zależy od kategorii pojazdu i jest blokowana przy wydaniu auta. Zwracamy ją po zwrocie,
+                jeśli pojazd nie ma uszkodzeń ani zaległości (np. brak paliwa).
             </dd>
         </div>
         <div class="faq-item">
-            <dt class="font-bold text-gray-900 text-lg">Czy moge anulowac rezerwacje?</dt>
+            <dt class="font-bold text-gray-900 text-lg">Czy mogę anulować rezerwację?</dt>
             <dd class="mt-2 text-sm text-gray-600 leading-relaxed">
-                Zasady anulowania opisuje regulamin wynajmu. Skontaktuj sie z biurem podajac numer rezerwacji.
+                Zasady anulowania opisuje regulamin wynajmu. Skontaktuj się z biurem podając numer rezerwacji.
             </dd>
         </div>
     </dl>
 
     <div class="mt-10 text-center">
-        <p class="text-sm text-gray-600 mb-4">Nie znalazles odpowiedzi?</p>
+        <p class="text-sm text-gray-600 mb-4">Nie znalazłeś odpowiedzi?</p>
         <a href="{% url 'website:consultant' %}" class="btn-primary">Zapytaj asystenta AI</a>
     </div>
 </section>

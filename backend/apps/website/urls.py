@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.landing, name="home"),
     path("flota/", views.fleet_list, name="fleet_list"),
     path("flota/dostepnosc/", views.availability_search, name="availability_search"),
+    path("oferta/", views.car_offer, name="car_offer"),
     path("wycena/", views.price_quote, name="price_quote"),
     path("rezerwacja/", views.public_booking, name="public_booking"),
     path(

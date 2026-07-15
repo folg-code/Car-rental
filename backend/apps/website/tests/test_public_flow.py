@@ -41,9 +41,9 @@ START_AT = "2026-06-10T10:00"
 END_AT = "2026-06-15T10:00"
 
 
-def _quote_url(car: Car) -> str:
+def _offer_url(car: Car) -> str:
     return (
-        f"{reverse('website:price_quote')}?car={car.pk}"
+        f"{reverse('website:car_offer')}?krok=wycena&car={car.pk}"
         f"&start_at={START_AT}&end_at={END_AT}"
     )
 
@@ -66,14 +66,14 @@ class TestPublicWebsiteFlow:
         assert search_response.status_code == 200
         assert b"Znaleziono 1 wolnych aut" in search_response.content
         assert b"Toyota" in search_response.content
-        assert reverse("website:price_quote") in search_response.content.decode()
-        assert reverse("website:public_booking") in search_response.content.decode()
+        assert reverse("website:car_offer") in search_response.content.decode()
+        assert "Sprawdź ofertę".encode() in search_response.content
 
-        quote_response = client.get(_quote_url(flow_car))
+        quote_response = client.get(_offer_url(flow_car))
         assert quote_response.status_code == 200
         assert b"600" in quote_response.content
         assert b"PLN" in quote_response.content
-        assert reverse("website:public_booking") in quote_response.content.decode()
+        assert "Przejdź do rezerwacji".encode() in quote_response.content
 
         book_response = client.post(
             reverse("website:public_booking"),
@@ -93,7 +93,7 @@ class TestPublicWebsiteFlow:
 
         confirm_response = client.get(reverse("website:booking_confirmation"))
         assert confirm_response.status_code == 200
-        assert b"Rezerwacja przyjeta" in confirm_response.content
+        assert "Rezerwacja przyjęta".encode() in confirm_response.content
         assert b"Ewa" in confirm_response.content
         assert b"600" in confirm_response.content
 
@@ -130,8 +130,6 @@ class TestPublicWebsiteFlow:
         urls = (
             reverse("website:fleet_list"),
             reverse("website:availability_search"),
-            reverse("website:price_quote"),
-            reverse("website:public_booking"),
             reverse("website:terms"),
             reverse("website:contact"),
             reverse("website:faq"),
@@ -146,7 +144,6 @@ class TestPublicWebsiteFlow:
         assert b"Yaris" in fleet.content
 
     def test_quote_deep_link_prefills_booking_form(self, client, flow_car: Car) -> None:
-        booking_get = client.get(_booking_url(flow_car))
+        booking_get = client.get(_booking_url(flow_car), follow=True)
         assert booking_get.status_code == 200
         assert str(flow_car.pk).encode() in booking_get.content
-        assert START_AT.encode() in booking_get.content

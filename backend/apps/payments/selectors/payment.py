@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from django.db.models import QuerySet, Sum
+from django.db.models import Q, QuerySet, Sum
 
 from apps.bookings.models import Rental
 from apps.bookings.services.price_snapshot import PriceSnapshotService
@@ -11,6 +11,20 @@ from apps.payments.models import (
     PaymentType,
     RentalCharge,
 )
+
+
+def payments_for_rental(rental_id: int) -> QuerySet[Payment]:
+    """Platnosci wynajmu + platnosci rezerwacji sprzed konwersji (bez rental_id)."""
+    reservation_id = (
+        Rental.objects.filter(pk=rental_id)
+        .values_list("reservation_id", flat=True)
+        .first()
+    )
+    if reservation_id is None:
+        return Payment.objects.none()
+    return Payment.objects.filter(
+        Q(rental_id=rental_id) | Q(reservation_id=reservation_id, rental__isnull=True)
+    )
 
 
 def list_payments(
@@ -29,17 +43,20 @@ def list_payments(
         "recorded_by",
     ).order_by("-paid_at", "-pk")
     if rental_id is not None:
-        qs = qs.filter(rental_id=rental_id)
+        qs = payments_for_rental(rental_id)
     if limit is not None:
         qs = qs[:limit]
     return qs
 
 
 def _sum_by_type(rental_id: int, payment_type: str) -> Decimal:
-    total = Payment.objects.filter(
-        rental_id=rental_id,
-        payment_type=payment_type,
-    ).aggregate(total=Sum("amount"))["total"]
+    total = (
+        payments_for_rental(rental_id)
+        .filter(
+            payment_type=payment_type,
+        )
+        .aggregate(total=Sum("amount"))["total"]
+    )
     return total or Decimal("0")
 
 
@@ -52,10 +69,13 @@ def get_rental_deposit_balance(rental_id: int) -> Decimal:
 
 def get_rental_revenue_total(rental_id: int) -> Decimal:
     """Przychod operacyjny — bez kaucji i zwrotow."""
-    total = Payment.objects.filter(
-        rental_id=rental_id,
-        payment_type__in=REVENUE_PAYMENT_TYPES,
-    ).aggregate(total=Sum("amount"))["total"]
+    total = (
+        payments_for_rental(rental_id)
+        .filter(
+            payment_type__in=REVENUE_PAYMENT_TYPES,
+        )
+        .aggregate(total=Sum("amount"))["total"]
+    )
     return (total or Decimal("0")).quantize(Decimal("0.01"))
 
 

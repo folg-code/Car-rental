@@ -3,7 +3,7 @@
 {% block title %}Flota{% endblock %}
 
 {% block content %}
-{% include "website/partials/page_header.html" with eyebrow="Katalog" title="Nasza flota" subtitle="Wybierz kategorie i zobacz dostepne modele ze zdjeciami. Sprawdz dostepnosc w terminie lub zarezerwuj online." %}
+{% include "website/partials/page_header.html" with eyebrow="Katalog" title="Nasza flota" subtitle="Wybierz kategorię i zobacz dostępne modele ze zdjęciami. Sprawdź dostępność w terminie lub zarezerwuj online." %}
 
 <section class="site-container py-8 md:py-12">
     <div class="flex flex-wrap gap-2 mb-10">
@@ -27,11 +27,11 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for car in cars %}
-        {% include "website/partials/car_card.html" with car=car show_actions=False %}
+        {% include "website/partials/car_card.html" with car=car %}
         {% empty %}
         <div class="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white py-16 text-center">
-            <p class="text-gray-500">Brak pojazdow w wybranej kategorii.</p>
-            <a href="{% url 'website:fleet_list' %}" class="mt-4 inline-block text-sm font-semibold text-brand-700">Pokaz wszystkie</a>
+            <p class="text-gray-500">Brak pojazdów w wybranej kategorii.</p>
+            <a href="{% url 'website:fleet_list' %}" class="mt-4 inline-block text-sm font-semibold text-brand-700">Pokaż wszystkie</a>
         </div>
         {% endfor %}
     </div>

@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from apps.fleet.models import Car
 from apps.pricing.dto import CalculatedPriceLine, PricingResult
 from apps.pricing.models import (
+    POST_RENTAL_EXTRA_CODES,
     AmountType,
     ExtraServiceChargeType,
     PriceList,
@@ -21,7 +22,7 @@ from apps.pricing.selectors.price_list import (
 )
 
 MONEY_QUANT = Decimal("0.01")
-WEEKEND_WEEKDAYS = frozenset({4, 5, 6})  # pt–nd
+HANDOVER_WEEKEND_WEEKDAYS = frozenset({5, 6})  # sob–nd
 
 
 def _money(value: Decimal) -> Decimal:
@@ -56,8 +57,14 @@ class PricingService:
         return True
 
     @staticmethod
-    def _count_weekend_days(dates: tuple[date, ...]) -> int:
-        return sum(1 for d in dates if d.weekday() in WEEKEND_WEEKDAYS)
+    def _count_weekend_handovers(start_at: datetime, end_at: datetime) -> int:
+        """Dopłata gdy odbiór lub zwrot przypada w sobotę albo niedzielę."""
+        handover_dates = {start_at.date(), end_at.date()}
+        return sum(
+            1
+            for handover_date in handover_dates
+            if handover_date.weekday() in HANDOVER_WEEKEND_WEEKDAYS
+        )
 
     @staticmethod
     def _count_rule_days(rule: PricingRule, dates: tuple[date, ...]) -> int:
@@ -140,7 +147,7 @@ class PricingService:
             description = rule.name
 
             if rule.rule_type == PricingRuleType.WEEKEND_SURCHARGE:
-                unit_days = PricingService._count_weekend_days(period.dates)
+                unit_days = PricingService._count_weekend_handovers(start_at, end_at)
                 if unit_days == 0:
                     continue
                 weekend_base = _money(unit_price * Decimal(unit_days))
@@ -151,7 +158,7 @@ class PricingService:
                     day_count=period.days,
                     unit_days=unit_days,
                 )
-                description = f"{rule.name} ({unit_days} dni weekendowych)"
+                description = f"{rule.name} (odbiór/zwrot w weekend)"
 
             elif rule.rule_type in (
                 PricingRuleType.HOLIDAY_SURCHARGE,
@@ -211,6 +218,10 @@ class PricingService:
                 running_base += total
 
         for code in extra_codes or []:
+            if code in POST_RENTAL_EXTRA_CODES:
+                raise ValidationError(
+                    f"Usluga {code} jest naliczana po najmie, nie przy rezerwacji."
+                )
             extra = get_extra_by_code(price_list, code)
             if extra is None:
                 raise ValidationError(f"Nieznana usluga dodatkowa: {code}")

@@ -20,10 +20,11 @@ from apps.bookings.services.price_snapshot import PriceSnapshotService
 from apps.bookings.services.rental import RentalService
 from apps.bookings.services.reservation import ReservationService
 from apps.documents.selectors.document import list_documents
+from apps.operations.selectors.protocol import get_handover_for_rental
 from apps.payments.selectors.payment import get_rental_payment_summary
 from apps.pricing.selectors.price_list import (
     get_price_list_for_date,
-    list_active_extras,
+    list_bookable_extras,
 )
 
 
@@ -68,7 +69,7 @@ def reservation_detail(request: HttpRequest, pk: int) -> HttpResponse:
     if reservation.pricing_mode == ReservationPricingMode.PRICE_LIST:
         price_list = reservation.price_list
     available_extras = (
-        list_active_extras(price_list)
+        list_bookable_extras(price_list)
         if price_list is not None
         and reservation.pricing_mode != ReservationPricingMode.CUSTOM
         else []
@@ -300,6 +301,7 @@ def rental_detail(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect("bookings:rental_list")
     reservation = rental.reservation
     payment_summary = get_rental_payment_summary(rental.pk)
+    handover = get_handover_for_rental(rental.pk)
     return render(
         request,
         "bookings/rental_detail.html",
@@ -309,6 +311,7 @@ def rental_detail(request: HttpRequest, pk: int) -> HttpResponse:
             "price_total": PriceSnapshotService.reservation_total(reservation),
             "payment_summary": payment_summary,
             "documents": list_documents(rental_id=rental.pk),
+            "handover_completed": handover is not None and handover.is_completed,
         },
     )
 

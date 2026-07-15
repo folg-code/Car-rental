@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from django.core.exceptions import ValidationError
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, QueryDict
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -53,84 +53,194 @@ def fleet_list(request: HttpRequest) -> HttpResponse:
 
 
 def availability_search(request: HttpRequest) -> HttpResponse:
-    """Wyszukiwarka dostepnosci floty (task 8.10)."""
-    form = AvailabilitySearchForm(request.POST or None)
+    """Wyszukiwarka dostępności floty (task 8.10)."""
+    if request.method == "POST":
+        data = request.POST
+    elif request.GET.get("start_at") and request.GET.get("end_at"):
+        data = request.GET
+    else:
+        data = None
+
+    form = AvailabilitySearchForm(data)
     result = None
-    if request.method == "POST" and form.is_valid():
+    searched = False
+    if data and form.is_valid():
         category = form.cleaned_data.get("category")
         result = search_available_cars(
             form.cleaned_data["start_at"],
             form.cleaned_data["end_at"],
             category_id=category.pk if category else None,
         )
+        searched = True
     return render(
         request,
         "website/availability_search.html",
         {
             "form": form,
             "result": result,
-            "searched": result is not None,
+            "searched": searched,
+        },
+    )
+
+
+def car_offer(request: HttpRequest) -> HttpResponse:
+    """Oferta dla wybranego auta — wycena i rezerwacja w jednym flow."""
+    step = request.GET.get("krok", "wycena")
+    if step not in {"wycena", "rezerwacja"}:
+        step = "wycena"
+
+    quote_data = request.GET if request.method == "GET" else None
+    quote_form = PriceQuoteForm(quote_data)
+    quote_result = None
+    quoted = False
+    if quote_data and quote_form.is_valid():
+        try:
+            quote_result = get_price_quote(
+                car=quote_form.cleaned_data["car"],
+                start_at=quote_form.cleaned_data["start_at"],
+                end_at=quote_form.cleaned_data["end_at"],
+                extra_codes=quote_form.cleaned_data.get("extras"),
+            )
+            quoted = True
+        except ValidationError as exc:
+            message = exc.messages[0] if exc.messages else str(exc)
+            quote_form.add_error(None, message)
+
+    booking_form = None
+    if step == "rezerwacja":
+        booking_form = PublicBookingForm(initial=_booking_form_initial(request))
+
+    return render(
+        request,
+        "website/car_offer.html",
+        {
+            "step": step,
+            "form": quote_form,
+            "result": quote_result,
+            "quoted": quoted,
+            "booking_form": booking_form,
+            "offer_query": _offer_query_string(request, quote_form, quoted),
         },
     )
 
 
 def price_quote(request: HttpRequest) -> HttpResponse:
-    """Orientacyjna wycena wynajmu (task 8.11)."""
-    data = request.POST if request.method == "POST" else request.GET
-    form = PriceQuoteForm(data or None)
-    result = None
-    if data and form.is_valid():
-        try:
-            result = get_price_quote(
-                car=form.cleaned_data["car"],
-                start_at=form.cleaned_data["start_at"],
-                end_at=form.cleaned_data["end_at"],
-                extra_codes=form.cleaned_data.get("extras"),
-            )
-        except ValidationError as exc:
-            message = exc.messages[0] if exc.messages else str(exc)
-            form.add_error(None, message)
-    return render(
-        request,
-        "website/price_quote.html",
-        {
-            "form": form,
-            "result": result,
-            "quoted": result is not None,
-        },
-    )
+    """Przekierowanie do ujednoliconej strony oferty (kompatybilność wsteczna)."""
+    return _redirect_to_car_offer(request)
 
 
 def public_booking(request: HttpRequest) -> HttpResponse:
     """Formularz rezerwacji online (task 8.12)."""
-    if request.method == "POST":
-        form = PublicBookingForm(request.POST)
-        if form.is_valid():
-            try:
-                result = PublicBookingOrchestrator.submit(
-                    car=form.cleaned_data["car"],
-                    start_at=form.cleaned_data["start_at"],
-                    end_at=form.cleaned_data["end_at"],
-                    first_name=form.cleaned_data["first_name"],
-                    last_name=form.cleaned_data["last_name"],
-                    email=form.cleaned_data.get("email") or "",
-                    phone=form.cleaned_data.get("phone") or "",
-                    extra_codes=form.cleaned_data.get("extras"),
-                    notes=form.cleaned_data.get("notes") or "",
-                )
-            except ValidationError as exc:
-                message = exc.messages[0] if exc.messages else str(exc)
-                form.add_error(None, message)
-            else:
-                request.session[PUBLIC_BOOKING_SESSION_KEY] = result.reservation.pk
-                return HttpResponseRedirect(reverse("website:booking_confirmation"))
-    else:
-        form = PublicBookingForm(initial=_booking_form_initial(request))
+    if request.method == "GET":
+        return _redirect_to_car_offer(request, step="rezerwacja")
+
+    form = PublicBookingForm(request.POST)
+    if form.is_valid():
+        try:
+            result = PublicBookingOrchestrator.submit(
+                car=form.cleaned_data["car"],
+                start_at=form.cleaned_data["start_at"],
+                end_at=form.cleaned_data["end_at"],
+                first_name=form.cleaned_data["first_name"],
+                last_name=form.cleaned_data["last_name"],
+                email=form.cleaned_data.get("email") or "",
+                phone=form.cleaned_data.get("phone") or "",
+                extra_codes=form.cleaned_data.get("extras"),
+                notes=form.cleaned_data.get("notes") or "",
+            )
+        except ValidationError as exc:
+            message = exc.messages[0] if exc.messages else str(exc)
+            form.add_error(None, message)
+        else:
+            request.session[PUBLIC_BOOKING_SESSION_KEY] = result.reservation.pk
+            return HttpResponseRedirect(reverse("website:booking_confirmation"))
+
+    quote_form = PriceQuoteForm(_offer_params_from_post(request.POST))
+    quote_result = None
+    quoted = False
+    if quote_form.is_valid():
+        try:
+            quote_result = get_price_quote(
+                car=quote_form.cleaned_data["car"],
+                start_at=quote_form.cleaned_data["start_at"],
+                end_at=quote_form.cleaned_data["end_at"],
+                extra_codes=quote_form.cleaned_data.get("extras"),
+            )
+            quoted = True
+        except ValidationError:
+            quoted = False
+
     return render(
         request,
-        "website/public_booking.html",
-        {"form": form},
+        "website/car_offer.html",
+        {
+            "step": "rezerwacja",
+            "form": quote_form,
+            "result": quote_result,
+            "quoted": quoted,
+            "booking_form": form,
+            "offer_query": _offer_query_string_from_post(request.POST),
+        },
     )
+
+
+def _redirect_to_car_offer(
+    request: HttpRequest,
+    *,
+    step: str | None = None,
+) -> HttpResponseRedirect:
+    params = request.GET.copy()
+    if step:
+        params["krok"] = step
+    elif "krok" not in params:
+        params["krok"] = "wycena"
+    query = params.urlencode()
+    url = reverse("website:car_offer")
+    if query:
+        url = f"{url}?{query}"
+    return redirect(url)
+
+
+def _offer_params_from_post(post_data) -> QueryDict:
+    params = QueryDict(mutable=True)
+    for key in ("car", "start_at", "end_at"):
+        if value := post_data.get(key):
+            params[key] = value
+    for extra in post_data.getlist("extras"):
+        params.appendlist("extras", extra)
+    return params
+
+
+def _offer_query_string(
+    request: HttpRequest,
+    quote_form: PriceQuoteForm,
+    quoted: bool,
+) -> str:
+    if quoted and quote_form.is_valid():
+        params = QueryDict(mutable=True)
+        params["car"] = str(quote_form.cleaned_data["car"].pk)
+        params["start_at"] = quote_form.cleaned_data["start_at"].strftime(
+            "%Y-%m-%dT%H:%M"
+        )
+        params["end_at"] = quote_form.cleaned_data["end_at"].strftime("%Y-%m-%dT%H:%M")
+        for code in quote_form.cleaned_data.get("extras") or []:
+            params.appendlist("extras", code)
+        return params.urlencode()
+    return _offer_query_string_from_get(request.GET)
+
+
+def _offer_query_string_from_get(query: QueryDict) -> str:
+    params = QueryDict(mutable=True)
+    for key in ("car", "start_at", "end_at"):
+        if value := query.get(key):
+            params[key] = value
+    for extra in query.getlist("extras"):
+        params.appendlist("extras", extra)
+    return params.urlencode()
+
+
+def _offer_query_string_from_post(post_data) -> str:
+    return _offer_params_from_post(post_data).urlencode()
 
 
 def booking_confirmation(request: HttpRequest) -> HttpResponse:

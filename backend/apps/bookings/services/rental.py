@@ -101,6 +101,13 @@ class RentalService:
         rental.full_clean()
         rental.save()
 
+        from apps.payments.models import Payment
+
+        Payment.objects.filter(
+            reservation_id=reservation.pk,
+            rental__isnull=True,
+        ).update(rental_id=rental.pk)
+
         old_reservation_status = reservation.status
         reservation.status = ReservationStatus.CONVERTED_TO_RENTAL
         reservation.save(update_fields=["status", "updated_at"])

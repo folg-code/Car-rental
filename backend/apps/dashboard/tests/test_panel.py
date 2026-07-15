@@ -3,9 +3,11 @@ from datetime import date, timedelta
 import pytest
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.accounts.models import UserRole
 from apps.accounts.services.user import UserService
+from apps.bookings.demo_seed.protocols import seed_completed_handover
 from apps.bookings.models import RentalStatus
 from apps.dashboard.views import DASHBOARD_QUEUE_LIMIT
 from apps.fleet.models import Car, CarDocument, CarDocumentType, CarStatus
@@ -71,9 +73,9 @@ class TestPanelDashboardWidgets:
         response = client.get(reverse("dashboard:home"))
 
         content = response.content
-        assert b"Nieoplacone wynajmy" in content
-        assert b"Przychod (ten miesiac)" in content
-        assert b"Alerty dokumentow floty" in content
+        assert "Nieopłacone wynajmy".encode() in content
+        assert "Przychód (ten miesiąc)".encode() in content
+        assert "Alerty dokumentów floty".encode() in content
         assert b"Kolejka operacji" in content
         assert b"Do wydania" in content
         assert b"Do zwrotu" in content
@@ -86,7 +88,7 @@ class TestPanelDashboardWidgets:
 
         assert response.status_code == 200
         assert f"Wynajem #{scheduled_rental.pk}".encode() in response.content
-        assert b"Platnosc" in response.content
+        assert "Płatność".encode() in response.content
 
     def test_panel_shows_fleet_document_alert(
         self, client, staff_user, category
@@ -129,6 +131,7 @@ class TestPanelDashboardWidgets:
     ) -> None:
         scheduled_rental.status = RentalStatus.ACTIVE
         scheduled_rental.save(update_fields=["status"])
+        seed_completed_handover(scheduled_rental, at=timezone.now())
 
         client.login(username="dashboard-staff", password="secure-pass-123")
         response = client.get(reverse("dashboard:home"))

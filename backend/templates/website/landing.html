@@ -1,7 +1,7 @@
 {% extends "website/base_public.html" %}
 {% load static %}
 
-{% block title %}Strona glowna{% endblock %}
+{% block title %}Strona główna{% endblock %}
 
 {% block content %}
 <section class="relative overflow-hidden bg-gray-900 text-white">
@@ -16,24 +16,21 @@
     <div class="relative site-container py-20 md:py-28 lg:py-32">
         <div class="max-w-2xl animate-fade-up">
             <p class="mb-4 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-100 backdrop-blur-sm">
-                Wynajem samochodow online
+                Wynajem samochodów online
             </p>
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
                 Zarezerwuj auto szybko i wygodnie
             </h1>
             <p class="mt-5 text-lg text-gray-200 leading-relaxed max-w-xl">
-                Sprawdz dostepnosc floty, porownaj kategorie i zloz rezerwacje online —
+                Sprawdź dostępność floty, porównaj kategorie i złóż rezerwację online —
                 bez dzwonienia do biura.
             </p>
             <div class="mt-8 flex flex-wrap gap-3">
                 <a href="{% url 'website:availability_search' %}" class="btn-primary">
-                    Sprawdz dostepnosc
-                </a>
-                <a href="{% url 'website:price_quote' %}" class="btn-ghost-light">
-                    Orientacyjna wycena
+                    Sprawdź dostępność
                 </a>
                 <a href="{% url 'website:fleet_list' %}" class="btn-ghost-light">
-                    Przegladaj flote
+                    Przeglądaj flotę
                 </a>
             </div>
         </div>
@@ -45,20 +42,20 @@
         <h2 class="text-lg font-bold text-gray-900 mb-4">Szybkie wyszukiwanie</h2>
         <form action="{% url 'website:availability_search' %}" method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5" for="hero-start">Odbior</label>
-                <input type="datetime-local" id="hero-start" name="start_at" class="form-input" />
+                <label class="block text-sm font-medium text-gray-700 mb-1.5" for="hero-start">Odbiór</label>
+                <input type="text" id="hero-start" name="start_at" class="form-input js-datetime-picker" autocomplete="off" placeholder="Wybierz datę i godzinę" />
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5" for="hero-end">Zwrot</label>
-                <input type="datetime-local" id="hero-end" name="end_at" class="form-input" />
+                <input type="text" id="hero-end" name="end_at" class="form-input js-datetime-picker" autocomplete="off" placeholder="Wybierz datę i godzinę" />
             </div>
             <button type="submit" class="btn-primary w-full md:w-auto">
                 Szukaj wolnych aut
             </button>
         </form>
         <p class="mt-3 text-xs text-gray-500">
-            Pelny formularz z filtrem kategorii —
-            <a href="{% url 'website:availability_search' %}" class="font-medium text-brand-700 hover:text-brand-800">otworz wyszukiwanie</a>.
+            Pełny formularz z filtrem kategorii —
+            <a href="{% url 'website:availability_search' %}" class="font-medium text-brand-700 hover:text-brand-800">otwórz wyszukiwanie</a>.
         </p>
     </div>
 </section>
@@ -69,13 +66,13 @@
         <div>
             <p class="text-sm font-semibold uppercase tracking-wide text-brand-600 mb-2">Flota</p>
             <h2 class="section-heading">Polecane auta</h2>
-            <p class="mt-2 text-gray-600 max-w-xl">Przegladaj nasze modele — kazde auto ze zdjeciem i opisem.</p>
+            <p class="mt-2 text-gray-600 max-w-xl">Przeglądaj nasze modele — każde auto ze zdjęciem i opisem.</p>
         </div>
-        <a href="{% url 'website:fleet_list' %}" class="btn-secondary shrink-0">Zobacz cala flote</a>
+        <a href="{% url 'website:fleet_list' %}" class="btn-secondary shrink-0">Zobacz całą flotę</a>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for car in featured_cars %}
-        {% include "website/partials/car_card.html" with car=car show_actions=False %}
+        {% include "website/partials/car_card.html" with car=car %}
         {% endfor %}
     </div>
 </section>
@@ -85,28 +82,28 @@
     <div class="site-container py-16 md:py-20">
         <div class="text-center max-w-2xl mx-auto mb-12">
             <p class="text-sm font-semibold uppercase tracking-wide text-brand-600 mb-2">Proces</p>
-            <h2 class="section-heading">Jak to dziala</h2>
+            <h2 class="section-heading">Jak to działa</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="rounded-2xl border border-gray-200 bg-gray-50 p-8 transition-all duration-300 hover:border-brand-200 hover:shadow-card">
                 <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100 text-brand-700 font-bold">1</div>
                 <h3 class="text-lg font-bold mb-2">Wybierz termin</h3>
                 <p class="text-sm text-gray-600 leading-relaxed">
-                    Podaj date odbioru i zwrotu — system pokaze wolne auta.
+                    Podaj datę odbioru i zwrotu — system pokaże wolne auta.
                 </p>
             </div>
             <div class="rounded-2xl border border-gray-200 bg-gray-50 p-8 transition-all duration-300 hover:border-brand-200 hover:shadow-card">
                 <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100 text-brand-700 font-bold">2</div>
-                <h3 class="text-lg font-bold mb-2">Zobacz wycene</h3>
+                <h3 class="text-lg font-bold mb-2">Sprawdź ofertę</h3>
                 <p class="text-sm text-gray-600 leading-relaxed">
-                    Orientacyjna cena na podstawie cennika — bez ukrytych kosztow.
+                    Orientacyjna wycena i rezerwacja online — krok po kroku dla wybranego auta.
                 </p>
             </div>
             <div class="rounded-2xl border border-gray-200 bg-gray-50 p-8 transition-all duration-300 hover:border-brand-200 hover:shadow-card">
                 <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100 text-brand-700 font-bold">3</div>
-                <h3 class="text-lg font-bold mb-2">Zarezerwuj online</h3>
+                <h3 class="text-lg font-bold mb-2">Potwierdzenie</h3>
                 <p class="text-sm text-gray-600 leading-relaxed">
-                    Potwierdzenie rezerwacji i dalszy kontakt z wypozyczalnia.
+                    Płatność online i kontakt w sprawie wydania pojazdu.
                 </p>
             </div>
         </div>
@@ -119,11 +116,11 @@
         <div class="relative">
             <h2 class="text-2xl md:text-3xl font-bold">Gotowy na wyjazd?</h2>
             <p class="mt-3 text-brand-100 max-w-lg mx-auto">
-                Zarezerwuj auto w kilka minut lub zapytaj naszego asystenta AI o flote i ceny.
+                Zarezerwuj auto w kilka minut lub zapytaj naszego asystenta AI o flotę i ceny.
             </p>
             <div class="mt-8 flex flex-wrap justify-center gap-3">
-                <a href="{% url 'website:public_booking' %}" class="inline-flex items-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-brand-800 hover:bg-brand-50 transition-colors">
-                    Rezerwacja online
+                <a href="{% url 'website:availability_search' %}" class="inline-flex items-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-brand-800 hover:bg-brand-50 transition-colors">
+                    Sprawdź dostępność
                 </a>
                 <a href="{% url 'website:consultant' %}" class="btn-ghost-light">
                     Chat z asystentem

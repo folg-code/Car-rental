@@ -1,7 +1,7 @@
 {% extends "base_internal.html" %}
 
 {% block title %}Zwrot #{{ rental.pk }}{% endblock %}
-{% block page_heading %}Protokol zwrotu{% endblock %}
+{% block page_heading %}Protokół zwrotu{% endblock %}
 {% block page_subheading %}
 <p class="text-sm text-gray-500 mt-1">Wydanie: {{ handover.mileage }} km / {{ handover.fuel_level_percent }}% paliwa</p>
 {% endblock %}
@@ -33,16 +33,16 @@
                 hx-include="#id_mileage, #id_fuel_level_percent"
                 hx-swap="innerHTML"
             >
-                <h3 class="text-sm font-medium text-amber-900 mb-2">Podglad doplat</h3>
+                <h3 class="text-sm font-medium text-amber-900 mb-2">Podgląd dopłat</h3>
                 {% include "operations/_surcharge_preview.html" with preview=surcharge_preview %}
             </div>
         </div>
-        <button type="button" class="op-btn-primary op-wizard-next" data-next="2">Dalej — szkody i zdjecia</button>
+        <button type="button" class="op-btn-primary op-wizard-next" data-next="2">Dalej — szkody i zdjęcia</button>
     </div>
 
     <div class="op-wizard-step hidden" data-step="2">
         <div class="op-section">
-            <h2 class="font-medium mb-3">Porownanie szkod (wydanie → zwrot)</h2>
+            <h2 class="font-medium mb-3">Porównanie szkód (wydanie → zwrot)</h2>
             {% include "operations/_damage_comparison.html" %}
             <p class="text-xs text-gray-500 mt-4 mb-2">Nowe uszkodzenie przy zwrocie (opcjonalnie):</p>
             {{ form.new_damage_description }}
@@ -52,7 +52,7 @@
         <div class="op-section">
             <h2 class="font-medium mb-3">Zdjecia</h2>
             <input type="file" name="photos" accept="image/*" capture="environment" multiple class="op-input" />
-            <p class="text-xs text-gray-500 mt-2">Mozesz wybrac kilka zdjec naraz.</p>
+            <p class="text-xs text-gray-500 mt-2">Możesz wybrać kilka zdjęć naraz.</p>
         </div>
         <div class="flex gap-3">
             <button type="button" class="op-btn-secondary op-wizard-prev" data-prev="1">Wstecz</button>
@@ -102,7 +102,7 @@
     const label = document.getElementById("wizard-step-label");
     const stepLabels = {
         1: "Krok 1: Stan przy zwrocie",
-        2: "Krok 2: Szkody i zdjecia",
+        2: "Krok 2: Szkody i zdjęcia",
         3: "Krok 3: Podpis i doplaty",
     };
 

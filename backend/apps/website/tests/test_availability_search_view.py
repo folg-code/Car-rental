@@ -82,8 +82,22 @@ class TestAvailabilitySearchView:
     def test_get_returns_form(self, client) -> None:
         response = client.get(_search_url())
         assert response.status_code == 200
-        assert b"Sprawdz dostepnosc" in response.content
+        assert "Sprawdź dostępność".encode() in response.content
         assert b"Szukaj wolnych aut" in response.content
+
+    def test_get_with_dates_shows_results(self, client, search_car: Car) -> None:
+        response = client.get(_search_url(), _search_payload())
+        assert response.status_code == 200
+        assert b"Znaleziono 1 wolnych aut" in response.content
+        assert b"Toyota" in response.content
+
+    def test_landing_quick_search_shows_results(self, client, search_car: Car) -> None:
+        response = client.get(
+            reverse("website:availability_search"),
+            _search_payload(),
+        )
+        assert response.status_code == 200
+        assert b"Znaleziono 1 wolnych aut" in response.content
 
     def test_post_shows_available_car(self, client, search_car: Car) -> None:
         response = client.post(_search_url(), _search_payload())

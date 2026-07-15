@@ -12,7 +12,7 @@ class TestWebsiteLanding:
         response = client.get(reverse("website:home"))
         content = response.content
         assert b"Zarezerwuj auto szybko i wygodnie" in content
-        assert b"Jak to dziala" in content
+        assert "Jak to działa".encode() in content
         assert b"Panel operacyjny" not in content
 
     def test_root_url_resolves_to_website(self, client) -> None:

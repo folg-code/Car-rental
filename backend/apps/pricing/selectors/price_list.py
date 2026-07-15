@@ -2,7 +2,13 @@ from datetime import date
 
 from django.db.models import Count, Q, QuerySet
 
-from apps.pricing.models import DailyRate, ExtraService, PriceList, PricingRule
+from apps.pricing.models import (
+    POST_RENTAL_EXTRA_CODES,
+    DailyRate,
+    ExtraService,
+    PriceList,
+    PricingRule,
+)
 
 
 def list_price_lists() -> QuerySet[PriceList]:
@@ -64,4 +70,11 @@ def get_extra_by_code(price_list: PriceList, code: str) -> ExtraService | None:
 def list_active_extras(price_list: PriceList) -> QuerySet[ExtraService]:
     return price_list.extra_services.filter(is_active=True).order_by(
         "sort_order", "name"
+    )
+
+
+def list_bookable_extras(price_list: PriceList) -> QuerySet[ExtraService]:
+    """Usługi wybieralne przy rezerwacji (bez naliczeń po najmie)."""
+    return list_active_extras(price_list).exclude(
+        code__in=POST_RENTAL_EXTRA_CODES,
     )

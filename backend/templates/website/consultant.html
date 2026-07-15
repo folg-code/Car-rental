@@ -3,7 +3,7 @@
 {% block title %}Asystent{% endblock %}
 
 {% block content %}
-{% include "website/partials/page_header.html" with eyebrow="Pomoc" title="Asystent wypozyczalni" subtitle="Rozmowa z asystentem AI. Nie podawaj numeru PESEL ani wrazliwych danych. Asystent nie tworzy rezerwacji — skorzystaj z formularza online." %}
+{% include "website/partials/page_header.html" with eyebrow="Pomoc" title="Asystent wypożyczalni" subtitle="Rozmowa z asystentem AI. Nie podawaj numeru PESEL ani wrażliwych danych. Asystent nie tworzy rezerwacji — skorzystaj z formularza online." %}
 
 <section class="site-container py-8 md:py-12 max-w-2xl flex flex-col min-h-[60vh]">
     {% if error %}
@@ -39,22 +39,22 @@
         hx-on::after-request="if(event.detail.successful) this.reset()"
     >
         {% csrf_token %}
-        <label for="chat-input" class="sr-only">Wiadomosc</label>
+        <label for="chat-input" class="sr-only">Wiadomość</label>
         <input
             id="chat-input"
             type="text"
             name="message"
             required
             maxlength="4000"
-            placeholder="Np. Jak dziala kaucja?"
+            placeholder="Np. Jak działa kaucja?"
             class="form-input flex-1"
         />
-        <button type="submit" class="btn-primary shrink-0 px-6">Wyslij</button>
+        <button type="submit" class="btn-primary shrink-0 px-6">Wyślij</button>
     </form>
 
     <p class="mt-4 text-xs text-gray-500 text-center">
-        Wolisz zarezerwowac samodzielnie?
-        <a href="{% url 'website:public_booking' %}" class="link-brand">Formularz rezerwacji</a>
+        Wolisz zarezerwować samodzielnie?
+        <a href="{% url 'website:availability_search' %}" class="link-brand">Sprawdź dostępność</a>
     </p>
 </section>
 {% endblock %}

@@ -51,11 +51,11 @@ def _booking_payload(car: Car) -> dict[str, str]:
 
 @pytest.mark.django_db
 class TestPublicBookingView:
-    def test_get_returns_form(self, client) -> None:
-        response = client.get(reverse("website:public_booking"))
+    def test_get_redirects_to_offer_booking_step(self, client) -> None:
+        response = client.get(reverse("website:public_booking"), follow=True)
         assert response.status_code == 200
-        assert b"Rezerwacja online" in response.content
-        assert b"Zloz rezerwacje" in response.content
+        assert "Złóż rezerwację".encode() in response.content
+        assert reverse("website:car_offer") in response.redirect_chain[-1][0]
 
     def test_post_creates_reservation_and_redirects(
         self, client, booking_car: Car
@@ -77,7 +77,7 @@ class TestPublicBookingView:
         )
         response = client.get(reverse("website:booking_confirmation"))
         assert response.status_code == 200
-        assert b"Rezerwacja przyjeta" in response.content
+        assert "Rezerwacja przyjęta".encode() in response.content
         assert b"500" in response.content
 
         response_again = client.get(reverse("website:booking_confirmation"))
@@ -96,7 +96,7 @@ class TestPublicBookingView:
             f"{reverse('website:public_booking')}?car={booking_car.pk}"
             "&start_at=2026-06-10T10:00&end_at=2026-06-15T10:00"
         )
-        response = client.get(url)
+        response = client.get(url, follow=True)
         assert response.status_code == 200
         assert str(booking_car.pk).encode() in response.content
 

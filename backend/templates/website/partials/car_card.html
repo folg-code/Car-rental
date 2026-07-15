@@ -35,35 +35,11 @@
             Rok {{ car.year }} · {{ car.get_fuel_type_display }} · {{ car.seats }} miejsc
             {% if car.color %} · {{ car.color|capfirst }}{% endif %}
         </p>
-        {% if show_actions and search_result %}
-        <div class="mt-4 flex flex-wrap gap-2">
-            <a
-                href="{% url 'website:price_quote' %}?car={{ car.pk }}&start_at={{ search_result.start_at|date:'Y-m-d' }}T{{ search_result.start_at|time:'H:i' }}&end_at={{ search_result.end_at|date:'Y-m-d' }}T{{ search_result.end_at|time:'H:i' }}"
-                class="btn-secondary py-2 px-4 text-xs"
-            >Wycena</a>
-            <a
-                href="{% url 'website:public_booking' %}?car={{ car.pk }}&start_at={{ search_result.start_at|date:'Y-m-d' }}T{{ search_result.start_at|time:'H:i' }}&end_at={{ search_result.end_at|date:'Y-m-d' }}T{{ search_result.end_at|time:'H:i' }}"
-                class="btn-primary py-2 px-4 text-xs"
-            >Rezerwuj</a>
-        </div>
-        {% elif show_actions %}
-        <div class="mt-4 flex flex-wrap gap-2">
-            {% if quote_url %}
-            <a href="{{ quote_url }}" class="btn-secondary py-2 px-4 text-xs">Wycena</a>
-            {% endif %}
-            {% if book_url %}
-            <a href="{{ book_url }}" class="btn-primary py-2 px-4 text-xs">Rezerwuj</a>
-            {% endif %}
-        </div>
-        {% else %}
         <div class="mt-4">
-            <a href="{% url 'website:availability_search' %}" class="inline-flex items-center text-sm font-semibold text-brand-700 hover:text-brand-800">
-                Sprawdz dostepnosc
-                <svg class="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-            </a>
+            <a
+                href="{% url 'website:car_offer' %}?car={{ car.pk }}{% if search_result %}&start_at={{ search_result.start_at|date:'Y-m-d' }}T{{ search_result.start_at|time:'H:i' }}&end_at={{ search_result.end_at|date:'Y-m-d' }}T{{ search_result.end_at|time:'H:i' }}{% endif %}"
+                class="btn-primary py-2 px-4 text-xs w-full sm:w-auto"
+            >Sprawdź ofertę</a>
         </div>
-        {% endif %}
     </div>
 </article>

@@ -120,7 +120,7 @@ jobs:
             chmod +x scripts/restore.sh
             chmod +x scripts/backup-restore-selftest.sh
 
-            if [ -n "$GHCR_READ_TOKEN" ]; then
+            if [ -n "${GHCR_READ_TOKEN:-}" ]; then
               echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             fi
 

@@ -8,7 +8,8 @@ from django.test import Client
 
 @pytest.mark.django_db
 def test_health_returns_ok_when_database_and_redis_are_up() -> None:
-    response = Client().get("/health/")
+    with patch("config.health_views._ping_redis"):
+        response = Client().get("/health/")
 
     assert response.status_code == 200
     body = response.json()

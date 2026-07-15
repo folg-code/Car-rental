@@ -6,6 +6,7 @@ from apps.documents.constants import (
     HANDOVER_PROTOCOL_PDF_TEMPLATE,
     RETURN_PROTOCOL_PDF_TEMPLATE,
 )
+from apps.documents.pdf_test_support import weasyprint_available
 from apps.documents.services.pdf_renderer import PdfRenderer
 
 
@@ -61,6 +62,10 @@ def return_pdf_context(handover_pdf_context: dict) -> dict:
 
 @pytest.mark.django_db
 class TestPdfRenderer:
+    @pytest.mark.skipif(
+        not weasyprint_available(),
+        reason="WeasyPrint native libraries unavailable",
+    )
     def test_html_to_pdf_returns_pdf_magic_bytes(self) -> None:
         pdf_bytes = PdfRenderer.html_to_pdf(
             "<html><body><p>Test protokolu</p></body></html>"
@@ -68,6 +73,10 @@ class TestPdfRenderer:
         assert PdfRenderer.is_pdf(pdf_bytes)
         assert len(pdf_bytes) > 100
 
+    @pytest.mark.skipif(
+        not weasyprint_available(),
+        reason="WeasyPrint native libraries unavailable",
+    )
     def test_render_handover_protocol_template(
         self,
         handover_pdf_context: dict,
@@ -79,6 +88,10 @@ class TestPdfRenderer:
         assert PdfRenderer.is_pdf(pdf_bytes)
         assert len(pdf_bytes) > 500
 
+    @pytest.mark.skipif(
+        not weasyprint_available(),
+        reason="WeasyPrint native libraries unavailable",
+    )
     def test_render_return_protocol_template(
         self,
         return_pdf_context: dict,

@@ -425,6 +425,18 @@ Po seedzie warto zajrzeć do panelu: **Pulpit**, **Operacje** (wydania/zwroty), 
 cd backend && python manage.py seed_demo
 ```
 
+### Demo produkcyjne (VPS pokazowy)
+
+Wdrożenie na serwerze **nie wymaga** prawdziwej bramki płatności ani regulaminu prawnego. System działa jak produkcja (HTTPS, Docker, backup), ale płatności online obsługuje **mock** (`PAYMENT_GATEWAY_PROVIDER=mock`, strona `/platnosc/mock/`).
+
+Checklist: [`docs/DEPLOY.md`](docs/DEPLOY.md). Po deploy:
+
+```bash
+docker compose -f docker-compose.prod.yml exec web python backend/manage.py seed_demo
+```
+
+Konta demo (`admin` / `demo1234`) są **zamierzone** na wersji pokazowej.
+
 ### Zmienne środowiskowe
 
 | Zmienna | Opis | Przykład |
@@ -565,9 +577,9 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 6 | Operations (wydanie/zwrot, snapshoty, podpisy) | ✅ |
 | 7 | Documents (PDF, email, faktury, private storage) | ✅ |
 | 8 | Dashboard KPI + Website publiczna | ✅ |
-| 8b | AI Chatbot — konsultant klienta | Planned |
-| 9 | Produkcja i płatności online | 🟡 |
-| 9+ | Rozszerzenia (raporty, SMS, i18n) | Backlog |
+| 8b | AI Chatbot — konsultant klienta | ✅ |
+| 9 | Produkcja i płatności online (mock) | ✅ |
+| 9+ | Demo prod + rozszerzenia (raporty, SMS) | 🟡 |
 
 ### Sprint 8 — taski (szczegóły w [`PROJECT_PLAN.md`](PROJECT_PLAN.md))
 

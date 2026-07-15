@@ -13,10 +13,10 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 9+ — rozszerzenia (w toku) |
-| **Następny krok** | Bramka produkcyjna (P24/Stripe) |
-| **Postęp ogólny** | ~97% (Sprint 0–9 + rozszerzenia paperless/finanse) |
-| **Ostatnia aktualizacja** | 2026-07-14 |
+| **Aktualny etap** | Demo produkcyjne — hardening wdrożenia |
+| **Następny krok** | Checklist demo prod (HTTPS, seed, wolumeny Docker) |
+| **Postęp ogólny** | ~97% funkcji; wdrożenie demo prod w toku |
+| **Ostatnia aktualizacja** | 2026-07-15 |
 | **Branch** | `main` |
 | **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
 
@@ -65,7 +65,26 @@
 
 <!-- Bieżące zadania — edytuj na bieżąco -->
 
-- [ ] **Bramka produkcyjna** — Stripe / Przelewy24 / PayU (Sprint 9+)
+### Demo produkcyjne (wersja pokazowa)
+
+Cel: system działa na VPS jak produkcja (HTTPS, Docker, backup, pełny flow), ale **bez prawdziwych płatności i bez dokumentów prawnych**. Mock bramki i placeholder regulaminu są **zamierzone**.
+
+- [ ] **Checklist demo prod** — `DEBUG=False`, SMTP (console lub testowa skrzynka), `seed_demo`, weryfikacja flow end-to-end na VPS
+- [ ] **Health check** — endpoint `/health/` (DB + Redis) opcjonalnie dla monitoringu uptime
+- [ ] **LOGGING** — podstawowa konfiguracja `LOGGING` w settings (plik/stdout na VPS)
+
+**Poza zakresem wersji demo (nie planujemy):**
+
+- Prawdziwa bramka (Stripe / P24 / PayU)
+- Regulamin / polityka prywatności od prawnika, cookie consent RODO
+- Twilio SMS produkcyjny (wystarczy mock / wyłączone)
+
+**Backlog opcjonalny (po starcie demo):**
+
+- [ ] Monitoring / alerty (uptime, Celery queue)
+- [ ] Celery Beat — auto-wygasanie `pending_payment`
+- [ ] Redis cache zamiast LocMem (rate limit chatu)
+- [ ] RBAC per rola (accountant vs employee)
 
 ---
 
@@ -747,7 +766,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 ### Płatności (poza MVP Sprint 9)
 
-- [ ] Prawdziwa bramka produkcyjna (Stripe / Przelewy24 / PayU — wybór przy deploy)
+- [ ] ~~Prawdziwa bramka produkcyjna~~ — **poza zakresem wersji demo**; mock (`PAYMENT_GATEWAY_PROVIDER=mock`) jest docelowy dla wdrożenia pokazowego
 
 ### Bezpieczeństwo i compliance
 
@@ -755,6 +774,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 - [ ] Szyfrowane PDF
 - [x] Audit log operacji krytycznych — `apps.audit`, hooki w serwisach
 - [x] Bezpieczne uploady (walidacja typu/rozmiaru) — PR #56
+- [ ] Dokumenty prawne RODO — **poza zakresem wersji demo** (placeholder regulaminu wystarczy)
 
 ### Infrastruktura produkcyjna
 

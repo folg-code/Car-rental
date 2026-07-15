@@ -17,13 +17,7 @@ services:
     restart: unless-stopped
     env_file:
       - .env.production
-    command: >
-      sh -c "python backend/manage.py migrate --noinput &&
-             gunicorn config.wsgi:application
-             --chdir backend
-             --bind 0.0.0.0:8000
-             --workers 3
-             --timeout 60"
+    command: sh -c "python backend/manage.py migrate --noinput && gunicorn config.wsgi:application --chdir backend --bind 0.0.0.0:8000 --workers 3 --timeout 60"
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
@@ -47,7 +41,7 @@ services:
     restart: unless-stopped
     env_file:
       - .env.production
-    command: celery -A config worker -l info --workdir backend --concurrency=2
+    command: sh -c "cd backend && celery -A config worker -l info --concurrency=2"
     depends_on:
       db:
         condition: service_healthy

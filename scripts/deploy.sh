@@ -37,6 +37,12 @@ echo "==> Run migrations"
 docker compose -f "$COMPOSE_FILE" run --rm web \
 	python backend/manage.py migrate --noinput
 
+echo "==> Ensure writable volume permissions"
+docker compose -f "$COMPOSE_FILE" run --rm --user root web \
+	sh -c "mkdir -p /app/staticfiles /app/media && chown -R app:app /app/staticfiles /app/media"
+docker compose -f "$COMPOSE_FILE" run --rm --user root celery \
+	sh -c "mkdir -p /app/private_documents /app/media && chown -R app:app /app/private_documents /app/media"
+
 echo "==> Collect static files"
 docker compose -f "$COMPOSE_FILE" run --rm web \
 	python backend/manage.py collectstatic --noinput

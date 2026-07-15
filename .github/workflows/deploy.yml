@@ -99,14 +99,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: |
-            docker-compose.prod.yml
-            deploy/Caddyfile
-            scripts/deploy.sh
-            scripts/backup.sh
-            scripts/restore.sh
-            scripts/backup-restore-selftest.sh
-            .env.example
+          source: "docker-compose.prod.yml,deploy/Caddyfile,scripts/deploy.sh,scripts/backup.sh,scripts/restore.sh,scripts/backup-restore-selftest.sh,.env.example"
           target: ${{ secrets.DEPLOY_PATH }}
 
       - name: Run deployment on VPS

@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 12 — Demo polish / UX v2 |
-| **Następny krok** | Smoke na domenie (10.8–10.10) / backup cron (10.14) |
-| **Postęp ogólny** | Funkcje ~97%; Sprint 12 (ops UX) w toku |
+| **Aktualny etap** | Sprint 10 — domknięcie ops (smoke / backup) |
+| **Następny krok** | Deploy `dev`→`main` (cron backup) + smoke na domenie (10.8–10.10) |
+| **Postęp ogólny** | Funkcje ~98%; Sprint 12 ✅ |
 | **Ostatnia aktualizacja** | 2026-07-17 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -43,7 +43,7 @@
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ | 100% |
 | **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~80%** |
 | 11 | Utrzymanie i observability demo | ⬜ | 0% |
-| **12** | **Demo polish / UX v2** | **🟡** | **~85%** |
+| **12** | **Demo polish / UX v2** | **✅** | **100%** |
 
 ---
 
@@ -71,9 +71,9 @@
 
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-**Sprint 12 (bieżący):** **12.1–12.11** ✅.
+**Sprint 12:** **12.1–12.11** ✅ (w `dev`).
 
-**Odłożone (Sprint 10):** 10.8–10.10 smoke na domenie, 10.14 cron backup.
+**Sprint 10 — domknięcie:** 10.14 cron backup (instalator + hook w `deploy.sh`); dalej smoke na domenie 10.8–10.10.
 
 **Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
 
@@ -102,10 +102,8 @@
 - [x] Health endpoint `GET /health/` (Sprint 10.15 / PR #61)
 - [x] Gałąź `dev` jako integracja sprintów (CI na PR → `dev`)
 - [x] `seed_demo` na produkcji (Sprint 10.7)
-- [x] Sprint 12.1 — asystent klienta v2 (daty względne, dopytanie o termin, kaucje)
-- [x] Sprint 12.6–12.11 — entry panel, ops mobile, kolejki wydań/zwrotów
-- [x] Sprint 12.4–12.5 — email rezerwacji (kaucja + portal) + retry emaili protokołów
-- [x] Sprint 12.2–12.3 — portal OTP (email/nr rezerwacji) + widoki rezerwacji/dokumentów
+- [x] Sprint 12.1–12.11 — demo polish / UX v2 (asystent, portal OTP, emaile, ops panel)
+- [x] Sprint 10.14 — `install-backup-cron.sh` + hook w `deploy.sh`
 
 ---
 - [x] Docker Compose (db + web)
@@ -791,7 +789,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 | **10.11** | Runbook demo | Ścieżki testowe, konta, znane ograniczenia mock | `docs/DEMO_RUNBOOK.md` | ✅ |
 | **10.12** | Baner „wersja demo” | `DEMO_SITE=True` + baner na `base_public.html` | `settings.py`, `demo_banner.html` | ✅ |
 | **10.13** | Etykieta mock checkout | Tekst „wersja demonstracyjna” na `/platnosc/mock/` | `mock_payment_checkout.html` | ✅ |
-| **10.14** | Backup po deploy | Cron `backup.sh` + weryfikacja `backup-restore-selftest.sh` na VPS | `scripts/backup.sh`, `docs/DEPLOY.md` | ⬜ |
+| **10.14** | Backup po deploy | Cron `backup.sh` + weryfikacja `backup-restore-selftest.sh` na VPS | `scripts/install-backup-cron.sh`, `deploy.sh`, `docs/DEPLOY.md` | ✅ |
 
 ### Observability (opcjonalnie w Sprint 10 lub przenieś do 11)
 
@@ -808,7 +806,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 - [x] `seed_demo` załadowany — 18 scenariuszy do prezentacji
 - [ ] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end *(testy CI ✅; smoke na domenie ⬜)*
 - [ ] Pełny flow panelu (wydanie → zwrot → rozliczenie) działa na danych seed *(testy CI ✅; smoke na domenie ⬜)*
-- [ ] Backup DB skonfigurowany (cron)
+- [ ] Backup DB skonfigurowany (cron) — instalator w repo; aktywacja po następnym deployu na VPS
 - [x] Runbook demo dla prezentacji (`docs/DEMO_RUNBOOK.md`)
 
 **Szacunek:** domknięcie operacyjne na VPS (10.14 + smoke ręczny 10.8–10.10).

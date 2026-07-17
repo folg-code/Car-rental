@@ -118,6 +118,7 @@ W panelu szukaj rezerwacji po markerze `DEMO_SEED:<klucz>` w polu notatki lub po
 - [ ] PDF protokołu dostępny po wydaniu (wolumen `private_documents`)
 - [ ] `docker compose -f docker-compose.prod.yml logs celery --tail 20` — brak crashy
 - [ ] `./scripts/backup.sh` — backup OK
+- [ ] `./scripts/install-backup-cron.sh --check` — cron backup zainstalowany
 
 ---
 

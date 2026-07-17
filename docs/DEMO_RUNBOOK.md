@@ -55,15 +55,20 @@ Hasła demo są **zamierzone** na wersji pokazowej.
 
 Zaloguj się jako **`admin`** / `demo1234`.
 
+Po logowaniu wybierz tryb:
+
+1. **Wydaj / zwróć pojazd** — praca terenowa (mobile)
+2. albo **Panel administratora** — pulpit KPI
+
 | Krok | Moduł | Co pokazać |
 |------|-------|------------|
-| 1 | **Pulpit** `/panel/` | KPI, nieopłacone wynajmy, kolejki wydania/zwrotu, alerty dokumentów |
-| 2 | **Operacje** `/panel/operacje/` | Wynajem **ops-handover-today** — wydanie dziś |
-| 3 | **Wydanie** | Protokół wydania (zdjęcia, podpis) → wynajem `active` |
-| 4 | **Wynajem aktywny** | **ops-active** — kaucja wpłacona, saldo |
-| 5 | **Zwrot** | **ops-return-surcharges** — dopłaty km/paliwo, `RentalCharge` |
-| 6 | **Płatności** `/panel/platnosci/` | Rozliczenie, raporty |
-| 7 | **Raporty** `/panel/raporty/` | Przychód vs kaucje |
+| 1 | **Start** `/panel/` | Kafelki: admin vs teren |
+| 2 | **Operacje** `/panel/operacje/` | Kafelki Wydaj / Zwróć |
+| 3 | **Kolejka wydań** `/panel/operacje/wydania/` | Wynajem **ops-handover-today** — wydanie dziś |
+| 4 | **Wydanie** | Protokół wydania (zdjęcia, podpis) → wynajem `active` |
+| 5 | **Kolejka zwrotów** `/panel/operacje/zwroty/` | **ops-return-surcharges** — dopłaty km/paliwo |
+| 6 | **Admin** `/panel/admin/` | KPI, nieopłacone, alerty floty (bez kolejek wydania/zwrotu) |
+| 7 | **Płatności** `/panel/platnosci/` | Rozliczenie, raporty |
 | 8 | **Flota** `/panel/flota/` | Dokumenty wygasające, uszkodzenia, blokada serwisowa KR1DEMO5 |
 
 ---

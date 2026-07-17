@@ -13,12 +13,12 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 10 — Demo produkcyjne |
-| **Następny krok** | Task 10.14 — cron backup na VPS; smoke na domenie (10.8–10.10) |
-| **Postęp ogólny** | Funkcje ~97%; Sprint 10 ~80% |
+| **Aktualny etap** | Sprint 12 — Demo polish / UX v2 |
+| **Następny krok** | Sprint 12.1–12.5 (asystent / portal / emaile) albo PR `feat/sprint-12-ops-panel-entry` → `dev` |
+| **Postęp ogólny** | Funkcje ~97%; Sprint 12 (ops UX) w toku |
 | **Ostatnia aktualizacja** | 2026-07-17 |
-| **Branch** | `dev` (integracja) → `main` (prod / deploy) |
-| **Repozytorium** | Live VPS + domena; PR-y sprintów najpierw do `dev` |
+| **Branch** | `feat/*` → `dev` → `main` (deploy) |
+| **Repozytorium** | Live VPS; integracja na `dev` |
 
 ### Legenda postępu sprintu
 
@@ -43,7 +43,7 @@
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ | 100% |
 | **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~80%** |
 | 11 | Utrzymanie i observability demo | ⬜ | 0% |
-| 12+ | Backlog opcjonalny (po starcie demo) | ⬜ | — |
+| **12** | **Demo polish / UX v2** | **🟡** | **~40%** |
 
 ---
 
@@ -71,9 +71,11 @@
 
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-**Sprint 10 (bieżący):** taski **10.8–10.10, 10.14** — smoke na domenie + cron backup. Observability **10.15–10.18** ✅.
+**Sprint 12 (bieżący):** **12.6–12.11** ✅ (ops UX). Dalej: **12.1–12.5** (asystent, portal klienta, emaile).
 
-**Gałęzie:** feature → PR do `dev` → po integracji PR `dev` → `main` (deploy prod).
+**Odłożone (Sprint 10):** 10.8–10.10 smoke na domenie, 10.14 cron backup.
+
+**Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
 
 **Poza zakresem wersji demo:** prawdziwa bramka płatności, regulamin/RODO od prawnika, Twilio SMS prod.
 
@@ -100,6 +102,7 @@
 - [x] Health endpoint `GET /health/` (Sprint 10.15 / PR #61)
 - [x] Gałąź `dev` jako integracja sprintów (CI na PR → `dev`)
 - [x] `seed_demo` na produkcji (Sprint 10.7)
+- [x] Sprint 12.6–12.11 — entry panel, ops mobile, kolejki wydań/zwrotów
 
 ---
 - [x] Docker Compose (db + web)
@@ -853,12 +856,12 @@ Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla k
 | 12.3 | Panel klienta — widoki | Klient może podejrzeć swoje rezerwacje, najmy oraz dokumenty przypięte do najmów/rezerwacji; dokumenty dostępne do pobrania z poziomu panelu. |
 | 12.4 | Email po rezerwacji klienta | Utworzenie rezerwacji przez klienta wysyła potwierdzenie na email: status, auto/kategoria, termin, cena/kaucja, link do panelu klienta. |
 | 12.5 | Email po wydaniu/zwrocie | Po zakończeniu wydania albo zwrotu pojazdu klient dostaje email z dokumentem/protokołem; obsługa błędów przez `EmailLog` i retry Celery. |
-| 12.6 | Panel pracownika — ekran startowy | Po wejściu do panelu pracownik widzi kafelki zamiast od razu dashboardu: „Panel administratora” oraz „Wydaj / zwróć pojazd”. |
-| 12.7 | Panel administratora bez operacji | Operacje wydania/zwrotu nie są częścią panelu administratora, bo są przeznaczone do pracy mobilnej w terenie. Admin zostaje dla dashboardów, floty, rezerwacji, płatności, dokumentów, raportów i konfiguracji. |
-| 12.8 | Panel wydaj / zwróć pojazd | Widok mobilny z dwoma kafelkami: „Wydaj pojazd” oraz „Zwróć pojazd”. |
-| 12.9 | Kolejka zwrotów | Lista wydanych pojazdów do zwrotu posortowana tak, żeby najbliżej kończące się najmy były na górze; najmy przeterminowane wyróżnione. |
-| 12.10 | Kolejka wydań | Lista rezerwacji/najmów gotowych do wydania, z priorytetem na dzisiaj i zaległe; szybkie wejście w workflow wydania. |
-| 12.11 | Mobilny panel operacyjny | Przebudować wersję mobilną panelu: obecny sidebar zajmuje zbyt dużo ekranu i jest zbędny na telefonie. Na mobile priorytetem są operacje terenowe, a większość pracy biurowej/adminowej odbywa się stacjonarnie. |
+| 12.6 | Panel pracownika — ekran startowy | Po wejściu do panelu pracownik widzi kafelki zamiast od razu dashboardu: „Panel administratora” oraz „Wydaj / zwróć pojazd”. | ✅ |
+| 12.7 | Panel administratora bez operacji | Operacje wydania/zwrotu nie są częścią panelu administratora, bo są przeznaczone do pracy mobilnej w terenie. Admin zostaje dla dashboardów, floty, rezerwacji, płatności, dokumentów, raportów i konfiguracji. | ✅ |
+| 12.8 | Panel wydaj / zwróć pojazd | Widok mobilny z dwoma kafelkami: „Wydaj pojazd” oraz „Zwróć pojazd”. | ✅ |
+| 12.9 | Kolejka zwrotów | Lista wydanych pojazdów do zwrotu posortowana tak, żeby najbliżej kończące się najmy były na górze; najmy przeterminowane wyróżnione. | ✅ |
+| 12.10 | Kolejka wydań | Lista rezerwacji/najmów gotowych do wydania, z priorytetem na dzisiaj i zaległe; szybkie wejście w workflow wydania. | ✅ |
+| 12.11 | Mobilny panel operacyjny | Przebudować wersję mobilną panelu: obecny sidebar zajmuje zbyt dużo ekranu i jest zbędny na telefonie. Na mobile priorytetem są operacje terenowe, a większość pracy biurowej/adminowej odbywa się stacjonarnie. | ✅ |
 
 #### Definition of Done — Demo polish / UX v2
 
@@ -866,9 +869,9 @@ Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla k
 - [ ] Klient ma bezpieczny sposób wejścia do swoich rezerwacji, najmów i dokumentów.
 - [ ] Rezerwacja z kanału publicznego wysyła email potwierdzający.
 - [ ] Wydanie i zwrot wysyłają klientowi dokument/protokół emailem.
-- [ ] Pracownik po wejściu do panelu wybiera ścieżkę: administracja albo praca terenowa.
-- [ ] Operacje wydania/zwrotu są mobile-first i oddzielone od panelu administratora.
-- [ ] Na telefonie panel operacyjny nie pokazuje dużego sidebara; ekran jest zoptymalizowany pod szybkie wydanie/zwrot pojazdu.
+- [x] Pracownik po wejściu do panelu wybiera ścieżkę: administracja albo praca terenowa.
+- [x] Operacje wydania/zwrotu są mobile-first i oddzielone od panelu administratora.
+- [x] Na telefonie panel operacyjny nie pokazuje dużego sidebara; ekran jest zoptymalizowany pod szybkie wydanie/zwrot pojazdu.
 
 ### Płatności (poza zakresem demo)
 
@@ -930,11 +933,11 @@ Sprint 9 (płatności online + Celery + deploy)
     ↓
 Sprint 9+ (raporty, SMS, seed rozbudowany) ✅
     ↓
-Sprint 10 (demo produkcyjne — VPS pokazowy)  ← BIEŻĄCY
+Sprint 10 (demo produkcyjne — VPS pokazowy) 🟡 (smoke/backup odłożone)
     ↓
 Sprint 11 (utrzymanie demo — opcjonalnie)
     ↓
-Sprint 12+ (backlog — pełna prod biznesowa, i18n, RBAC, …)
+Sprint 12 (demo polish / UX v2)  ← BIEŻĄCY (12.6–12.11)
 ```
 
 **Nie przeskakiwać:** operations i PDF przed fleet + bookings + snapshotami cen.

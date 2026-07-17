@@ -19,7 +19,7 @@
             {% if user.is_authenticated %}
                 <span>{{ user.username }}</span>
                 {% if user.is_staff_member %}
-                <a href="{% url 'dashboard:home' %}" class="underline">Panel</a>
+                <a href="{% url 'dashboard:entry' %}" class="underline">Panel</a>
                 {% endif %}
                 <form method="post" action="{% url 'accounts:logout' %}" class="inline">
                     {% csrf_token %}

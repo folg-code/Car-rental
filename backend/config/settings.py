@@ -74,7 +74,7 @@ INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
 AUTH_USER_MODEL = "accounts.User"
 
 LOGIN_URL = "accounts:login"
-LOGIN_REDIRECT_URL = "dashboard:home"
+LOGIN_REDIRECT_URL = "dashboard:entry"
 LOGOUT_REDIRECT_URL = "home"
 
 MIDDLEWARE = [

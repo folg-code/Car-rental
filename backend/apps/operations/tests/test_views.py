@@ -26,7 +26,42 @@ class TestOperationsViews:
     def test_home_for_staff(self, staff_client, scheduled_rental) -> None:
         response = staff_client.get(reverse("operations:home"))
         assert response.status_code == 200
-        assert b"Operacje w terenie" in response.content
+        assert "Wydaj / zwróć pojazd".encode() in response.content
+        assert b"Wydaj pojazd" in response.content
+        assert "Zwróć pojazd".encode() in response.content
+        assert reverse("operations:handover_queue").encode() in response.content
+        assert reverse("operations:return_queue").encode() in response.content
+
+    def test_handover_queue_lists_scheduled_rental(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        response = staff_client.get(reverse("operations:handover_queue"))
+        assert response.status_code == 200
+        assert "Kolejka wydań".encode() in response.content
+        assert f"Wynajem #{scheduled_rental.pk}".encode() in response.content
+        assert b"Wydaj" in response.content
+
+    def test_return_queue_lists_active_rental(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        HandoverService.complete_handover(
+            scheduled_rental.pk,
+            mileage=10_000,
+            fuel_level_percent=100,
+            signer_name="Jan",
+            signature_image=_tiny_image(),
+        )
+        response = staff_client.get(reverse("operations:return_queue"))
+        assert response.status_code == 200
+        assert "Kolejka zwrotów".encode() in response.content
+        assert f"Wynajem #{scheduled_rental.pk}".encode() in response.content
+
+    def test_ops_pages_hide_sidebar_on_mobile_flag(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        response = staff_client.get(reverse("operations:home"))
+        assert response.context["ops_mobile_layout"] is True
+        assert b"lg:hidden" in response.content
 
     def test_handover_form_has_wizard(self, staff_client, scheduled_rental) -> None:
         response = staff_client.get(

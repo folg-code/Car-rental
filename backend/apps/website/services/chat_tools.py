@@ -212,23 +212,49 @@ def format_tool_results(results: tuple[ChatToolResult, ...]) -> str:
     return "\n\n".join(parts)
 
 
+def _polish_available_cars_phrase(count: int) -> str:
+    if count == 1:
+        return "1 wolne auto"
+    if 12 <= (count % 100) <= 14:
+        return f"{count} wolnych aut"
+    if (count % 10) in (2, 3, 4):
+        return f"{count} wolne auta"
+    return f"{count} wolnych aut"
+
+
+def _format_chat_date(iso_value: str) -> str:
+    """YYYY-MM-DD… → DD.MM.YYYY (opcjonalnie + HH:MM)."""
+    date_part = iso_value[:10]
+    try:
+        year, month, day = date_part.split("-")
+        label = f"{day}.{month}.{year}"
+    except ValueError:
+        return date_part
+    if len(iso_value) >= 16 and iso_value[10] in "T ":
+        time_part = iso_value[11:16]
+        if time_part and time_part != "00:00":
+            return f"{label}, {time_part}"
+    return label
+
+
 def _format_search(data: dict) -> str:
     if data.get("count", 0) == 0:
         return (
-            "Na podane daty nie mam wolnych aut. Sprobuj inny termin "
-            "lub skorzystaj z wyszukiwarki dostepnosci na stronie."
+            "Na podany termin nie mam wolnych aut. Sprobuj inny termin "
+            "albo skorzystaj z wyszukiwarki dostepnosci na stronie."
         )
+    start_label = _format_chat_date(str(data["start_at"]))
+    end_label = _format_chat_date(str(data["end_at"]))
     lines = [
-        f"Znalazlem {data['count']} wolne auto/auta "
-        f"({data['start_at'][:10]} — {data['end_at'][:10]}):",
+        f"Na termin {start_label} — {end_label} mam "
+        f"{_polish_available_cars_phrase(int(data['count']))}:",
     ]
     for car in data["cars"]:
         lines.append(
-            f"- {car['label']} ({car['category']}), rej. {car['registration_number']}"
+            f"- {car['label']} ({car['category']}) — zarezerwuj: {car['booking_link']}",
         )
-        lines.append(f"  Rezerwacja: {car['booking_link']}")
     if data["count"] > len(data["cars"]):
-        lines.append("… i wiecej — pelna lista na stronie Dostepnosc.")
+        lines.append("… i wiecej — pelna lista na stronie oferty.")
     return "\n".join(lines)
 
 

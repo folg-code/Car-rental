@@ -76,6 +76,18 @@ services:
       retries: 3
       start_period: 30s
 
+  celery-beat:
+    image: ${WEB_IMAGE:-ghcr.io/folg-code/car-rental:latest}
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    command: sh -c "cd backend && celery -A config beat -l info"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   caddy:
     profiles: ["https"]
     image: caddy:2-alpine

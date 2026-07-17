@@ -74,6 +74,8 @@ class TestOperationsViews:
         assert "Protokół wydania".encode() in response.content
         assert b"op-wizard-nav" in response.content
         assert b"Krok 1: Dane pojazdu" in response.content
+        assert b"op-signature-canvas" in response.content
+        assert b"data-signature-pad" in response.content
 
     def test_return_form_has_wizard_and_htmx_preview(
         self, staff_client, scheduled_rental

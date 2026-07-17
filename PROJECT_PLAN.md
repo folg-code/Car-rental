@@ -528,7 +528,7 @@
 | 3 | Wprowadzenie: przebiegu, poziomu paliwa, uwag | [x] |
 | 4 | Dodanie zdjęć auta (`capture="environment"`) | [x] |
 | 5 | Oznaczenie szkód (snapshot istniejących + nowe z protokołu) | [x] |
-| 6 | Podpis klienta palcem (canvas / upload obrazu podpisu) | [x] |
+| 6 | Podpis klienta palcem (canvas / upload obrazu podpisu) | [x] canvas + opcjonalne zdjęcie |
 | 7 | Wygenerowanie PDF protokołu wydania | [x] |
 | 8 | Automatyczne wysłanie emaila do klienta z PDF | [x] |
 | 9 | Automatyczna zmiana statusu `Rental` → **active** | [x] (`HandoverService` → `RentalService.start`) |
@@ -544,7 +544,7 @@
 | 3 | Porównanie szkód z wydaniem (`DamageSnapshot` z handover vs stan przy zwrocie) | [x] snapshoty + UI porównania side-by-side |
 | 4 | Dodanie nowych szkód | [x] |
 | 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [x] podgląd HTMX + auto `RentalCharge` → `payments` |
-| 6 | Podpis klienta | [x] |
+| 6 | Podpis klienta | [x] canvas + opcjonalne zdjęcie |
 | 7 | Generacja PDF protokołu zwrotu | [x] |
 | 8 | Email do klienta z PDF | [x] |
 | 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] `mark_returned` + auto `close` gdy saldo = 0 |

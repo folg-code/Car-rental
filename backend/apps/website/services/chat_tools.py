@@ -10,7 +10,8 @@ from django.urls import reverse
 from apps.bookings.models import Reservation
 from apps.bookings.selectors.customer import get_customer_by_user_id
 from apps.bookings.selectors.reservation import list_reservations
-from apps.fleet.models import Car
+from apps.fleet.models import Car, CarCategory
+from apps.fleet.selectors.car import list_categories
 from apps.website.faq_content import FAQ_ITEMS
 from apps.website.selectors.availability_search import search_available_cars
 from apps.website.selectors.price_quote import get_price_quote
@@ -127,6 +128,39 @@ def execute_get_faq_snippet(*, topic: str = "") -> ChatToolResult:
     )
 
 
+def execute_ask_clarifying_question(*, question: str) -> ChatToolResult:
+    return ChatToolResult(
+        tool_name="ask_clarifying_question",
+        data={"question": question},
+    )
+
+
+def execute_get_deposit_info(*, category_id: int | None = None) -> ChatToolResult:
+    categories = list(list_categories())
+    if category_id is not None:
+        categories = [c for c in categories if c.pk == category_id]
+        if not categories:
+            category = CarCategory.objects.filter(pk=category_id).first()
+            if category is None:
+                return ChatToolResult(
+                    tool_name="get_deposit_info",
+                    data={"error": "Nie znaleziono takiej kategorii."},
+                )
+            categories = [category]
+    rows = [
+        {
+            "id": category.pk,
+            "name": category.name,
+            "deposit": str(category.deposit),
+        }
+        for category in categories
+    ]
+    return ChatToolResult(
+        tool_name="get_deposit_info",
+        data={"categories": rows},
+    )
+
+
 def execute_get_my_reservation_status(
     *,
     user: AbstractBaseUser | None,
@@ -238,9 +272,33 @@ def _format_reservations(data: dict) -> str:
     return "\n".join(lines)
 
 
+def _format_clarifying(data: dict) -> str:
+    return str(data.get("question") or "Mozesz doprecyzowac pytanie?")
+
+
+def _format_deposit(data: dict) -> str:
+    if "error" in data:
+        return str(data["error"])
+    rows = data.get("categories") or []
+    if not rows:
+        return "Nie mam jeszcze danych o kaucjach w cenniku kategorii."
+    if len(rows) == 1:
+        row = rows[0]
+        return (
+            f"Kaucja dla kategorii {row['name']}: {row['deposit']} PLN "
+            "(zwrotna po rozliczeniu wynajmu)."
+        )
+    lines = ["Kaucje wg kategorii:"]
+    for row in rows:
+        lines.append(f"- {row['name']}: {row['deposit']} PLN")
+    return "\n".join(lines)
+
+
 _FORMATTERS = {
     "search_available_cars": _format_search,
     "estimate_price": _format_estimate,
     "get_faq_snippet": _format_faq,
     "get_my_reservation_status": _format_reservations,
+    "ask_clarifying_question": _format_clarifying,
+    "get_deposit_info": _format_deposit,
 }

@@ -108,6 +108,9 @@ class TestChatToolRouter:
         assert results[0].tool_name == "ask_clarifying_question"
         assert "termin" in results[0].data["question"].lower()
 
+    def test_how_to_booking_does_not_force_tools(self) -> None:
+        assert ChatToolRouter.run_for_message("Jak zarezerwowac auto?") == ()
+
     @patch(
         "apps.website.services.chat_tool_router.timezone.localdate",
         return_value=date(2026, 7, 17),

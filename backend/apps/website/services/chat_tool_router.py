@@ -32,9 +32,12 @@ _AVAILABILITY_KEYWORDS = (
     "wolne",
     "wolny",
     "wolna",
+    "flota",
+)
+
+_VEHICLE_KEYWORDS = (
     "auto",
     "samochod",
-    "flota",
     "pojazd",
 )
 
@@ -226,6 +229,24 @@ def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
     return any(_fold(keyword) in folded for keyword in keywords)
 
 
+def _is_how_to_question(text: str) -> bool:
+    """„Jak zarezerwować…” to proces, nie prośba o termin."""
+    return bool(re.search(r"(^|\s)jak\s+", _fold(text)))
+
+
+def _wants_availability_or_booking(text: str) -> bool:
+    if _contains_any(text, _AVAILABILITY_KEYWORDS):
+        return True
+    if _is_how_to_question(text):
+        return False
+    if _contains_any(text, _BOOKING_KEYWORDS):
+        return True
+    return _contains_any(text, _VEHICLE_KEYWORDS) and _contains_any(
+        text,
+        ("wolne", "dostepn", "wynajm", "zarezerw"),
+    )
+
+
 def _extract_car_id(text: str) -> int | None:
     match = re.search(r"(?:auto|car|id)\s*[#:]?\s*(\d+)", text, re.IGNORECASE)
     if match:
@@ -288,10 +309,7 @@ class ChatToolRouter:
             topic = _faq_topic_from_text(lowered)
             results.append(execute_get_faq_snippet(topic=topic))
 
-        wants_availability = _contains_any(
-            lowered,
-            _AVAILABILITY_KEYWORDS + _BOOKING_KEYWORDS,
-        )
+        wants_availability = _wants_availability_or_booking(lowered)
         wants_price = _contains_any(lowered, _PRICE_KEYWORDS)
         date_range = resolve_date_range(text)
         category_id = _extract_category_id(lowered)

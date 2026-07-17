@@ -74,7 +74,7 @@ INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
 AUTH_USER_MODEL = "accounts.User"
 
 LOGIN_URL = "accounts:login"
-LOGIN_REDIRECT_URL = "dashboard:home"
+LOGIN_REDIRECT_URL = "dashboard:entry"
 LOGOUT_REDIRECT_URL = "home"
 
 MIDDLEWARE = [
@@ -180,6 +180,8 @@ LLM_MODEL = env("LLM_MODEL", default="gpt-4o-mini")
 LLM_MAX_TOKENS = env.int("LLM_MAX_TOKENS", default=1024)
 CHAT_RATE_LIMIT_PER_HOUR = env.int("CHAT_RATE_LIMIT_PER_HOUR", default=30)
 CHAT_MESSAGE_RETENTION_DAYS = env.int("CHAT_MESSAGE_RETENTION_DAYS", default=90)
+CHAT_DEFAULT_PICKUP_HOUR = env.int("CHAT_DEFAULT_PICKUP_HOUR", default=10)
+CHAT_DEFAULT_RETURN_HOUR = env.int("CHAT_DEFAULT_RETURN_HOUR", default=10)
 
 CACHES = {
     "default": {
@@ -290,3 +292,44 @@ if not DEBUG:
             for host in ALLOWED_HOSTS
             if host not in {"localhost", "127.0.0.1", "0.0.0.0"}
         ]
+
+# --- Logging (stdout — Docker / journald) ---
+LOG_LEVEL = env("LOG_LEVEL", default="INFO")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} [{name}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "celery": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}

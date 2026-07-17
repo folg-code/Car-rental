@@ -79,7 +79,16 @@ class EmailService:
         """Kolejkuje wysylke — worker Celery wykonuje send_document_email."""
         from apps.documents.tasks import send_document_email_task
 
-        send_document_email_task.delay(document_id, sent_by_id=sent_by_id)
+        try:
+            send_document_email_task.delay(document_id, sent_by_id=sent_by_id)
+        except Exception:
+            # Przy CELERY_TASK_ALWAYS_EAGER retry Celery propaguje wyjatek do
+            # callera (np. complete_handover). EmailLog juz ma status failed —
+            # operacja biznesowa nie moze sie przez to wycofac.
+            logger.exception(
+                "Document email task failed synchronously for document %s",
+                document_id,
+            )
 
     @staticmethod
     def send_document_email(

@@ -1,0 +1,12 @@
+Witaj {{ customer_name }},
+
+Twoj kod logowania do panelu klienta Car Rental:
+
+{{ code }}
+
+Kod jest wazny {{ ttl_minutes }} minut.
+
+Jesli to nie Ty prosiles o kod, zignoruj te wiadomosc.
+
+Pozdrawiamy,
+Car Rental

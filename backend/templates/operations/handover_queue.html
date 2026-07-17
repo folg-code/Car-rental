@@ -1,0 +1,49 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Kolejka wydań{% endblock %}
+{% block page_heading %}Kolejka wydań{% endblock %}
+{% block page_subheading %}
+<p class="text-sm text-gray-500 mt-1">Najpierw zaległe i dzisiejsze</p>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <a href="{% url 'operations:home' %}" class="inline-block text-sm text-gray-500 hover:text-gray-800 mb-4">
+        ← Operacje
+    </a>
+
+    <ul class="space-y-3">
+        {% for rental in pending_handover %}
+        <li class="bg-white rounded-xl border {% if rental.queue_priority == 0 %}border-red-400{% elif rental.queue_priority == 1 %}border-amber-400{% else %}border-gray-200{% endif %} p-4 flex justify-between items-center gap-3">
+            <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                    <p class="font-medium text-gray-900">Wynajem #{{ rental.pk }}</p>
+                    {% if rental.queue_priority == 0 %}
+                    <span class="text-xs font-medium uppercase tracking-wide text-red-700 bg-red-50 px-2 py-0.5 rounded">Zaległe</span>
+                    {% elif rental.queue_priority == 1 %}
+                    <span class="text-xs font-medium uppercase tracking-wide text-amber-800 bg-amber-50 px-2 py-0.5 rounded">Dziś</span>
+                    {% endif %}
+                </div>
+                <p class="text-sm text-gray-500 truncate">
+                    {{ rental.reservation.customer.full_name }} ·
+                    {{ rental.reservation.car.registration_number }}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
+                    Start: {{ rental.scheduled_start_at|date:"Y-m-d H:i" }}
+                </p>
+            </div>
+            <a
+                href="{% url 'operations:handover_create' rental.pk %}"
+                class="bg-black text-white px-4 py-3 rounded-lg text-sm font-medium shrink-0"
+            >
+                Wydaj
+            </a>
+        </li>
+        {% empty %}
+        <li class="text-gray-500 text-sm bg-white rounded-xl border border-gray-200 p-6">
+            Brak wynajmów do wydania.
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

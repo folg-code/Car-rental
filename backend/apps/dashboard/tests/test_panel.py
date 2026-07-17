@@ -3,12 +3,9 @@ from datetime import date, timedelta
 import pytest
 from django.conf import settings
 from django.urls import reverse
-from django.utils import timezone
 
 from apps.accounts.models import UserRole
 from apps.accounts.services.user import UserService
-from apps.bookings.demo_seed.protocols import seed_completed_handover
-from apps.bookings.models import RentalStatus
 from apps.dashboard.views import DASHBOARD_QUEUE_LIMIT
 from apps.fleet.models import Car, CarDocument, CarDocumentType, CarStatus
 
@@ -17,19 +14,44 @@ from .conftest import sample_document_file
 
 @pytest.mark.django_db
 class TestPanelAccess:
+    def test_entry_redirects_anonymous_user(self, client) -> None:
+        response = client.get(reverse("dashboard:entry"))
+        assert response.status_code == 302
+        assert response.url.startswith(reverse("accounts:login"))
+
     def test_panel_redirects_anonymous_user(self, client) -> None:
         response = client.get(reverse("dashboard:home"))
         assert response.status_code == 302
         assert response.url.startswith(reverse("accounts:login"))
 
-    def test_panel_uses_internal_layout(self, client, staff_user) -> None:
+    def test_entry_shows_mode_tiles(self, client, staff_user) -> None:
+        client.login(username="dashboard-staff", password="secure-pass-123")
+        response = client.get(reverse("dashboard:entry"))
+        assert response.status_code == 200
+        assert b"Panel administratora" in response.content
+        assert "Wydaj / zwróć pojazd".encode() in response.content
+        assert reverse("dashboard:home").encode() in response.content
+        assert reverse("operations:home").encode() in response.content
+
+    def test_admin_panel_uses_internal_layout(self, client, staff_user) -> None:
         client.login(username="dashboard-staff", password="secure-pass-123")
         response = client.get(reverse("dashboard:home"))
         assert response.status_code == 200
-        assert b"Panel operacyjny" in response.content
-        assert b"Car Rental" in response.content
         assert b"Pulpit" in response.content
+        assert b"Car Rental" in response.content
         assert b"Aktywne rezerwacje" in response.content
+        assert "Zmień tryb pracy".encode() in response.content
+
+    def test_admin_nav_excludes_operations(self, client, staff_user) -> None:
+        client.login(username="dashboard-staff", password="secure-pass-123")
+        response = client.get(reverse("dashboard:home"))
+        nav_html = response.content.decode()
+        # Sidebar labels — "Operacje" as nav item removed (Sprint 12.7).
+        assert (
+            'href="' + reverse("operations:home") + '"'
+            not in nav_html.split("<main")[0]
+        )
+        assert "Flota" in nav_html
 
     def test_fleet_list_accessible_for_staff(self, client) -> None:
         UserService.create_user(
@@ -55,15 +77,13 @@ class TestPanelHomeContext:
             "today",
             "unpaid_rentals_queue",
             "fleet_document_alerts",
-            "pending_handover",
-            "pending_return",
         ):
             assert key in response.context
 
+        assert "pending_handover" not in response.context
+        assert "pending_return" not in response.context
         assert len(response.context["unpaid_rentals_queue"]) <= DASHBOARD_QUEUE_LIMIT
         assert len(response.context["fleet_document_alerts"]) <= DASHBOARD_QUEUE_LIMIT
-        assert len(response.context["pending_handover"]) <= DASHBOARD_QUEUE_LIMIT
-        assert len(response.context["pending_return"]) <= DASHBOARD_QUEUE_LIMIT
 
 
 @pytest.mark.django_db
@@ -76,9 +96,9 @@ class TestPanelDashboardWidgets:
         assert "Nieopłacone wynajmy".encode() in content
         assert "Przychód (ten miesiąc)".encode() in content
         assert "Alerty dokumentów floty".encode() in content
-        assert b"Kolejka operacji" in content
-        assert b"Do wydania" in content
-        assert b"Do zwrotu" in content
+        assert b"Kolejka operacji" not in content
+        assert b"Do wydania" not in content
+        assert b"Do zwrotu" not in content
 
     def test_panel_shows_unpaid_rental_queue(
         self, client, staff_user, scheduled_rental
@@ -114,32 +134,6 @@ class TestPanelDashboardWidgets:
         assert response.status_code == 200
         assert b"DASH02" in response.content
         assert b"Ubezpieczenie OC/AC" in response.content
-
-    def test_panel_shows_pending_handover_queue(
-        self, client, staff_user, scheduled_rental
-    ) -> None:
-        client.login(username="dashboard-staff", password="secure-pass-123")
-        response = client.get(reverse("dashboard:home"))
-
-        assert response.status_code == 200
-        assert b"Do wydania" in response.content
-        assert f"Wynajem #{scheduled_rental.pk}".encode() in response.content
-        assert b"Wydaj" in response.content
-
-    def test_panel_shows_pending_return_queue(
-        self, client, staff_user, scheduled_rental
-    ) -> None:
-        scheduled_rental.status = RentalStatus.ACTIVE
-        scheduled_rental.save(update_fields=["status"])
-        seed_completed_handover(scheduled_rental, at=timezone.now())
-
-        client.login(username="dashboard-staff", password="secure-pass-123")
-        response = client.get(reverse("dashboard:home"))
-
-        assert response.status_code == 200
-        assert b"Do zwrotu" in response.content
-        assert f"Wynajem #{scheduled_rental.pk}".encode() in response.content
-        assert b"Zwrot" in response.content
 
 
 @pytest.mark.django_db

@@ -1,0 +1,36 @@
+{% extends "base_internal.html" %}
+
+{% block title %}Start{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto pt-6 sm:pt-16">
+    <h1 class="text-2xl sm:text-3xl font-semibold text-gray-900 text-center mb-2">
+        Co chcesz zrobić?
+    </h1>
+    <p class="text-center text-gray-500 mb-8 sm:mb-12">
+        Wybierz panel biurowy albo pracę w terenie przy pojeździe.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <a
+            href="{% url 'dashboard:home' %}"
+            class="block rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm hover:border-gray-400 hover:shadow transition min-h-[9rem]"
+        >
+            <p class="text-lg font-semibold text-gray-900">Panel administratora</p>
+            <p class="mt-2 text-sm text-gray-500 leading-relaxed">
+                Pulpit, flota, rezerwacje, płatności, dokumenty i raporty.
+            </p>
+        </a>
+
+        <a
+            href="{% url 'operations:home' %}"
+            class="block rounded-xl border border-gray-900 bg-gray-900 p-6 sm:p-8 text-white shadow-sm hover:bg-black transition min-h-[9rem]"
+        >
+            <p class="text-lg font-semibold">Wydaj / zwróć pojazd</p>
+            <p class="mt-2 text-sm text-gray-300 leading-relaxed">
+                Kolejki wydań i zwrotów — tryb mobilny do pracy w terenie.
+            </p>
+        </a>
+    </div>
+</div>
+{% endblock %}

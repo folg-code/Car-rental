@@ -27,7 +27,11 @@ def locmem_email(settings) -> None:
 
 @pytest.fixture
 def category(db) -> CarCategory:
-    return CarCategory.objects.create(name="Kompakt", slug="kompakt-email")
+    return CarCategory.objects.create(
+        name="Kompakt",
+        slug="kompakt-email",
+        deposit=Decimal("800.00"),
+    )
 
 
 @pytest.fixture
@@ -77,6 +81,10 @@ class TestReservationEmailService:
         assert str(result.reservation.pk) in message.subject
         assert "Zaplac online" in message.alternatives[0][0]
         assert "/rezerwacja/" in message.body
+        assert "Kaucja:" in message.body
+        assert "800" in message.body
+        assert "/konto/" in message.body
+        assert "logowanie-kodem" in message.body
 
     def test_send_confirmed_email_direct(self, car: Car) -> None:
         result = PublicBookingOrchestrator.submit(

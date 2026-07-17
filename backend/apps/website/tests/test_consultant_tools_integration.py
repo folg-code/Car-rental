@@ -87,3 +87,22 @@ class TestConsultantChatToolsIntegration:
             user=user,
         )
         assert "Potwierdzona" in assistant.content
+
+    def test_clarifying_question_without_dates(self) -> None:
+        assistant = ConsultantChatService.send_message(
+            "",
+            "Sprawdz dostepnosc samochodow",
+            client_ip="127.0.0.1",
+        )
+        assert "termin" in assistant.content.lower()
+
+    def test_deposit_question(self, category: CarCategory) -> None:
+        category.deposit = Decimal("1800.00")
+        category.save(update_fields=["deposit"])
+        assistant = ConsultantChatService.send_message(
+            "",
+            "Jaka kaucja za kompakt?",
+            client_ip="127.0.0.1",
+        )
+        assert "1800.00" in assistant.content
+        assert "kaucj" in assistant.content.lower()

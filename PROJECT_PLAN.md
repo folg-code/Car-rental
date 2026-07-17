@@ -13,12 +13,12 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 10 — Demo produkcyjne |
-| **Następny krok** | Task 10.5 — pierwszy deploy VPS + `seed_demo` |
-| **Postęp ogólny** | Funkcje ~97%; Sprint 10 ~45% |
-| **Ostatnia aktualizacja** | 2026-07-15 |
-| **Branch** | `main` |
-| **Repozytorium** | 4+ commity; `backend/apps/` w repo (commit: *introduce architecture*) |
+| **Aktualny etap** | Sprint 10 — domknięcie ops (smoke / backup) |
+| **Następny krok** | Deploy `dev`→`main` (cron backup) + smoke na domenie (10.8–10.10) |
+| **Postęp ogólny** | Funkcje ~98%; Sprint 12 ✅ |
+| **Ostatnia aktualizacja** | 2026-07-17 |
+| **Branch** | `feat/*` → `dev` → `main` (deploy) |
+| **Repozytorium** | Live VPS; integracja na `dev` |
 
 ### Legenda postępu sprintu
 
@@ -41,9 +41,9 @@
 | 8b | Chat AI — konsultant klienta | ✅ | 100% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ | 100% |
-| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~45%** |
+| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~80%** |
 | 11 | Utrzymanie i observability demo | ⬜ | 0% |
-| 12+ | Backlog opcjonalny (po starcie demo) | ⬜ | — |
+| **12** | **Demo polish / UX v2** | **✅** | **100%** |
 
 ---
 
@@ -71,7 +71,11 @@
 
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-**Sprint 10 (bieżący):** taski **10.5–10.10, 10.14** — deploy VPS, seed, smoke testy, backup.
+**Sprint 12:** **12.1–12.11** ✅ (w `dev`).
+
+**Sprint 10 — domknięcie:** 10.14 cron backup (instalator + hook w `deploy.sh`); dalej smoke na domenie 10.8–10.10.
+
+**Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
 
 **Poza zakresem wersji demo:** prawdziwa bramka płatności, regulamin/RODO od prawnika, Twilio SMS prod.
 
@@ -94,6 +98,12 @@
 - [x] `.env.production.example` + CI deploy check (Sprint 10.3–10.4)
 - [x] Runbook demo `docs/DEMO_RUNBOOK.md` (Sprint 10.11)
 - [x] Baner demo `DEMO_SITE` (Sprint 10.12)
+- [x] Live deploy VPS + HTTPS/domena (Sprint 10.5–10.6)
+- [x] Health endpoint `GET /health/` (Sprint 10.15 / PR #61)
+- [x] Gałąź `dev` jako integracja sprintów (CI na PR → `dev`)
+- [x] `seed_demo` na produkcji (Sprint 10.7)
+- [x] Sprint 12.1–12.11 — demo polish / UX v2 (asystent, portal OTP, emaile, ops panel)
+- [x] Sprint 10.14 — `install-backup-cron.sh` + hook w `deploy.sh`
 
 ---
 - [x] Docker Compose (db + web)
@@ -517,7 +527,7 @@
 | 3 | Wprowadzenie: przebiegu, poziomu paliwa, uwag | [x] |
 | 4 | Dodanie zdjęć auta (`capture="environment"`) | [x] |
 | 5 | Oznaczenie szkód (snapshot istniejących + nowe z protokołu) | [x] |
-| 6 | Podpis klienta palcem (canvas / upload obrazu podpisu) | [x] |
+| 6 | Podpis klienta palcem (canvas / upload obrazu podpisu) | [x] canvas + opcjonalne zdjęcie |
 | 7 | Wygenerowanie PDF protokołu wydania | [x] |
 | 8 | Automatyczne wysłanie emaila do klienta z PDF | [x] |
 | 9 | Automatyczna zmiana statusu `Rental` → **active** | [x] (`HandoverService` → `RentalService.start`) |
@@ -533,7 +543,7 @@
 | 3 | Porównanie szkód z wydaniem (`DamageSnapshot` z handover vs stan przy zwrocie) | [x] snapshoty + UI porównania side-by-side |
 | 4 | Dodanie nowych szkód | [x] |
 | 5 | Wyliczenie dopłat (paliwo, km, szkody — wg cennika) | [x] podgląd HTMX + auto `RentalCharge` → `payments` |
-| 6 | Podpis klienta | [x] |
+| 6 | Podpis klienta | [x] canvas + opcjonalne zdjęcie |
 | 7 | Generacja PDF protokołu zwrotu | [x] |
 | 8 | Email do klienta z PDF | [x] |
 | 9 | Zamknięcie wynajmu (`returned` → opcjonalnie `closed` po rozliczeniu) | [x] `mark_returned` + auto `close` gdy saldo = 0 |
@@ -770,36 +780,36 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 | **10.2** | Dokumentacja zakresu demo | Strategia demo prod vs pełna prod; checklist deploy | `PROJECT_PLAN.md`, `DEPLOY.md`, `README.md` | ✅ |
 | **10.3** | Szablon `.env.production` | `.env.production.example` + odniesienie w `.env.example` | ✅ |
 | **10.4** | CI deploy check | `django check --deploy` w `.github/workflows/ci.yml` | ✅ |
-| **10.5** | Pierwszy deploy VPS | `./scripts/deploy.sh`, `ENABLE_DEPLOY=true`, secrets SSH | `scripts/deploy.sh`, `docs/CICD.md` | ⬜ |
-| **10.6** | HTTPS + domena | Caddy + Let's Encrypt; `DOMAIN`, `ACME_EMAIL` | `docker-compose.prod.yml`, `deploy/Caddyfile` | ⬜ |
-| **10.7** | Seed na prod | `seed_demo` po deploy; konta `admin`/`manager`/`klient` | `bookings/management/commands/seed_demo.py` | ⬜ |
-| **10.8** | Smoke: flow publiczny | Wyszukiwarka → rezerwacja → mock payment → `confirmed` → email w logach | ręcznie / `website/tests/` | ⬜ |
-| **10.9** | Smoke: flow panelu | Wydanie → aktywny → zwrot z dopłatami → płatność → zamknięcie | ręcznie / `operations/tests/` | ⬜ |
-| **10.10** | Smoke: portal klienta | Login `klient` / `demo1234` → lista rezerwacji → szczegóły | ręcznie / `website/tests/test_portal_views.py` | ⬜ |
+| **10.5** | Pierwszy deploy VPS | `./scripts/deploy.sh`, `ENABLE_DEPLOY=true`, secrets SSH | `scripts/deploy.sh`, `docs/CICD.md` | ✅ |
+| **10.6** | HTTPS + domena | Caddy + Let's Encrypt; `DOMAIN`, `ACME_EMAIL` | `docker-compose.prod.yml`, `deploy/Caddyfile` | ✅ |
+| **10.7** | Seed na prod | `seed_demo` po deploy; konta `admin`/`manager`/`klient` | `bookings/management/commands/seed_demo.py` | ✅ |
+| **10.8** | Smoke: flow publiczny | Wyszukiwarka → rezerwacja → mock payment → `confirmed` → email w logach | ręcznie na domenie / `website/tests/` | 🟡 |
+| **10.9** | Smoke: flow panelu | Wydanie → aktywny → zwrot z dopłatami → płatność → zamknięcie | ręcznie na domenie / `operations/tests/` | 🟡 |
+| **10.10** | Smoke: portal klienta | Login `klient` / `demo1234` → lista rezerwacji → szczegóły | ręcznie na domenie / `website/tests/test_portal_views.py` | 🟡 |
 | **10.11** | Runbook demo | Ścieżki testowe, konta, znane ograniczenia mock | `docs/DEMO_RUNBOOK.md` | ✅ |
 | **10.12** | Baner „wersja demo” | `DEMO_SITE=True` + baner na `base_public.html` | `settings.py`, `demo_banner.html` | ✅ |
 | **10.13** | Etykieta mock checkout | Tekst „wersja demonstracyjna” na `/platnosc/mock/` | `mock_payment_checkout.html` | ✅ |
-| **10.14** | Backup po deploy | Cron `backup.sh` + weryfikacja `backup-restore-selftest.sh` na VPS | `scripts/backup.sh`, `docs/DEPLOY.md` | ⬜ |
+| **10.14** | Backup po deploy | Cron `backup.sh` + weryfikacja `backup-restore-selftest.sh` na VPS | `scripts/install-backup-cron.sh`, `deploy.sh`, `docs/DEPLOY.md` | ✅ |
 
 ### Observability (opcjonalnie w Sprint 10 lub przenieś do 11)
 
 | ID | Task | Opis | Status |
 |----|------|------|--------|
-| **10.15** | Health endpoint | `GET /health/` — DB + Redis (200/503) | ⬜ |
-| **10.16** | LOGGING | Konfiguracja `LOGGING` w `settings.py` (stdout, poziom INFO) | ⬜ |
-| **10.17** | Healthcheck compose | Redis + celery w `docker-compose.prod.yml` | ⬜ |
-| **10.18** | Uptime monitoring | Dokumentacja UptimeRobot / cron `curl /health/` | `docs/DEPLOY.md` | ⬜ |
+| **10.15** | Health endpoint | `GET /health/` — DB + Redis (200/503) | ✅ |
+| **10.16** | LOGGING | Konfiguracja `LOGGING` w `settings.py` (stdout, poziom INFO) | ✅ |
+| **10.17** | Healthcheck compose | Redis + celery (+ web) w `docker-compose.prod.yml` | ✅ |
+| **10.18** | Uptime monitoring | Dokumentacja UptimeRobot / cron `curl /health/` | `docs/DEPLOY.md` | ✅ |
 
 ### Definition of Done Sprint 10
 
-- [ ] Aplikacja dostępna pod publiczną domeną HTTPS
-- [ ] `seed_demo` załadowany — 18 scenariuszy do prezentacji
-- [ ] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end
-- [ ] Pełny flow panelu (wydanie → zwrot → rozliczenie) działa na danych seed
-- [ ] Backup DB skonfigurowany (cron)
-- [ ] Runbook demo dla prezentacji (`docs/DEMO_RUNBOOK.md`)
+- [x] Aplikacja dostępna pod publiczną domeną HTTPS
+- [x] `seed_demo` załadowany — 18 scenariuszy do prezentacji
+- [ ] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end *(testy CI ✅; smoke na domenie ⬜)*
+- [ ] Pełny flow panelu (wydanie → zwrot → rozliczenie) działa na danych seed *(testy CI ✅; smoke na domenie ⬜)*
+- [ ] Backup DB skonfigurowany (cron) — instalator w repo; aktywacja po następnym deployu na VPS
+- [x] Runbook demo dla prezentacji (`docs/DEMO_RUNBOOK.md`)
 
-**Szacunek:** 3–5 dni roboczych (10.1–10.4, 10.11–10.13 ✅; pozostałe 10.5–10.10, 10.14).
+**Szacunek:** domknięcie operacyjne na VPS (10.14 + smoke ręczny 10.8–10.10).
 
 ---
 
@@ -813,7 +823,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 | ID | Task | Opis | Status |
 |----|------|------|--------|
-| **11.1** | Health + logging | Domknięcie 10.15–10.16 jeśli nie zrobione w Sprint 10 | ⬜ |
+| **11.1** | Health + logging | Domknięcie 10.15–10.16 — **zrobione w Sprint 10** | ✅ |
 | **11.2** | Uptime alerty | Monitoring zewnętrzny + alert email przy 5xx | ⬜ |
 | **11.3** | Celery Beat | Auto-wygasanie rezerwacji `pending_payment` (np. 48 h) | ⬜ |
 | **11.4** | Redis cache | Zamiana `LocMemCache` na Redis — rate limit chatu między workerami | ⬜ |
@@ -842,25 +852,27 @@ Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla k
 
 | ID | Task | Opis |
 |----|------|------|
-| 12.1 | Asystent klienta v2 | Poprawić rozumienie intencji: dostępność aut, daty względne („jutro”, „weekend”), kaucje, zasady wynajmu; zamiast generycznej odpowiedzi ma zadawać pytania doprecyzowujące albo pokazać auta/link do rezerwacji. |
-| 12.2 | Panel klienta — dostęp | Logowanie klienta po emailu albo po numerze rezerwacji; wymagane zabezpieczenia przed podglądem cudzych danych (rate limit, weryfikacja email/telefon lub magic link). |
-| 12.3 | Panel klienta — widoki | Klient może podejrzeć swoje rezerwacje, najmy oraz dokumenty przypięte do najmów/rezerwacji; dokumenty dostępne do pobrania z poziomu panelu. |
-| 12.4 | Email po rezerwacji klienta | Utworzenie rezerwacji przez klienta wysyła potwierdzenie na email: status, auto/kategoria, termin, cena/kaucja, link do panelu klienta. |
-| 12.5 | Email po wydaniu/zwrocie | Po zakończeniu wydania albo zwrotu pojazdu klient dostaje email z dokumentem/protokołem; obsługa błędów przez `EmailLog` i retry Celery. |
-| 12.6 | Panel pracownika — ekran startowy | Po wejściu do panelu pracownik widzi kafelki zamiast od razu dashboardu: „Panel administratora” oraz „Wydaj / zwróć pojazd”. |
-| 12.7 | Panel administratora bez operacji | Operacje wydania/zwrotu nie są częścią panelu administratora, bo są przeznaczone do pracy mobilnej w terenie. Admin zostaje dla dashboardów, floty, rezerwacji, płatności, dokumentów, raportów i konfiguracji. |
-| 12.8 | Panel wydaj / zwróć pojazd | Widok mobilny z dwoma kafelkami: „Wydaj pojazd” oraz „Zwróć pojazd”. |
-| 12.9 | Kolejka zwrotów | Lista wydanych pojazdów do zwrotu posortowana tak, żeby najbliżej kończące się najmy były na górze; najmy przeterminowane wyróżnione. |
-| 12.10 | Kolejka wydań | Lista rezerwacji/najmów gotowych do wydania, z priorytetem na dzisiaj i zaległe; szybkie wejście w workflow wydania. |
+| 12.1 | Asystent klienta v2 | Poprawić rozumienie intencji: dostępność aut, daty względne („jutro”, „weekend”), kaucje, zasady wynajmu; zamiast generycznej odpowiedzi ma zadawać pytania doprecyzowujące albo pokazać auta/link do rezerwacji. | ✅ |
+| 12.2 | Panel klienta — dostęp | Logowanie klienta po emailu albo po numerze rezerwacji; wymagane zabezpieczenia przed podglądem cudzych danych (rate limit, weryfikacja email/telefon lub magic link). | ✅ |
+| 12.3 | Panel klienta — widoki | Klient może podejrzeć swoje rezerwacje, najmy oraz dokumenty przypięte do najmów/rezerwacji; dokumenty dostępne do pobrania z poziomu panelu. | ✅ |
+| 12.4 | Email po rezerwacji klienta | Utworzenie rezerwacji przez klienta wysyła potwierdzenie na email: status, auto/kategoria, termin, cena/kaucja, link do panelu klienta. | ✅ |
+| 12.5 | Email po wydaniu/zwrocie | Po zakończeniu wydania albo zwrotu pojazdu klient dostaje email z dokumentem/protokołem; obsługa błędów przez `EmailLog` i retry Celery. | ✅ |
+| 12.6 | Panel pracownika — ekran startowy | Po wejściu do panelu pracownik widzi kafelki zamiast od razu dashboardu: „Panel administratora” oraz „Wydaj / zwróć pojazd”. | ✅ |
+| 12.7 | Panel administratora bez operacji | Operacje wydania/zwrotu nie są częścią panelu administratora, bo są przeznaczone do pracy mobilnej w terenie. Admin zostaje dla dashboardów, floty, rezerwacji, płatności, dokumentów, raportów i konfiguracji. | ✅ |
+| 12.8 | Panel wydaj / zwróć pojazd | Widok mobilny z dwoma kafelkami: „Wydaj pojazd” oraz „Zwróć pojazd”. | ✅ |
+| 12.9 | Kolejka zwrotów | Lista wydanych pojazdów do zwrotu posortowana tak, żeby najbliżej kończące się najmy były na górze; najmy przeterminowane wyróżnione. | ✅ |
+| 12.10 | Kolejka wydań | Lista rezerwacji/najmów gotowych do wydania, z priorytetem na dzisiaj i zaległe; szybkie wejście w workflow wydania. | ✅ |
+| 12.11 | Mobilny panel operacyjny | Przebudować wersję mobilną panelu: obecny sidebar zajmuje zbyt dużo ekranu i jest zbędny na telefonie. Na mobile priorytetem są operacje terenowe, a większość pracy biurowej/adminowej odbywa się stacjonarnie. | ✅ |
 
 #### Definition of Done — Demo polish / UX v2
 
-- [ ] Asystent poprawnie obsługuje pytania typu „czy są wolne auta na jutro?” i „sprawdź dostępność samochodów”.
-- [ ] Klient ma bezpieczny sposób wejścia do swoich rezerwacji, najmów i dokumentów.
-- [ ] Rezerwacja z kanału publicznego wysyła email potwierdzający.
-- [ ] Wydanie i zwrot wysyłają klientowi dokument/protokół emailem.
-- [ ] Pracownik po wejściu do panelu wybiera ścieżkę: administracja albo praca terenowa.
-- [ ] Operacje wydania/zwrotu są mobile-first i oddzielone od panelu administratora.
+- [x] Asystent poprawnie obsługuje pytania typu „czy są wolne auta na jutro?” i „sprawdź dostępność samochodów”.
+- [x] Klient ma bezpieczny sposób wejścia do swoich rezerwacji, najmów i dokumentów.
+- [x] Rezerwacja z kanału publicznego wysyła email potwierdzający.
+- [x] Wydanie i zwrot wysyłają klientowi dokument/protokół emailem.
+- [x] Pracownik po wejściu do panelu wybiera ścieżkę: administracja albo praca terenowa.
+- [x] Operacje wydania/zwrotu są mobile-first i oddzielone od panelu administratora.
+- [x] Na telefonie panel operacyjny nie pokazuje dużego sidebara; ekran jest zoptymalizowany pod szybkie wydanie/zwrot pojazdu.
 
 ### Płatności (poza zakresem demo)
 
@@ -922,11 +934,11 @@ Sprint 9 (płatności online + Celery + deploy)
     ↓
 Sprint 9+ (raporty, SMS, seed rozbudowany) ✅
     ↓
-Sprint 10 (demo produkcyjne — VPS pokazowy)  ← BIEŻĄCY
+Sprint 10 (demo produkcyjne — VPS pokazowy) 🟡 (smoke/backup odłożone)
     ↓
 Sprint 11 (utrzymanie demo — opcjonalnie)
     ↓
-Sprint 12+ (backlog — pełna prod biznesowa, i18n, RBAC, …)
+Sprint 12 (demo polish / UX v2)  ← DONE (12.1–12.11)
 ```
 
 **Nie przeskakiwać:** operations i PDF przed fleet + bookings + snapshotami cen.

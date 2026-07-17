@@ -53,4 +53,17 @@ docker compose -f "$COMPOSE_FILE" restart web celery
 echo "==> Remove dangling images"
 docker image prune -f
 
+if [ "${INSTALL_BACKUP_CRON:-1}" = "1" ]; then
+	echo "==> Ensure daily backup cron"
+	if [ -x "$APP_DIR/scripts/install-backup-cron.sh" ]; then
+		APP_DIR="$APP_DIR" COMPOSE_FILE="$COMPOSE_FILE" \
+			"$APP_DIR/scripts/install-backup-cron.sh" \
+			|| echo "WARN: backup cron install failed (non-fatal)"
+	else
+		echo "WARN: scripts/install-backup-cron.sh missing — skip cron"
+	fi
+else
+	echo "==> INSTALL_BACKUP_CRON=0 — skipped backup cron"
+fi
+
 echo "==> Deploy finished successfully"

@@ -55,15 +55,20 @@ Hasła demo są **zamierzone** na wersji pokazowej.
 
 Zaloguj się jako **`admin`** / `demo1234`.
 
+Po logowaniu wybierz tryb:
+
+1. **Wydaj / zwróć pojazd** — praca terenowa (mobile)
+2. albo **Panel administratora** — pulpit KPI
+
 | Krok | Moduł | Co pokazać |
 |------|-------|------------|
-| 1 | **Pulpit** `/panel/` | KPI, nieopłacone wynajmy, kolejki wydania/zwrotu, alerty dokumentów |
-| 2 | **Operacje** `/panel/operacje/` | Wynajem **ops-handover-today** — wydanie dziś |
-| 3 | **Wydanie** | Protokół wydania (zdjęcia, podpis) → wynajem `active` |
-| 4 | **Wynajem aktywny** | **ops-active** — kaucja wpłacona, saldo |
-| 5 | **Zwrot** | **ops-return-surcharges** — dopłaty km/paliwo, `RentalCharge` |
-| 6 | **Płatności** `/panel/platnosci/` | Rozliczenie, raporty |
-| 7 | **Raporty** `/panel/raporty/` | Przychód vs kaucje |
+| 1 | **Start** `/panel/` | Kafelki: admin vs teren |
+| 2 | **Operacje** `/panel/operacje/` | Kafelki Wydaj / Zwróć |
+| 3 | **Kolejka wydań** `/panel/operacje/wydania/` | Wynajem **ops-handover-today** — wydanie dziś |
+| 4 | **Wydanie** | Protokół wydania (zdjęcia, podpis) → wynajem `active` |
+| 5 | **Kolejka zwrotów** `/panel/operacje/zwroty/` | **ops-return-surcharges** — dopłaty km/paliwo |
+| 6 | **Admin** `/panel/admin/` | KPI, nieopłacone, alerty floty (bez kolejek wydania/zwrotu) |
+| 7 | **Płatności** `/panel/platnosci/` | Rozliczenie, raporty |
 | 8 | **Flota** `/panel/flota/` | Dokumenty wygasające, uszkodzenia, blokada serwisowa KR1DEMO5 |
 
 ---
@@ -71,9 +76,10 @@ Zaloguj się jako **`admin`** / `demo1234`.
 ## Ścieżka prezentacji C — portal klienta (5 min)
 
 1. Wyloguj z panelu.
-2. Zaloguj **`klient`** / `demo1234`.
-3. **Portal** `/konto/` — rezerwacje powiązane z wynajmem **ops-active**.
-4. Szczegóły rezerwacji, dokumenty (jeśli dostępne).
+2. Wejdź na `/konto/logowanie-kodem/` — podaj email klienta ze seeda albo numer rezerwacji.
+3. Kod OTP wyloguj z konsoli Dockera / outbox (dev) albo skrzynki.
+4. Po zalogowaniu: **Portal** `/konto/` — rezerwacje i dokumenty.
+5. *(Opcjonalnie)* klasyczne logowanie `klient` / `demo1234` nadal działa.
 
 ---
 
@@ -112,6 +118,7 @@ W panelu szukaj rezerwacji po markerze `DEMO_SEED:<klucz>` w polu notatki lub po
 - [ ] PDF protokołu dostępny po wydaniu (wolumen `private_documents`)
 - [ ] `docker compose -f docker-compose.prod.yml logs celery --tail 20` — brak crashy
 - [ ] `./scripts/backup.sh` — backup OK
+- [ ] `./scripts/install-backup-cron.sh --check` — cron backup zainstalowany
 
 ---
 

@@ -140,9 +140,28 @@ Stare backupy (katalogi) są usuwane automatycznie po przekroczeniu retencji.
 
 ### Cron (codziennie o 03:00)
 
+Zalecany sposób — idempotentny instalator (uruchamiany też na końcu `deploy.sh`):
+
+```bash
+cd /opt/car-rental
+./scripts/install-backup-cron.sh
+./scripts/install-backup-cron.sh --check
+```
+
+Skrypt ustawia:
+
+| Godzina | Zadanie | Log |
+|---------|---------|-----|
+| 03:00 | `./scripts/backup.sh` | `$APP_DIR/logs/backup.log` |
+| 04:00 | `purge_chat_messages` | `$APP_DIR/logs/chat-purge.log` |
+
+Wyłączenie przy deployu: `INSTALL_BACKUP_CRON=0 ./scripts/deploy.sh`.
+
+Ręcznie (crontab):
+
 ```cron
-0 3 * * * cd /opt/car-rental && ./scripts/backup.sh >> /var/log/car-rental-backup.log 2>&1
-0 4 * * * cd /opt/car-rental && docker compose -f docker-compose.prod.yml run --rm web python backend/manage.py purge_chat_messages >> /var/log/car-rental-chat-purge.log 2>&1
+0 3 * * * cd /opt/car-rental && ./scripts/backup.sh >> /opt/car-rental/logs/backup.log 2>&1
+0 4 * * * cd /opt/car-rental && docker compose -f docker-compose.prod.yml run --rm web python backend/manage.py purge_chat_messages >> /opt/car-rental/logs/chat-purge.log 2>&1
 ```
 
 ### Offsite (zalecane)
@@ -203,7 +222,7 @@ Skrypt:
 - [ ] `./scripts/deploy.sh`
 - [ ] `docker compose -f docker-compose.prod.yml exec web python backend/manage.py seed_demo`
 - [ ] `./scripts/backup-restore-selftest.sh`
-- [ ] `./scripts/backup.sh` + cron
+- [ ] `./scripts/install-backup-cron.sh` (+ `--check`) albo `./scripts/backup.sh` + ręczny cron
 - [ ] Offsite sync backupów (opcjonalnie dla demo)
 
 ### Wersja demo produkcyjna (pokazowa)
@@ -218,6 +237,29 @@ Wdrożenie na VPS **nie wymaga** prawdziwej bramki płatności ani regulaminu od
 | SMS | `SMS_ENABLED=False` lub mock | Twilio |
 
 Po deploy uruchom `seed_demo` — 18 scenariuszy (wynajmy, płatności mock, portal klienta). Szczegóły kont: [`README.md`](../README.md#dane-demo-seed_demo). **Runbook prezentacji:** [`docs/DEMO_RUNBOOK.md`](DEMO_RUNBOOK.md).
+
+---
+
+## Monitoring uptime (Sprint 10.18)
+
+Endpoint: `GET https://<DOMAIN>/health/` — zwraca `200` gdy DB i Redis odpowiadają, inaczej `503`.
+
+### Opcja A — UptimeRobot (lub analog)
+
+1. Nowy monitor typu **HTTPS**.
+2. URL: `https://twoja-domena.pl/health/`
+3. Interval: 5 min.
+4. Alert email przy status ≠ 200 (próg 2–3 nieudane sprawdzenia).
+
+### Opcja B — cron na VPS
+
+```bash
+# co 5 minut — log + opcjonalny mail przy błędzie
+*/5 * * * * curl -fsS -o /dev/null -w "%{http_code}" https://twoja-domena.pl/health/ \
+  | grep -q 200 || logger -t car-rental-health "health check failed"
+```
+
+Logi aplikacji (Gunicorn / Celery) idą na stdout kontenerów — `docker compose -f docker-compose.prod.yml logs -f web celery`. Poziom: `LOG_LEVEL` (domyślnie `INFO`).
 
 ---
 

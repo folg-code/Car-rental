@@ -3,6 +3,10 @@ from apps.dashboard.navigation import PANEL_NAVIGATION
 
 def panel_navigation(request):
     match = request.resolver_match
+    path = request.path
+    ops_mobile_layout = path.startswith("/panel/operacje/")
+    minimal_panel_layout = path.rstrip("/") == "/panel"
+
     if match and match.app_name == "fleet":
         panel_section = "fleet"
     elif match and match.app_name == "bookings":
@@ -21,6 +25,8 @@ def panel_navigation(request):
         panel_section = "documents"
     elif match and match.app_name == "website_support":
         panel_section = "website_support"
+    elif match and match.app_name == "dashboard" and match.url_name == "entry":
+        panel_section = "entry"
     elif match:
         panel_section = match.url_name
     else:
@@ -29,4 +35,6 @@ def panel_navigation(request):
     return {
         "panel_navigation": PANEL_NAVIGATION,
         "panel_section": panel_section,
+        "ops_mobile_layout": ops_mobile_layout,
+        "minimal_panel_layout": minimal_panel_layout,
     }

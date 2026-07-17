@@ -1,0 +1,90 @@
+<script>
+(function () {
+    function initSignaturePad(root) {
+        const canvas = root.querySelector("canvas");
+        const clearBtn = root.querySelector(".op-signature-clear");
+        const dataInput = root.querySelector("#id_signature_data_url");
+        if (!canvas || !dataInput) {
+            return;
+        }
+        const ctx = canvas.getContext("2d");
+        let drawing = false;
+        let dirty = false;
+
+        function resize() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const rect = canvas.getBoundingClientRect();
+            const cssWidth = Math.max(rect.width, 280);
+            const cssHeight = 180;
+            canvas.width = Math.floor(cssWidth * ratio);
+            canvas.height = Math.floor(cssHeight * ratio);
+            canvas.style.width = cssWidth + "px";
+            canvas.style.height = cssHeight + "px";
+            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.strokeStyle = "#111";
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, cssWidth, cssHeight);
+            dirty = false;
+            dataInput.value = "";
+        }
+
+        function point(event) {
+            const rect = canvas.getBoundingClientRect();
+            const src = event.touches ? event.touches[0] : event;
+            return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+        }
+
+        function start(event) {
+            event.preventDefault();
+            drawing = true;
+            const p = point(event);
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+        }
+
+        function move(event) {
+            if (!drawing) {
+                return;
+            }
+            event.preventDefault();
+            const p = point(event);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+            dirty = true;
+        }
+
+        function end(event) {
+            if (!drawing) {
+                return;
+            }
+            event.preventDefault();
+            drawing = false;
+            if (dirty) {
+                dataInput.value = canvas.toDataURL("image/png");
+            }
+        }
+
+        canvas.addEventListener("mousedown", start);
+        canvas.addEventListener("mousemove", move);
+        canvas.addEventListener("mouseup", end);
+        canvas.addEventListener("mouseleave", end);
+        canvas.addEventListener("touchstart", start, { passive: false });
+        canvas.addEventListener("touchmove", move, { passive: false });
+        canvas.addEventListener("touchend", end, { passive: false });
+
+        if (clearBtn) {
+            clearBtn.addEventListener("click", function () {
+                resize();
+            });
+        }
+
+        resize();
+        window.addEventListener("resize", resize);
+    }
+
+    document.querySelectorAll("[data-signature-pad]").forEach(initSignaturePad);
+})();
+</script>

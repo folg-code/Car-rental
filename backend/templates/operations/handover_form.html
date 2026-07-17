@@ -75,10 +75,7 @@
                 <label class="op-label">{{ form.signer_name.label }}</label>
                 {{ form.signer_name }}
             </div>
-            <div class="mb-3">
-                <label class="op-label">{{ form.signature_image.label }}</label>
-                {{ form.signature_image }}
-            </div>
+            {% include "operations/_signature_pad.html" %}
             <div>
                 <label class="op-label">{{ form.notes.label }}</label>
                 {{ form.notes }}
@@ -95,8 +92,10 @@
         </div>
     </div>
 
-    <a href="{% url 'operations:home' %}" class="block text-center text-sm text-gray-500 mt-4">Anuluj</a>
+    <a href="{% url 'operations:handover_queue' %}" class="block text-center text-sm text-gray-500 mt-4">Anuluj</a>
 </form>
+
+{% include "operations/_signature_pad_script.html" %}
 
 <script>
 (function () {
@@ -132,13 +131,32 @@
         const step = form.querySelector('.op-wizard-step[data-step="' + n + '"]');
         const fields = step.querySelectorAll("input, select, textarea");
         for (const field of fields) {
+            if (field.type === "hidden" || field.type === "file") {
+                continue;
+            }
             if (!field.checkValidity()) {
                 field.reportValidity();
                 return false;
             }
         }
+        if (n === 3) {
+            const dataUrl = form.querySelector("#id_signature_data_url");
+            const fileInput = form.querySelector("#id_signature_image");
+            const hasCanvas = dataUrl && dataUrl.value.indexOf("data:image/") === 0;
+            const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+            if (!hasCanvas && !hasFile) {
+                window.alert("Narysuj podpis na ekranie albo dolacz zdjecie podpisu.");
+                return false;
+            }
+        }
         return true;
     }
+
+    form.addEventListener("submit", function (event) {
+        if (!validateStep(3)) {
+            event.preventDefault();
+        }
+    });
 
     form.querySelectorAll(".op-wizard-next").forEach(function (btn) {
         btn.addEventListener("click", function () {

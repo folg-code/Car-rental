@@ -19,6 +19,7 @@ from apps.operations.selectors.protocol import (
 )
 from apps.operations.services.handover import HandoverService
 from apps.operations.services.return_workflow import ReturnService
+from apps.operations.services.signature_upload import signature_file_from_form
 from apps.operations.services.surcharge_preview import SurchargePreviewService
 
 
@@ -105,23 +106,32 @@ def handover_create(request: HttpRequest, rental_id: int) -> HttpResponse:
     if request.method == "POST" and form.is_valid():
         new_damages = _parse_new_damage(form.cleaned_data)
         photos = request.FILES.getlist("photos")
-        try:
-            HandoverService.complete_handover(
-                rental_id,
-                mileage=form.cleaned_data["mileage"],
-                fuel_level_percent=form.cleaned_data["fuel_level_percent"],
-                signer_name=form.cleaned_data["signer_name"],
-                signature_image=form.cleaned_data["signature_image"],
-                notes=form.cleaned_data.get("notes", ""),
-                photo_files=photos,
-                new_damages=new_damages,
-                performed_by_id=request.user.pk,
-            )
-        except ValidationError as exc:
-            _add_validation_errors_to_form(form, exc)
+        signature_image = signature_file_from_form(
+            uploaded=form.cleaned_data.get("signature_image"),
+            data_url=form.cleaned_data.get("signature_data_url"),
+        )
+        if signature_image is None:
+            form.add_error(None, "Nie udalo sie odczytac podpisu.")
         else:
-            messages.success(request, "Zakończono protokół wydania. Wynajem aktywny.")
-            return redirect("operations:handover_detail", rental_id=rental_id)
+            try:
+                HandoverService.complete_handover(
+                    rental_id,
+                    mileage=form.cleaned_data["mileage"],
+                    fuel_level_percent=form.cleaned_data["fuel_level_percent"],
+                    signer_name=form.cleaned_data["signer_name"],
+                    signature_image=signature_image,
+                    notes=form.cleaned_data.get("notes", ""),
+                    photo_files=photos,
+                    new_damages=new_damages,
+                    performed_by_id=request.user.pk,
+                )
+            except ValidationError as exc:
+                _add_validation_errors_to_form(form, exc)
+            else:
+                messages.success(
+                    request, "Zakończono protokół wydania. Wynajem aktywny."
+                )
+                return redirect("operations:handover_detail", rental_id=rental_id)
 
     from apps.fleet.models import Damage, DamageStatus
 
@@ -184,24 +194,31 @@ def return_create(request: HttpRequest, rental_id: int) -> HttpResponse:
     )
     if request.method == "POST" and form.is_valid():
         photos = request.FILES.getlist("photos")
-        try:
-            ReturnService.complete_return(
-                rental_id,
-                mileage=form.cleaned_data["mileage"],
-                fuel_level_percent=form.cleaned_data["fuel_level_percent"],
-                signer_name=form.cleaned_data["signer_name"],
-                signature_image=form.cleaned_data["signature_image"],
-                notes=form.cleaned_data.get("notes", ""),
-                surcharge_notes=form.cleaned_data.get("surcharge_notes", ""),
-                photo_files=photos,
-                new_damages=_parse_new_damage(form.cleaned_data),
-                performed_by_id=request.user.pk,
-            )
-        except ValidationError as exc:
-            _add_validation_errors_to_form(form, exc)
+        signature_image = signature_file_from_form(
+            uploaded=form.cleaned_data.get("signature_image"),
+            data_url=form.cleaned_data.get("signature_data_url"),
+        )
+        if signature_image is None:
+            form.add_error(None, "Nie udalo sie odczytac podpisu.")
         else:
-            messages.success(request, "Zakończono protokół zwrotu.")
-            return redirect("operations:return_detail", rental_id=rental_id)
+            try:
+                ReturnService.complete_return(
+                    rental_id,
+                    mileage=form.cleaned_data["mileage"],
+                    fuel_level_percent=form.cleaned_data["fuel_level_percent"],
+                    signer_name=form.cleaned_data["signer_name"],
+                    signature_image=signature_image,
+                    notes=form.cleaned_data.get("notes", ""),
+                    surcharge_notes=form.cleaned_data.get("surcharge_notes", ""),
+                    photo_files=photos,
+                    new_damages=_parse_new_damage(form.cleaned_data),
+                    performed_by_id=request.user.pk,
+                )
+            except ValidationError as exc:
+                _add_validation_errors_to_form(form, exc)
+            else:
+                messages.success(request, "Zakończono protokół zwrotu.")
+                return redirect("operations:return_detail", rental_id=rental_id)
 
     from apps.fleet.models import Damage, DamageStatus
 

@@ -221,6 +221,29 @@ Po deploy uruchom `seed_demo` — 18 scenariuszy (wynajmy, płatności mock, por
 
 ---
 
+## Monitoring uptime (Sprint 10.18)
+
+Endpoint: `GET https://<DOMAIN>/health/` — zwraca `200` gdy DB i Redis odpowiadają, inaczej `503`.
+
+### Opcja A — UptimeRobot (lub analog)
+
+1. Nowy monitor typu **HTTPS**.
+2. URL: `https://twoja-domena.pl/health/`
+3. Interval: 5 min.
+4. Alert email przy status ≠ 200 (próg 2–3 nieudane sprawdzenia).
+
+### Opcja B — cron na VPS
+
+```bash
+# co 5 minut — log + opcjonalny mail przy błędzie
+*/5 * * * * curl -fsS -o /dev/null -w "%{http_code}" https://twoja-domena.pl/health/ \
+  | grep -q 200 || logger -t car-rental-health "health check failed"
+```
+
+Logi aplikacji (Gunicorn / Celery) idą na stdout kontenerów — `docker compose -f docker-compose.prod.yml logs -f web celery`. Poziom: `LOG_LEVEL` (domyślnie `INFO`).
+
+---
+
 ## Rozwiązywanie problemów
 
 **Caddy nie startuje** — sprawdź `DOMAIN` w `.env.production` i logi: `docker compose logs caddy`.

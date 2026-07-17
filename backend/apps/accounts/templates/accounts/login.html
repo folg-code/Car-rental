@@ -45,5 +45,12 @@
             Zaloguj sie
         </button>
     </form>
+
+    <p class="mt-6 text-sm text-gray-500 text-center">
+        Klient bez hasla?
+        <a href="{% url 'customer_portal:otp_request' %}" class="underline text-gray-800">
+            Zaloguj sie kodem z emaila
+        </a>
+    </p>
 </div>
 {% endblock %}

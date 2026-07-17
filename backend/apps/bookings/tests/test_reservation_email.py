@@ -84,7 +84,7 @@ class TestReservationEmailService:
         assert "Kaucja:" in message.body
         assert "800" in message.body
         assert "/konto/" in message.body
-        assert "logowanie" in message.body
+        assert "logowanie-kodem" in message.body
 
     def test_send_confirmed_email_direct(self, car: Car) -> None:
         result = PublicBookingOrchestrator.submit(

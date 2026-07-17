@@ -10,6 +10,7 @@
 |---------|----------------|
 | Reverse proxy HTTPS | `caddy` (profil `https`) + `deploy/Caddyfile` |
 | Aplikacja | `web` (Gunicorn), `celery`, `celery-beat`, `redis`, `db` |
+| Cache | Redis (`CACHE_URL`, baza /2) — rate limity chatu i portalu |
 | Deploy | `scripts/deploy.sh` (pull, migrate, collectstatic) |
 | Backup | `scripts/backup.sh` |
 | Restore | `scripts/restore.sh --confirm <timestamp>` |

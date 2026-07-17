@@ -196,12 +196,21 @@ CHAT_MESSAGE_RETENTION_DAYS = env.int("CHAT_MESSAGE_RETENTION_DAYS", default=90)
 CHAT_DEFAULT_PICKUP_HOUR = env.int("CHAT_DEFAULT_PICKUP_HOUR", default=10)
 CHAT_DEFAULT_RETURN_HOUR = env.int("CHAT_DEFAULT_RETURN_HOUR", default=10)
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "car-rental-default",
-    },
-}
+CACHE_URL = env("CACHE_URL", default="")
+if "pytest" in sys.modules or not CACHE_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "car-rental-default",
+        },
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": CACHE_URL,
+        },
+    }
 
 
 # Static files (CSS, JavaScript, Images)

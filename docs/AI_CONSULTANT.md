@@ -182,6 +182,17 @@ Dobra odpowiedź asystenta powinna zawierać:
 - „chcę zarezerwować auto rodzinne na weekend” → asystent prowadzi do wyboru terminu i linku rezerwacji.
 - Anonimowy klient pyta o status rezerwacji → asystent nie ujawnia danych, kieruje do panelu klienta.
 
+### Implementacja (Sprint 12.1)
+
+Heurystyczny router (`ChatToolRouter`) rozpoznaje:
+
+- daty ISO oraz względne: `jutro`, `pojutrze`, `dzisiaj`, `weekend`, `od piątku do niedzieli`;
+- brak terminu przy pytaniu o dostępność/cenę → tool `ask_clarifying_question`;
+- kaucję wg kategorii → tool `get_deposit_info` (pole `CarCategory.deposit`);
+- domyślne godziny odbioru/zwrotu: `CHAT_DEFAULT_PICKUP_HOUR` / `CHAT_DEFAULT_RETURN_HOUR` (domyślnie 10).
+
+Scenariusze pokryte testami w `test_chat_tool_router.py` oraz `test_consultant_tools_integration.py`.
+
 ---
 
 ## Testy (planowane)

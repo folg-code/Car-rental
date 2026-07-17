@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 12 — Demo polish / UX v2 |
-| **Następny krok** | Sprint 12.1 — asystent klienta v2 |
+| **Następny krok** | Smoke na domenie (10.8–10.10) / backup cron (10.14) |
 | **Postęp ogólny** | Funkcje ~97%; Sprint 12 (ops UX) w toku |
 | **Ostatnia aktualizacja** | 2026-07-17 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
@@ -71,7 +71,7 @@
 
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-**Sprint 12 (bieżący):** **12.2–12.11** ✅. Dalej: **12.1** asystent v2.
+**Sprint 12 (bieżący):** **12.1–12.11** ✅.
 
 **Odłożone (Sprint 10):** 10.8–10.10 smoke na domenie, 10.14 cron backup.
 
@@ -102,6 +102,7 @@
 - [x] Health endpoint `GET /health/` (Sprint 10.15 / PR #61)
 - [x] Gałąź `dev` jako integracja sprintów (CI na PR → `dev`)
 - [x] `seed_demo` na produkcji (Sprint 10.7)
+- [x] Sprint 12.1 — asystent klienta v2 (daty względne, dopytanie o termin, kaucje)
 - [x] Sprint 12.6–12.11 — entry panel, ops mobile, kolejki wydań/zwrotów
 - [x] Sprint 12.4–12.5 — email rezerwacji (kaucja + portal) + retry emaili protokołów
 - [x] Sprint 12.2–12.3 — portal OTP (email/nr rezerwacji) + widoki rezerwacji/dokumentów
@@ -853,7 +854,7 @@ Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla k
 
 | ID | Task | Opis |
 |----|------|------|
-| 12.1 | Asystent klienta v2 | Poprawić rozumienie intencji: dostępność aut, daty względne („jutro”, „weekend”), kaucje, zasady wynajmu; zamiast generycznej odpowiedzi ma zadawać pytania doprecyzowujące albo pokazać auta/link do rezerwacji. |
+| 12.1 | Asystent klienta v2 | Poprawić rozumienie intencji: dostępność aut, daty względne („jutro”, „weekend”), kaucje, zasady wynajmu; zamiast generycznej odpowiedzi ma zadawać pytania doprecyzowujące albo pokazać auta/link do rezerwacji. | ✅ |
 | 12.2 | Panel klienta — dostęp | Logowanie klienta po emailu albo po numerze rezerwacji; wymagane zabezpieczenia przed podglądem cudzych danych (rate limit, weryfikacja email/telefon lub magic link). | ✅ |
 | 12.3 | Panel klienta — widoki | Klient może podejrzeć swoje rezerwacje, najmy oraz dokumenty przypięte do najmów/rezerwacji; dokumenty dostępne do pobrania z poziomu panelu. | ✅ |
 | 12.4 | Email po rezerwacji klienta | Utworzenie rezerwacji przez klienta wysyła potwierdzenie na email: status, auto/kategoria, termin, cena/kaucja, link do panelu klienta. | ✅ |
@@ -867,7 +868,7 @@ Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla k
 
 #### Definition of Done — Demo polish / UX v2
 
-- [ ] Asystent poprawnie obsługuje pytania typu „czy są wolne auta na jutro?” i „sprawdź dostępność samochodów”.
+- [x] Asystent poprawnie obsługuje pytania typu „czy są wolne auta na jutro?” i „sprawdź dostępność samochodów”.
 - [x] Klient ma bezpieczny sposób wejścia do swoich rezerwacji, najmów i dokumentów.
 - [x] Rezerwacja z kanału publicznego wysyła email potwierdzający.
 - [x] Wydanie i zwrot wysyłają klientowi dokument/protokół emailem.
@@ -939,7 +940,7 @@ Sprint 10 (demo produkcyjne — VPS pokazowy) 🟡 (smoke/backup odłożone)
     ↓
 Sprint 11 (utrzymanie demo — opcjonalnie)
     ↓
-Sprint 12 (demo polish / UX v2)  ← BIEŻĄCY (12.6–12.11)
+Sprint 12 (demo polish / UX v2)  ← DONE (12.1–12.11)
 ```
 
 **Nie przeskakiwać:** operations i PDF przed fleet + bookings + snapshotami cen.

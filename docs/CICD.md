@@ -147,6 +147,7 @@ pytest -q
 | `docker-compose.prod.yml` | Postgres + web + Celery + Redis (+ Caddy profil `https`) |
 | `scripts/deploy.sh` | Pull + migrate + collectstatic + restart |
 | `scripts/backup.sh` | Backup DB + media + private_documents |
+| `scripts/install-backup-cron.sh` | Idempotentny cron backup + purge chatu (`--check`) |
 | `scripts/restore.sh` | Przywracanie z backupu (`--confirm`) |
 | `scripts/backup-restore-selftest.sh` | Test roundtrip backup/restore (CI) |
 | `deploy/Caddyfile` | Reverse proxy HTTPS |

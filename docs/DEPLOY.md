@@ -140,9 +140,28 @@ Stare backupy (katalogi) są usuwane automatycznie po przekroczeniu retencji.
 
 ### Cron (codziennie o 03:00)
 
+Zalecany sposób — idempotentny instalator (uruchamiany też na końcu `deploy.sh`):
+
+```bash
+cd /opt/car-rental
+./scripts/install-backup-cron.sh
+./scripts/install-backup-cron.sh --check
+```
+
+Skrypt ustawia:
+
+| Godzina | Zadanie | Log |
+|---------|---------|-----|
+| 03:00 | `./scripts/backup.sh` | `$APP_DIR/logs/backup.log` |
+| 04:00 | `purge_chat_messages` | `$APP_DIR/logs/chat-purge.log` |
+
+Wyłączenie przy deployu: `INSTALL_BACKUP_CRON=0 ./scripts/deploy.sh`.
+
+Ręcznie (crontab):
+
 ```cron
-0 3 * * * cd /opt/car-rental && ./scripts/backup.sh >> /var/log/car-rental-backup.log 2>&1
-0 4 * * * cd /opt/car-rental && docker compose -f docker-compose.prod.yml run --rm web python backend/manage.py purge_chat_messages >> /var/log/car-rental-chat-purge.log 2>&1
+0 3 * * * cd /opt/car-rental && ./scripts/backup.sh >> /opt/car-rental/logs/backup.log 2>&1
+0 4 * * * cd /opt/car-rental && docker compose -f docker-compose.prod.yml run --rm web python backend/manage.py purge_chat_messages >> /opt/car-rental/logs/chat-purge.log 2>&1
 ```
 
 ### Offsite (zalecane)
@@ -203,7 +222,7 @@ Skrypt:
 - [ ] `./scripts/deploy.sh`
 - [ ] `docker compose -f docker-compose.prod.yml exec web python backend/manage.py seed_demo`
 - [ ] `./scripts/backup-restore-selftest.sh`
-- [ ] `./scripts/backup.sh` + cron
+- [ ] `./scripts/install-backup-cron.sh` (+ `--check`) albo `./scripts/backup.sh` + ręczny cron
 - [ ] Offsite sync backupów (opcjonalnie dla demo)
 
 ### Wersja demo produkcyjna (pokazowa)

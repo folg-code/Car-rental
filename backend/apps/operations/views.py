@@ -49,13 +49,33 @@ def _add_validation_errors_to_form(form, exc: ValidationError) -> None:
 
 @staff_required
 def operations_home(request: HttpRequest) -> HttpResponse:
+    pending_handover = list_rentals_pending_handover()
+    pending_return = list_rentals_pending_return()
     return render(
         request,
         "operations/home.html",
         {
-            "pending_handover": list_rentals_pending_handover(),
-            "pending_return": list_rentals_pending_return(),
+            "handover_count": pending_handover.count(),
+            "return_count": pending_return.count(),
         },
+    )
+
+
+@staff_required
+def handover_queue(request: HttpRequest) -> HttpResponse:
+    return render(
+        request,
+        "operations/handover_queue.html",
+        {"pending_handover": list_rentals_pending_handover()},
+    )
+
+
+@staff_required
+def return_queue(request: HttpRequest) -> HttpResponse:
+    return render(
+        request,
+        "operations/return_queue.html",
+        {"pending_return": list_rentals_pending_return()},
     )
 
 
@@ -64,7 +84,7 @@ def handover_create(request: HttpRequest, rental_id: int) -> HttpResponse:
     rental = get_rental_by_id(rental_id)
     if rental is None:
         messages.error(request, "Nie znaleziono wynajmu.")
-        return redirect("operations:home")
+        return redirect("operations:handover_queue")
 
     existing = get_handover_for_rental(rental_id)
     if existing and existing.is_completed:
@@ -127,7 +147,7 @@ def handover_detail(request: HttpRequest, rental_id: int) -> HttpResponse:
     handover = get_handover_for_rental(rental_id)
     if rental is None or handover is None:
         messages.error(request, "Brak protokołu wydania.")
-        return redirect("operations:home")
+        return redirect("operations:handover_queue")
     return render(
         request,
         "operations/handover_detail.html",
@@ -144,7 +164,7 @@ def return_create(request: HttpRequest, rental_id: int) -> HttpResponse:
     rental = get_rental_by_id(rental_id)
     if rental is None:
         messages.error(request, "Nie znaleziono wynajmu.")
-        return redirect("operations:home")
+        return redirect("operations:return_queue")
 
     handover = get_handover_for_rental(rental_id)
     if handover is None or not handover.is_completed:
@@ -242,7 +262,7 @@ def return_detail(request: HttpRequest, rental_id: int) -> HttpResponse:
     return_protocol = get_return_for_rental(rental_id)
     if rental is None or return_protocol is None:
         messages.error(request, "Brak protokołu zwrotu.")
-        return redirect("operations:home")
+        return redirect("operations:return_queue")
     return render(
         request,
         "operations/return_detail.html",

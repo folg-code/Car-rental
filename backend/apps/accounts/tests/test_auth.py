@@ -51,7 +51,7 @@ class TestAuthViews:
             {"username": "emp", "password": "secure-pass-123"},
         )
         assert response.status_code == 302
-        assert response.url == reverse("dashboard:home")
+        assert response.url == reverse("dashboard:entry")
 
     def test_customer_login_redirects_to_home(self, client) -> None:
         UserService.create_user(

@@ -17,10 +17,6 @@ from apps.dashboard.selectors.financial_reports import (
 from apps.dashboard.selectors.fleet_alerts import list_fleet_expiry_alerts
 from apps.dashboard.selectors.unpaid_rentals import list_unpaid_rentals
 from apps.dashboard.services.metrics import DashboardMetricsService
-from apps.operations.selectors.protocol import (
-    list_rentals_pending_handover,
-    list_rentals_pending_return,
-)
 from apps.payments.models import PaymentType
 
 DASHBOARD_QUEUE_LIMIT = 5
@@ -36,6 +32,12 @@ def _resolve_report_period(request) -> tuple[date, date]:
 
 
 @staff_required
+def panel_entry(request):
+    """Start screen: choose admin desk vs field ops (Sprint 12.6)."""
+    return render(request, "dashboard/panel_entry.html")
+
+
+@staff_required
 def panel_home(request):
     metrics = DashboardMetricsService.get_home_metrics()
     return render(
@@ -47,12 +49,6 @@ def panel_home(request):
             "unpaid_rentals_queue": list_unpaid_rentals(limit=DASHBOARD_QUEUE_LIMIT),
             "fleet_document_alerts": list_fleet_expiry_alerts(
                 limit=DASHBOARD_QUEUE_LIMIT
-            ),
-            "pending_handover": list(
-                list_rentals_pending_handover()[:DASHBOARD_QUEUE_LIMIT]
-            ),
-            "pending_return": list(
-                list_rentals_pending_return()[:DASHBOARD_QUEUE_LIMIT]
             ),
         },
     )

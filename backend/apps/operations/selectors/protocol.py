@@ -1,10 +1,13 @@
-from django.db.models import QuerySet
+from django.db.models import Case, IntegerField, QuerySet, Value, When
+from django.utils import timezone
 
 from apps.bookings.models import Rental, RentalStatus
 from apps.operations.models import HandoverProtocol, ReturnProtocol
 
 
 def list_rentals_pending_handover() -> QuerySet[Rental]:
+    """Scheduled rentals awaiting handover; overdue and today first."""
+    now = timezone.now()
     return (
         Rental.objects.filter(status=RentalStatus.SCHEDULED)
         .select_related(
@@ -12,11 +15,21 @@ def list_rentals_pending_handover() -> QuerySet[Rental]:
             "reservation__customer",
             "reservation__car",
         )
-        .order_by("scheduled_start_at")
+        .annotate(
+            queue_priority=Case(
+                When(scheduled_start_at__lt=now, then=Value(0)),
+                When(scheduled_start_at__date=now.date(), then=Value(1)),
+                default=Value(2),
+                output_field=IntegerField(),
+            ),
+        )
+        .order_by("queue_priority", "scheduled_start_at")
     )
 
 
 def list_rentals_pending_return() -> QuerySet[Rental]:
+    """Active rentals with completed handover; overdue returns first."""
+    now = timezone.now()
     return (
         Rental.objects.filter(
             status=RentalStatus.ACTIVE,
@@ -28,7 +41,14 @@ def list_rentals_pending_return() -> QuerySet[Rental]:
             "reservation__car",
             "handover_protocol",
         )
-        .order_by("scheduled_end_at")
+        .annotate(
+            queue_priority=Case(
+                When(scheduled_end_at__lt=now, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            ),
+        )
+        .order_by("queue_priority", "scheduled_end_at")
     )
 
 

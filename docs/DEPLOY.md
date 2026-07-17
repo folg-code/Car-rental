@@ -9,7 +9,7 @@
 | Element | Plik / serwis |
 |---------|----------------|
 | Reverse proxy HTTPS | `caddy` (profil `https`) + `deploy/Caddyfile` |
-| Aplikacja | `web` (Gunicorn), `celery`, `redis`, `db` |
+| Aplikacja | `web` (Gunicorn), `celery`, `celery-beat`, `redis`, `db` |
 | Deploy | `scripts/deploy.sh` (pull, migrate, collectstatic) |
 | Backup | `scripts/backup.sh` |
 | Restore | `scripts/restore.sh --confirm <timestamp>` |

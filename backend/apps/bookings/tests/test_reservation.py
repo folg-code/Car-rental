@@ -212,6 +212,36 @@ class TestReservationService:
         expired = ReservationService.expire(reservation)
         assert expired.status == ReservationStatus.EXPIRED
 
+    def test_expire_stale_pending_payments(self, customer: Customer, car: Car) -> None:
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        start, end = _interval()
+        stale = ReservationService.create(
+            customer_id=customer.pk,
+            car_id=car.pk,
+            start_at=start,
+            end_at=end,
+            status=ReservationStatus.PENDING_PAYMENT,
+        )
+        fresh = ReservationService.create(
+            customer_id=customer.pk,
+            car_id=car.pk,
+            start_at=start + timedelta(days=10),
+            end_at=end + timedelta(days=10),
+            status=ReservationStatus.PENDING_PAYMENT,
+        )
+        Reservation.objects.filter(pk=stale.pk).update(
+            created_at=timezone.now() - timedelta(hours=49),
+        )
+        count = ReservationService.expire_stale_pending_payments(older_than_hours=48)
+        assert count == 1
+        stale.refresh_from_db()
+        fresh.refresh_from_db()
+        assert stale.status == ReservationStatus.EXPIRED
+        assert fresh.status == ReservationStatus.PENDING_PAYMENT
+
     def test_update_confirmed_dates(self, customer: Customer, car: Car) -> None:
         start, end = _interval()
         reservation = ReservationService.create(

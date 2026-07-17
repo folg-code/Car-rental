@@ -40,3 +40,11 @@ def send_reservation_sms_task(
         reservation_id,
         sms_kind=sms_kind,
     )
+
+
+@shared_task(name="bookings.expire_stale_pending_reservations")
+def expire_stale_pending_reservations_task() -> int:
+    """Wygas zalegle rezerwacje pending_payment (Celery Beat, Sprint 11.3)."""
+    from apps.bookings.services.reservation import ReservationService
+
+    return ReservationService.expire_stale_pending_payments()

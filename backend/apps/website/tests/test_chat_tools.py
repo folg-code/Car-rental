@@ -92,7 +92,18 @@ class TestChatTools:
         search = execute_search_available_cars(start_at=start, end_at=end)
         text = format_tool_results((search,))
         assert "Toyota" in text
-        assert "Rezerwacja:" in text
+        assert "zarezerwuj:" in text
+        assert "1 wolne auto" in text
+        assert "auto/auta" not in text
+
+    def test_polish_available_cars_phrase(self) -> None:
+        from apps.website.services.chat_tools import _polish_available_cars_phrase
+
+        assert _polish_available_cars_phrase(1) == "1 wolne auto"
+        assert _polish_available_cars_phrase(2) == "2 wolne auta"
+        assert _polish_available_cars_phrase(5) == "5 wolnych aut"
+        assert _polish_available_cars_phrase(12) == "12 wolnych aut"
+        assert _polish_available_cars_phrase(22) == "22 wolne auta"
 
     def test_deposit_info_for_category(self, category: CarCategory) -> None:
         category.deposit = Decimal("2000.00")

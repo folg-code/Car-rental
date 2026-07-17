@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 10 — domknięcie ops (smoke / backup) |
-| **Następny krok** | Deploy `dev`→`main` (cron backup) + smoke na domenie (10.8–10.10) |
-| **Postęp ogólny** | Funkcje ~98%; Sprint 12 ✅ |
+| **Aktualny etap** | Sprint 11 — utrzymanie demo |
+| **Następny krok** | Merge release #73 + smoke na domenie (10.8–10.10); dalej 11.4 Redis cache |
+| **Postęp ogólny** | Funkcje ~98%; Sprint 12 ✅; Sprint 11.3 w toku |
 | **Ostatnia aktualizacja** | 2026-07-17 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -71,9 +71,11 @@
 
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-**Sprint 12:** **12.1–12.11** ✅ (w `dev`).
+**Sprint 12:** **12.1–12.11** ✅.
 
-**Sprint 10 — domknięcie:** 10.14 cron backup (instalator + hook w `deploy.sh`); dalej smoke na domenie 10.8–10.10.
+**Sprint 11:** 11.3 Celery Beat (auto-wygasanie `pending_payment`).
+
+**Sprint 10 — domknięcie:** smoke na domenie 10.8–10.10; cron backup po deployu z `main`.
 
 **Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
 
@@ -825,7 +827,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 |----|------|------|--------|
 | **11.1** | Health + logging | Domknięcie 10.15–10.16 — **zrobione w Sprint 10** | ✅ |
 | **11.2** | Uptime alerty | Monitoring zewnętrzny + alert email przy 5xx | ⬜ |
-| **11.3** | Celery Beat | Auto-wygasanie rezerwacji `pending_payment` (np. 48 h) | ⬜ |
+| **11.3** | Celery Beat | Auto-wygasanie rezerwacji `pending_payment` (np. 48 h) | ✅ |
 | **11.4** | Redis cache | Zamiana `LocMemCache` na Redis — rate limit chatu między workerami | ⬜ |
 | **11.5** | Backup offsite | Sync backupów na S3/rsync (dokumentacja + skrypt) | ⬜ |
 | **11.6** | Purge chat cron | Weryfikacja `purge_chat_messages` na prod | ⬜ |

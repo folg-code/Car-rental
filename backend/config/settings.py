@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BASE_DIR.parent
@@ -172,6 +173,18 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+
+RESERVATION_PENDING_PAYMENT_TTL_HOURS = env.int(
+    "RESERVATION_PENDING_PAYMENT_TTL_HOURS",
+    default=48,
+)
+
+CELERY_BEAT_SCHEDULE = {
+    "expire-stale-pending-reservations": {
+        "task": "bookings.expire_stale_pending_reservations",
+        "schedule": crontab(minute=20),
+    },
+}
 
 # --- Chat AI (Sprint 8b) ---
 LLM_PROVIDER = env("LLM_PROVIDER", default="mock")

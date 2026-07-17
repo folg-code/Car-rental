@@ -25,10 +25,16 @@ dev ──► PR → main ──► deploy.yml
 
 | Gałąź | Rola |
 |-------|------|
-| `dev` | Integracja sprintów — tu lądują PR-y feature przed produkcją |
+| `feat/*` (robocza) | Implementacja sprintu / taska — tu commitujemy na co dzień |
+| `dev` | Integracja — merge z gałęzi roboczych; **bez deployu** |
 | `main` | Produkcja live (VPS + domena) — merge z `dev` uruchamia deploy |
 
-Deploy na VPS **nie** startuje z `dev` — tylko z `main`.
+```text
+feat/* ──► PR → dev ──► ci.yml (bez deployu)
+dev    ──► PR → main ──► deploy.yml → VPS
+```
+
+**Nie** mergujemy gałęzi roboczej prosto do `main` — każdy update na `dev` nie restartuje produkcji.
 
 ## Wymagania w repozytorium
 

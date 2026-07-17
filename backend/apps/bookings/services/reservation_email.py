@@ -102,7 +102,7 @@ class ReservationEmailService:
         )
         total = PriceSnapshotService.reservation_total(reservation)
         portal_path = reverse("customer_portal:home")
-        login_path = reverse("accounts:login")
+        otp_login_path = reverse("customer_portal:otp_request")
         deposit = reservation.car.category.deposit
         return {
             "customer_name": reservation.customer.first_name,
@@ -121,9 +121,7 @@ class ReservationEmailService:
                 confirmation_path.lstrip("/"),
             ),
             "portal_url": urljoin(f"{base_url}/", portal_path.lstrip("/")),
-            "portal_login_url": (
-                f"{urljoin(f'{base_url}/', login_path.lstrip('/'))}?next={portal_path}"
-            ),
+            "portal_login_url": urljoin(f"{base_url}/", otp_login_path.lstrip("/")),
             "is_confirmed": email_kind == RESERVATION_EMAIL_CONFIRMED,
             "is_pending_payment": email_kind == RESERVATION_EMAIL_PENDING,
         }

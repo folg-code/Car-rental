@@ -76,9 +76,10 @@ Po logowaniu wybierz tryb:
 ## Ścieżka prezentacji C — portal klienta (5 min)
 
 1. Wyloguj z panelu.
-2. Zaloguj **`klient`** / `demo1234`.
-3. **Portal** `/konto/` — rezerwacje powiązane z wynajmem **ops-active**.
-4. Szczegóły rezerwacji, dokumenty (jeśli dostępne).
+2. Wejdź na `/konto/logowanie-kodem/` — podaj email klienta ze seeda albo numer rezerwacji.
+3. Kod OTP wyloguj z konsoli Dockera / outbox (dev) albo skrzynki.
+4. Po zalogowaniu: **Portal** `/konto/` — rezerwacje i dokumenty.
+5. *(Opcjonalnie)* klasyczne logowanie `klient` / `demo1234` nadal działa.
 
 ---
 

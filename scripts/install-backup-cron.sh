@@ -64,10 +64,11 @@ case "$MODE" in
 		;;
 esac
 
-if [ ! -x "$APP_DIR/scripts/backup.sh" ]; then
-	echo "ERROR: backup.sh not executable at $APP_DIR/scripts/backup.sh" >&2
+if [ ! -f "$APP_DIR/scripts/backup.sh" ]; then
+	echo "ERROR: backup.sh not found at $APP_DIR/scripts/backup.sh" >&2
 	exit 1
 fi
+chmod +x "$APP_DIR/scripts/backup.sh" 2>/dev/null || true
 
 mkdir -p "$LOG_DIR"
 

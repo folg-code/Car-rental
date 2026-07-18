@@ -75,6 +75,13 @@ _FAQ_KEYWORDS = (
     "faq",
     "anulow",
     "dokument",
+    "prawo jazdy",
+    "wiek",
+    "paliw",
+    "tankow",
+    "godzin",
+    "potrzebuje konta",
+    "potrzebuję konta",
 )
 
 _WEEKDAY_ALIASES: dict[str, int] = {
@@ -318,7 +325,7 @@ class ChatToolRouter:
             if wants_availability or wants_price:
                 results.append(
                     execute_ask_clarifying_question(
-                        question="Na jaki termin mam sprawdzic dostepnosc?",
+                        question="Na jaki termin mam sprawdzić dostępność?",
                     ),
                 )
             return tuple(results)
@@ -368,7 +375,19 @@ class ChatToolRouter:
 
 
 def _faq_topic_from_text(text: str) -> str:
-    for keyword in ("anul", "rezerw", "kont", "dokument", "regulamin"):
-        if keyword in _fold(text):
+    folded = _fold(text)
+    for keyword in (
+        "anul",
+        "dokument",
+        "prawo jazdy",
+        "wiek",
+        "paliw",
+        "tankow",
+        "godzin",
+        "rezerw",
+        "kont",
+        "regulamin",
+    ):
+        if keyword in folded:
             return keyword
     return ""

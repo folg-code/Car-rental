@@ -21,3 +21,10 @@
 
 	reverse_proxy web:8000
 }
+
+# Drugi projekt na tym samym VPS (host :8080). Bez tego bloku
+# deploy Car-rental nadpisuje Caddyfile i dashboard.filipf.online pada.
+dashboard.filipf.online {
+	encode gzip
+	reverse_proxy 172.17.0.1:8080
+}

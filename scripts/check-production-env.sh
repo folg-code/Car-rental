@@ -19,8 +19,6 @@ required=(
 	SECRET_KEY
 	ALLOWED_HOSTS
 	CSRF_TRUSTED_ORIGINS
-	DOMAIN
-	ACME_EMAIL
 	POSTGRES_DB
 	POSTGRES_USER
 	POSTGRES_PASSWORD
@@ -37,6 +35,9 @@ recommended=(
 	RESERVATION_PENDING_PAYMENT_TTL_HOURS
 	LOG_LEVEL
 	SECURE_SSL_REDIRECT
+	# Legacy / opcjonalne — TLS jest na /opt/edge, nie w tym compose
+	DOMAIN
+	ACME_EMAIL
 )
 
 has_key() {

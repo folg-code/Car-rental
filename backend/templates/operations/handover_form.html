@@ -130,11 +130,11 @@
       <span><strong>{{ code }}</strong> {{ label }}</span>
       {% endfor %}
     </div>
-    <div id="damage-diagram" class="relative bg-gray-100 rounded-xl aspect-[2/1] border-2 border-dashed border-gray-300 touch-none select-none">
-      <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm pointer-events-none">Widok z góry</div>
+    <div id="damage-diagram" class="relative bg-white rounded-xl border border-gray-200 touch-none select-none overflow-hidden">
+      {% include "operations/_damage_diagram_image.html" %}
       {% for marker in handover.damage_markers.all %}
         {% if marker.resolution == "active" or marker.resolution == "reported_at_return" or marker.resolution == "needs_assessment" or marker.resolution == "needs_quote" %}
-        <button type="button" class="absolute w-7 h-7 -ml-3.5 -mt-3.5 rounded-full bg-amber-500 text-white text-xs font-bold shadow"
+        <button type="button" class="absolute z-10 w-7 h-7 -ml-3.5 -mt-3.5 rounded-full bg-amber-500 text-white text-xs font-bold shadow"
                 style="left:{{ marker.pos_x }}%; top:{{ marker.pos_y }}%"
                 title="{{ marker.description }}">{{ marker.damage_type }}</button>
         {% endif %}

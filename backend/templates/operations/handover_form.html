@@ -1,186 +1,317 @@
 {% extends "base_internal.html" %}
+{% load static %}
 
-{% block title %}Wydanie #{{ rental.pk }}{% endblock %}
+{% block title %}Protokół wydania{% endblock %}
 {% block page_heading %}Protokół wydania{% endblock %}
 {% block page_subheading %}
 <p class="text-sm text-gray-500 mt-1">
-    {{ rental.reservation.car.make }} {{ rental.reservation.car.model }}
-    ({{ rental.reservation.car.registration_number }})
+  {{ rental.reservation.customer.full_name }} · {{ car.registration_number }} · wynajem #{{ rental.pk }}
 </p>
 {% endblock %}
 
 {% block content %}
 {% include "operations/_mobile_styles.html" %}
+<div class="max-w-xl mx-auto op-protocol">
+  <a href="{% url 'operations:handover_queue' %}" class="inline-block text-sm text-gray-500 mb-3">← Kolejka wydań</a>
 
-<form method="post" enctype="multipart/form-data" class="max-w-xl mx-auto" id="handover-wizard-form">
-    {% csrf_token %}
-    {% include "operations/_wizard_nav.html" %}
+  <div class="op-wizard-nav" role="tablist" aria-label="Kroki protokolu">
+    {% for s in steps %}
+      {% if not forloop.first %}
+      <span class="op-wizard-line"></span>
+      {% endif %}
+      <a href="?step={{ s }}" class="op-wizard-dot {% if step == s %}is-active{% endif %}" data-step="{{ forloop.counter }}">{{ forloop.counter }}</a>
+    {% endfor %}
+  </div>
+  <p class="op-wizard-label text-sm text-gray-500 text-center mb-4" id="wizard-step-label">
+    {% if step == "select" or step == "driver" %}Krok 1: Dane pojazdu / kierowca
+    {% elif step == "odometer" %}Krok: Przebieg i paliwo
+    {% elif step == "damages" %}Krok: Diagram uszkodzeń
+    {% elif step == "photos" %}Krok: Zdjęcia pojazdu
+    {% elif step == "interior" %}Krok: Wnętrze i kontrola
+    {% elif step == "equipment" %}Krok: Wyposażenie
+    {% elif step == "summary" %}Krok: Podsumowanie
+    {% else %}Krok: Podpis klienta{% endif %}
+  </p>
 
-    <div class="op-wizard-step" data-step="1">
-        <div class="op-section">
-            <h2 class="font-medium mb-4">Dane pojazdu</h2>
-            <p class="text-sm text-gray-500 mb-4">Przebieg w bazie: {{ car_mileage }} km</p>
-            <div class="mb-4">
-                <label class="op-label" for="id_mileage">{{ form.mileage.label }}</label>
-                {{ form.mileage }}
-                {% if form.mileage.errors %}<p class="text-red-600 text-sm mt-1">{{ form.mileage.errors.0 }}</p>{% endif %}
-            </div>
-            <div class="mb-2">
-                <label class="op-label" for="id_fuel_level_percent">{{ form.fuel_level_percent.label }}: <span id="fuel-val">{{ form.fuel_level_percent.value|default:100 }}</span>%</label>
-                {{ form.fuel_level_percent }}
-            </div>
+  {% if step == "driver" %}
+  <div class="bg-white rounded-xl border p-4 space-y-3">
+    <h2 class="font-medium">Dane kierowcy</h2>
+    <dl class="text-sm grid grid-cols-2 gap-1 mb-3 text-gray-600">
+      <dt>Pojazd</dt><dd>{{ car.make }} {{ car.model }} ({{ car.registration_number }})</dd>
+      <dt>Termin</dt><dd>{{ rental.scheduled_start_at|date:"Y-m-d H:i" }} → {{ rental.scheduled_end_at|date:"Y-m-d H:i" }}</dd>
+    </dl>
+    <form method="post" class="space-y-3">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_driver">
+      {% for field in driver_form %}
+      <div>
+        <label class="block text-sm font-medium mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+      </div>
+      {% endfor %}
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Dalej</button>
+    </form>
+  </div>
+
+  {% elif step == "odometer" %}
+  <div class="bg-white rounded-xl border p-4">
+    <h2 class="font-medium mb-3">Przebieg i poziom paliwa</h2>
+    <form method="post" enctype="multipart/form-data" class="space-y-3" id="odometer-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_odometer">
+      <div>
+        <label class="block text-sm font-medium mb-1">Przebieg (km)</label>
+        <input type="number" name="mileage" value="{{ odometer_form.initial.mileage }}" min="{{ car_mileage }}" required class="w-full border rounded-lg px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2">Poziom paliwa</label>
+        <div class="flex items-center gap-3 mb-2">
+          <input type="range" name="fuel_level_percent" id="fuel-range" min="0" max="100" step="1"
+                 value="{{ odometer_form.initial.fuel_level_percent }}" class="flex-1" required>
+          <input type="number" id="fuel-number" min="0" max="100" step="1"
+                 value="{{ odometer_form.initial.fuel_level_percent }}"
+                 class="w-20 border rounded-lg px-2 py-2 text-center" aria-label="Procent paliwa">
+          <span class="text-sm text-gray-600">%</span>
         </div>
-        <button type="button" class="op-btn-primary op-wizard-next" data-next="2">Dalej — szkody i zdjęcia</button>
+        <p class="text-sm text-gray-600" id="fuel-liters-hint"
+           data-tank="{% if fuel_tank_capacity_liters %}{{ fuel_tank_capacity_liters }}{% else %}{% endif %}">
+          {% if fuel_tank_capacity_liters %}
+          ≈ <strong id="fuel-liters-value">{{ fuel_liters_preview }}</strong> L
+          (bak {{ fuel_tank_capacity_liters }} L)
+          {% else %}
+          Brak pojemności baku w karcie pojazdu — dopłaty paliwa w p.p.
+          {% endif %}
+        </p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Zdjęcie licznika (opcjonalne)</label>
+        <input type="file" name="odometer_photo" accept="image/*" capture="environment">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Zdjęcie wskaźnika paliwa (opcjonalne)</label>
+        <input type="file" name="fuel_photo" accept="image/*" capture="environment">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Uwagi</label>
+        <textarea name="notes" rows="2" class="w-full border rounded-lg px-3 py-2">{{ odometer_form.initial.notes }}</textarea>
+      </div>
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Dalej</button>
+    </form>
+  </div>
+  <script>
+  (function(){
+    const range = document.getElementById('fuel-range');
+    const num = document.getElementById('fuel-number');
+    const hint = document.getElementById('fuel-liters-hint');
+    const litersEl = document.getElementById('fuel-liters-value');
+    const tank = hint && hint.dataset.tank ? parseFloat(hint.dataset.tank) : null;
+    function sync(fromRange) {
+      let v = parseInt(fromRange ? range.value : num.value, 10);
+      if (isNaN(v)) v = 0;
+      v = Math.max(0, Math.min(100, v));
+      range.value = v;
+      num.value = v;
+      if (litersEl && tank) {
+        litersEl.textContent = (tank * v / 100).toFixed(1);
+      }
+    }
+    range.addEventListener('input', function(){ sync(true); });
+    num.addEventListener('input', function(){ sync(false); });
+    num.addEventListener('change', function(){ sync(false); });
+  })();
+  </script>
+
+  {% elif step == "damages" %}
+  <div class="bg-white rounded-xl border p-4 space-y-4">
+    <h2 class="font-medium">Diagram uszkodzeń</h2>
+    <p class="text-sm text-gray-500">Przytrzymaj palec na diagramie, aby dodać uszkodzenie.</p>
+    <div class="op-damage-legend text-xs flex flex-wrap gap-2 mb-2">
+      {% for code, label in damage_types %}
+      <span><strong>{{ code }}</strong> {{ label }}</span>
+      {% endfor %}
     </div>
-
-    <div class="op-wizard-step hidden" data-step="2">
-        <div class="op-section">
-            <h2 class="font-medium mb-3">Aktywne uszkodzenia (flota)</h2>
-            {% if active_damages %}
-            <ul class="text-sm space-y-2 mb-4">
-                {% for d in active_damages %}
-                <li class="border-l-2 border-amber-400 pl-2">{{ d.location|default:"—" }}: {{ d.description }}</li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p class="text-sm text-gray-500 mb-4">Brak aktywnych uszkodzen w historii floty.</p>
-            {% endif %}
-            <p class="text-xs text-gray-500 mb-2">Nowe uszkodzenie przy wydaniu (opcjonalnie):</p>
-            {{ form.new_damage_description }}
-            {{ form.new_damage_location }}
-            {{ form.new_damage_severity }}
-        </div>
-        <div class="op-section">
-            <h2 class="font-medium mb-3">Zdjecia</h2>
-            <input
-                type="file"
-                name="photos"
-                accept="image/*"
-                capture="environment"
-                multiple
-                class="op-input"
-            />
-            <p class="text-xs text-gray-500 mt-2">Możesz wybrać kilka zdjęć naraz.</p>
-        </div>
-        <div class="flex gap-3">
-            <button type="button" class="op-btn-secondary op-wizard-prev" data-prev="1">Wstecz</button>
-            <button type="button" class="op-btn-primary op-wizard-next flex-1" data-next="3">Dalej — podpis</button>
-        </div>
-    </div>
-
-    <div class="op-wizard-step hidden" data-step="3">
-        <div class="op-section">
-            <h2 class="font-medium mb-3">Podpis klienta</h2>
-            <div class="mb-3">
-                <label class="op-label">{{ form.signer_name.label }}</label>
-                {{ form.signer_name }}
-            </div>
-            {% include "operations/_signature_pad.html" %}
-            <div>
-                <label class="op-label">{{ form.notes.label }}</label>
-                {{ form.notes }}
-            </div>
-        </div>
-
-        {% if form.non_field_errors %}
-        <p class="text-red-600 text-sm mb-4">{{ form.non_field_errors.0 }}</p>
+    <div id="damage-diagram" class="relative bg-gray-100 rounded-xl aspect-[2/1] border-2 border-dashed border-gray-300 touch-none select-none">
+      <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm pointer-events-none">Widok z góry</div>
+      {% for marker in handover.damage_markers.all %}
+        {% if marker.resolution == "active" or marker.resolution == "reported_at_return" or marker.resolution == "needs_assessment" or marker.resolution == "needs_quote" %}
+        <button type="button" class="absolute w-7 h-7 -ml-3.5 -mt-3.5 rounded-full bg-amber-500 text-white text-xs font-bold shadow"
+                style="left:{{ marker.pos_x }}%; top:{{ marker.pos_y }}%"
+                title="{{ marker.description }}">{{ marker.damage_type }}</button>
         {% endif %}
-
-        <div class="flex gap-3">
-            <button type="button" class="op-btn-secondary op-wizard-prev" data-prev="2">Wstecz</button>
-            <button type="submit" class="op-btn-primary flex-1">Zakoncz wydanie i aktywuj wynajem</button>
-        </div>
+      {% endfor %}
     </div>
 
-    <a href="{% url 'operations:handover_queue' %}" class="block text-center text-sm text-gray-500 mt-4">Anuluj</a>
-</form>
+    <div id="damage-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
+      <form method="post" enctype="multipart/form-data" class="bg-white rounded-xl p-4 w-full max-w-md space-y-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_damage">
+        <input type="hidden" name="pos_x" id="dmg-pos-x">
+        <input type="hidden" name="pos_y" id="dmg-pos-y">
+        <h3 class="font-medium">Nowe uszkodzenie</h3>
+        <select name="damage_type" class="w-full border rounded-lg px-3 py-2">
+          {% for code, label in damage_types %}
+          <option value="{{ code }}">{{ code }} — {{ label }}</option>
+          {% endfor %}
+        </select>
+        <textarea name="description" rows="2" placeholder="Opis" class="w-full border rounded-lg px-3 py-2"></textarea>
+        <input type="text" name="size_note" placeholder="Rozmiar (opcjonalnie)" class="w-full border rounded-lg px-3 py-2">
+        <input type="file" name="photo" accept="image/*" capture="environment">
+        <div class="flex gap-2">
+          <button type="button" id="dmg-cancel" class="flex-1 border rounded-lg py-2">Anuluj</button>
+          <button type="submit" class="flex-1 bg-black text-white rounded-lg py-2">Zapisz</button>
+        </div>
+      </form>
+    </div>
 
-{% include "operations/_signature_pad_script.html" %}
+    <ul class="text-sm space-y-2">
+      {% for marker in handover.damage_markers.all %}
+      <li class="border rounded-lg p-2 flex justify-between gap-2">
+        <span><strong>{{ marker.damage_type }}</strong> {{ marker.description|truncatechars:60 }}</span>
+        {% if marker.is_new %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="resolve_damage">
+          <input type="hidden" name="marker_id" value="{{ marker.pk }}">
+          <input type="hidden" name="resolution" value="mistaken">
+          <button type="submit" class="text-xs text-red-600" onclick="return confirm('Oznaczyć jako omyłkowe?')">Usuń</button>
+        </form>
+        {% endif %}
+      </li>
+      {% empty %}
+      <li class="text-gray-500">Brak punktów na diagramie.</li>
+      {% endfor %}
+    </ul>
 
-<script>
-(function () {
-    const form = document.getElementById("handover-wizard-form");
-    const steps = form.querySelectorAll(".op-wizard-step");
-    const dots = form.querySelectorAll(".op-wizard-dot");
-    const label = document.getElementById("wizard-step-label");
-    const stepLabels = {
-        1: "Krok 1: Dane pojazdu",
-        2: "Krok 2: Szkody i zdjęcia",
-        3: "Krok 3: Podpis klienta",
-    };
-
-    function showStep(n) {
-        steps.forEach(function (el) {
-            el.classList.toggle("hidden", Number(el.dataset.step) !== n);
-        });
-        dots.forEach(function (dot) {
-            const active = Number(dot.dataset.step) === n;
-            dot.classList.toggle("is-active", active);
-            if (active) {
-                dot.setAttribute("aria-current", "step");
-            } else {
-                dot.removeAttribute("aria-current");
-            }
-        });
-        if (label) {
-            label.textContent = stepLabels[n] || "";
-        }
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="next_damages">
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Dalej</button>
+    </form>
+  </div>
+  <script>
+  (function(){
+    const diagram = document.getElementById('damage-diagram');
+    const modal = document.getElementById('damage-modal');
+    let timer = null;
+    function openAt(clientX, clientY) {
+      const rect = diagram.getBoundingClientRect();
+      const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+      document.getElementById('dmg-pos-x').value = x.toFixed(2);
+      document.getElementById('dmg-pos-y').value = y.toFixed(2);
+      modal.classList.remove('hidden');
     }
+    diagram.addEventListener('touchstart', function(e){
+      const t = e.touches[0];
+      timer = setTimeout(function(){ openAt(t.clientX, t.clientY); }, 500);
+    }, {passive:true});
+    diagram.addEventListener('touchend', function(){ clearTimeout(timer); });
+    diagram.addEventListener('touchmove', function(){ clearTimeout(timer); });
+    diagram.addEventListener('contextmenu', function(e){ e.preventDefault(); openAt(e.clientX, e.clientY); });
+    document.getElementById('dmg-cancel').addEventListener('click', function(){ modal.classList.add('hidden'); });
+  })();
+  </script>
 
-    function validateStep(n) {
-        const step = form.querySelector('.op-wizard-step[data-step="' + n + '"]');
-        const fields = step.querySelectorAll("input, select, textarea");
-        for (const field of fields) {
-            if (field.type === "hidden" || field.type === "file") {
-                continue;
-            }
-            if (!field.checkValidity()) {
-                field.reportValidity();
-                return false;
-            }
-        }
-        if (n === 3) {
-            const dataUrl = form.querySelector("#id_signature_data_url");
-            const fileInput = form.querySelector("#id_signature_image");
-            const hasCanvas = dataUrl && dataUrl.value.indexOf("data:image/") === 0;
-            const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
-            if (!hasCanvas && !hasFile) {
-                window.alert("Narysuj podpis na ekranie albo dolacz zdjecie podpisu.");
-                return false;
-            }
-        }
-        return true;
-    }
+  {% elif step == "photos" %}
+  <div class="bg-white rounded-xl border p-4 space-y-3">
+    <h2 class="font-medium">Zdjęcia pojazdu (opcjonalne)</h2>
+    <form method="post" enctype="multipart/form-data" class="space-y-3">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add_photo">
+      <select name="category" class="w-full border rounded-lg px-3 py-2">
+        {% for code, label in photo_categories %}
+        <option value="{{ code }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+      <input type="file" name="photo" accept="image/*" capture="environment" required>
+      <button type="submit" class="w-full border rounded-lg py-2">Dodaj zdjęcie</button>
+    </form>
+    <ul class="text-sm space-y-1">
+      {% for photo in handover.photos.all %}
+      <li>{{ photo.get_category_display }} — {{ photo.uploaded_at|date:"H:i" }}</li>
+      {% empty %}
+      <li class="text-gray-500">Brak zdjęć.</li>
+      {% endfor %}
+    </ul>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="next_photos">
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Dalej</button>
+    </form>
+  </div>
 
-    form.addEventListener("submit", function (event) {
-        if (!validateStep(3)) {
-            event.preventDefault();
-        }
-    });
+  {% elif step == "interior" %}
+  <div class="bg-white rounded-xl border p-4">
+    <h2 class="font-medium mb-3">Wnętrze i podstawowa kontrola</h2>
+    <form method="post" class="space-y-3">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_interior">
+      {% for field in interior_form %}
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+        {{ field }}
+      </div>
+      {% endfor %}
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Dalej</button>
+    </form>
+  </div>
 
-    form.querySelectorAll(".op-wizard-next").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            const current = Number(btn.closest(".op-wizard-step").dataset.step);
-            if (!validateStep(current)) {
-                return;
-            }
-            showStep(Number(btn.dataset.next));
-        });
-    });
+  {% elif step == "equipment" %}
+  <div class="bg-white rounded-xl border p-4 space-y-3">
+    <h2 class="font-medium">Wyposażenie przekazywane klientowi</h2>
+    <form method="post" class="space-y-3">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_equipment">
+      <button type="submit" name="confirm_all" value="1" class="w-full border rounded-lg py-2 mb-2">Potwierdź wszystkie</button>
+      {% for line in handover.equipment_lines.all %}
+      <div class="border rounded-lg p-3 text-sm space-y-1">
+        <p class="font-medium">{{ line.name_snapshot }} (x{{ line.quantity_expected }})</p>
+        <select name="status_{{ line.pk }}" class="w-full border rounded px-2 py-1">
+          <option value="handed">Przekazano</option>
+          <option value="missing">Brak</option>
+          <option value="note">Uwaga</option>
+        </select>
+        <input type="number" name="qty_{{ line.pk }}" value="{{ line.quantity_expected }}" min="0" class="w-full border rounded px-2 py-1" placeholder="Ilość">
+        <input type="text" name="notes_{{ line.pk }}" class="w-full border rounded px-2 py-1" placeholder="Uwaga">
+      </div>
+      {% empty %}
+      <p class="text-gray-500 text-sm">Brak wyposażenia na pojeździe — uzupełnij w panelu floty.</p>
+      {% endfor %}
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Dalej</button>
+    </form>
+  </div>
 
-    form.querySelectorAll(".op-wizard-prev").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            showStep(Number(btn.dataset.prev));
-        });
-    });
+  {% elif step == "summary" %}
+  <div class="bg-white rounded-xl border p-4 space-y-3 text-sm">
+    <h2 class="font-medium text-base">Podsumowanie (draft)</h2>
+    <p class="text-amber-700 bg-amber-50 rounded-lg px-3 py-2">Dokument niepodpisany — draft przed podpisem.</p>
+    <p><strong>Kierowca:</strong> {{ driver.first_name }} {{ driver.last_name }}</p>
+    <p><strong>Przebieg:</strong> {{ handover.mileage }} km · <strong>Paliwo:</strong> {{ handover.fuel_level_percent }}%{% if fuel_tank_capacity_liters %} (≈ {{ fuel_liters_preview }} L){% endif %}</p>
+    <p><strong>Uszkodzenia:</strong> {{ handover.damage_markers.count }}</p>
+    <p><strong>Zdjęcia:</strong> {{ handover.photos.count }}</p>
+    <p><strong>Wyposażenie:</strong> {{ handover.equipment_lines.count }} pozycji</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="to_signature">
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Przejdź do podpisu</button>
+    </form>
+  </div>
 
-    const slider = document.querySelector("#id_fuel_level_percent");
-    const fuelLabel = document.getElementById("fuel-val");
-    if (slider && fuelLabel) {
-        slider.addEventListener("input", function () {
-            fuelLabel.textContent = slider.value;
-        });
-    }
-})();
-</script>
+  {% elif step == "signature" %}
+  <div class="bg-white rounded-xl border p-4 space-y-3">
+    <h2 class="font-medium">Podpis klienta</h2>
+    <p class="text-sm text-gray-600">Potwierdzam stan pojazdu i wyposażenia zgodnie z protokołem wydania.</p>
+    <form method="post" enctype="multipart/form-data" class="space-y-3" id="signature-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="finalize">
+      <input type="text" name="signer_name" required placeholder="Imię i nazwisko" class="w-full border rounded-lg px-3 py-2"
+             value="{{ driver.first_name }} {{ driver.last_name }}">
+      <textarea name="customer_notes" rows="2" placeholder="Uwagi klienta" class="w-full border rounded-lg px-3 py-2"></textarea>
+      {% include "operations/_signature_pad.html" with form=signature_form %}
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Zatwierdź i zamknij protokół</button>
+    </form>
+  </div>
+  {% include "operations/_signature_pad_script.html" %}
+  {% endif %}
+</div>
 {% endblock %}

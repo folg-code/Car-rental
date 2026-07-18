@@ -5,8 +5,10 @@ from apps.fleet.models import (
     Car,
     CarCategory,
     CarDocument,
+    CarEquipment,
     CarImage,
     Damage,
+    EquipmentItem,
     RepairRecord,
 )
 
@@ -15,6 +17,14 @@ from apps.fleet.models import (
 class CarCategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "slug", "deposit", "sort_order")
     prepopulated_fields = {"slug": ("name",)}
+
+
+@admin.register(EquipmentItem)
+class EquipmentItemAdmin(admin.ModelAdmin):
+    list_display = ("code", "name", "is_active", "sort_order")
+    list_filter = ("is_active",)
+    search_fields = ("code", "name")
+    prepopulated_fields = {"code": ("name",)}
 
 
 class CarImageInline(admin.TabularInline):
@@ -33,6 +43,11 @@ class AvailabilityBlockInline(admin.TabularInline):
     readonly_fields = ("created_at",)
 
 
+class CarEquipmentInline(admin.TabularInline):
+    model = CarEquipment
+    extra = 0
+
+
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
     list_display = (
@@ -42,11 +57,17 @@ class CarAdmin(admin.ModelAdmin):
         "year",
         "category",
         "status",
+        "fuel_tank_capacity_liters",
         "mileage",
     )
     list_filter = ("status", "category", "fuel_type")
     search_fields = ("registration_number", "make", "model", "vin")
-    inlines = [CarImageInline, CarDocumentInline, AvailabilityBlockInline]
+    inlines = [
+        CarEquipmentInline,
+        CarImageInline,
+        CarDocumentInline,
+        AvailabilityBlockInline,
+    ]
 
 
 @admin.register(AvailabilityBlock)
@@ -58,8 +79,16 @@ class AvailabilityBlockAdmin(admin.ModelAdmin):
 
 @admin.register(Damage)
 class DamageAdmin(admin.ModelAdmin):
-    list_display = ("car", "severity", "status", "reported_at", "location")
-    list_filter = ("severity", "status")
+    list_display = (
+        "car",
+        "damage_type",
+        "severity",
+        "status",
+        "resolution_status",
+        "reported_at",
+        "location",
+    )
+    list_filter = ("severity", "status", "damage_type", "resolution_status")
     search_fields = ("description", "location")
     raw_id_fields = ("car",)
 

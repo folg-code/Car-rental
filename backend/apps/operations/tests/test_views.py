@@ -64,18 +64,20 @@ class TestOperationsViews:
         assert b"lg:hidden" in response.content
 
     def test_handover_form_has_wizard(self, staff_client, scheduled_rental) -> None:
-        response = staff_client.get(
-            reverse(
-                "operations:handover_create",
-                kwargs={"rental_id": scheduled_rental.pk},
-            )
+        url = reverse(
+            "operations:handover_create",
+            kwargs={"rental_id": scheduled_rental.pk},
         )
+        response = staff_client.get(url)
         assert response.status_code == 200
         assert "Protokół wydania".encode() in response.content
         assert b"op-wizard-nav" in response.content
         assert b"Krok 1: Dane pojazdu" in response.content
-        assert b"op-signature-canvas" in response.content
-        assert b"data-signature-pad" in response.content
+
+        sig = staff_client.get(f"{url}?step=signature")
+        assert sig.status_code == 200
+        assert b"op-signature-canvas" in sig.content
+        assert b"data-signature-pad" in sig.content
 
     def test_return_form_has_wizard_and_htmx_preview(
         self, staff_client, scheduled_rental
@@ -87,19 +89,21 @@ class TestOperationsViews:
             signer_name="Jan",
             signature_image=_tiny_image(),
         )
-        response = staff_client.get(
-            reverse(
-                "operations:return_create",
-                kwargs={"rental_id": scheduled_rental.pk},
-            )
+        url = reverse(
+            "operations:return_create",
+            kwargs={"rental_id": scheduled_rental.pk},
         )
+        response = staff_client.get(url)
         assert response.status_code == 200
         assert "Protokół zwrotu".encode() in response.content
         assert b"op-wizard-nav" in response.content
         assert b"Krok 1: Stan przy zwrocie" in response.content
         assert "Podgląd dopłat".encode() in response.content
         assert b"hx-get" in response.content
-        assert "Porównanie szkód".encode() in response.content
+
+        damages = staff_client.get(f"{url}?step=damages")
+        assert damages.status_code == 200
+        assert "Porównanie szkód".encode() in damages.content
 
     def test_return_surcharge_preview_endpoint(
         self, staff_client, scheduled_rental

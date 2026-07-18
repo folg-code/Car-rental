@@ -15,6 +15,9 @@ class DamageSnapshotData:
     severity: str
     severity_label: str
     is_new: bool
+    damage_type: str = "U"
+    pos_x: str = ""
+    pos_y: str = ""
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -23,6 +26,9 @@ class DamageSnapshotData:
             "severity": self.severity,
             "severity_label": self.severity_label,
             "is_new": self.is_new,
+            "damage_type": self.damage_type,
+            "pos_x": self.pos_x,
+            "pos_y": self.pos_y,
         }
 
 
@@ -43,6 +49,9 @@ class HandoverDocumentData:
     damages: tuple[DamageSnapshotData, ...]
     signature_name: str
     signature_uri: str | None
+    fuel_level: str = ""
+    driver_name: str = ""
+    equipment_lines: tuple[str, ...] = ()
 
     def as_template_context(self) -> dict[str, Any]:
         return {
@@ -52,6 +61,9 @@ class HandoverDocumentData:
             "registration_number": self.registration_number,
             "mileage": self.mileage,
             "fuel_level_percent": self.fuel_level_percent,
+            "fuel_level": self.fuel_level,
+            "driver_name": self.driver_name,
+            "equipment_lines": list(self.equipment_lines),
             "notes": self.notes,
             "completed_at": self.completed_at,
             "damages": [d.as_dict() for d in self.damages],
@@ -82,6 +94,10 @@ class ReturnDocumentData:
     damages: tuple[DamageSnapshotData, ...]
     signature_name: str
     signature_uri: str | None
+    fuel_level: str = ""
+    handover_fuel_level: str = ""
+    settlement_lines: tuple[str, ...] = ()
+    cleanliness_summary: str = ""
 
     def as_template_context(self) -> dict[str, Any]:
         return {
@@ -91,11 +107,15 @@ class ReturnDocumentData:
             "registration_number": self.registration_number,
             "handover_mileage": self.handover_mileage,
             "handover_fuel_level_percent": self.handover_fuel_level_percent,
+            "handover_fuel_level": self.handover_fuel_level,
             "mileage": self.mileage,
             "fuel_level_percent": self.fuel_level_percent,
+            "fuel_level": self.fuel_level,
             "mileage_driven": self.mileage_driven,
             "notes": self.notes,
             "surcharge_notes": self.surcharge_notes,
+            "settlement_lines": list(self.settlement_lines),
+            "cleanliness_summary": self.cleanliness_summary,
             "completed_at": self.completed_at,
             "damages": [d.as_dict() for d in self.damages],
             "signature_name": self.signature_name,

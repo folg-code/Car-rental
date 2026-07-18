@@ -145,7 +145,17 @@ class PricingRule(models.Model):
             )
 
 
-POST_RENTAL_EXTRA_CODES: frozenset[str] = frozenset({"fuel_refill", "extra_km"})
+POST_RENTAL_EXTRA_CODES: frozenset[str] = frozenset(
+    {
+        "fuel_refill",
+        "extra_km",
+        "late_return",
+        "missing_equipment",
+        "damaged_equipment",
+        "dirty_return",
+        "interior_cleaning",
+    }
+)
 
 
 class ExtraServiceChargeType(models.TextChoices):

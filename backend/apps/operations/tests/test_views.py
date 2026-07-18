@@ -104,6 +104,7 @@ class TestOperationsViews:
         damages = staff_client.get(f"{url}?step=damages")
         assert damages.status_code == 200
         assert "Porównanie szkód".encode() in damages.content
+        assert b"car_damage_diagram.png" in damages.content
 
     def test_return_surcharge_preview_endpoint(
         self, staff_client, scheduled_rental

@@ -1,14 +1,31 @@
-from django.db.models import Case, IntegerField, QuerySet, Value, When
+from django.db.models import Case, IntegerField, Q, QuerySet, Value, When
 from django.utils import timezone
 
 from apps.bookings.models import Rental, RentalStatus
 from apps.operations.models import HandoverProtocol, ReturnProtocol
 
 
-def list_rentals_pending_handover() -> QuerySet[Rental]:
+def _search_filter(query: str) -> Q:
+    q = query.strip()
+    if not q:
+        return Q()
+    return (
+        Q(pk__iexact=q)
+        | Q(reservation__pk__iexact=q)
+        | Q(reservation__customer__first_name__icontains=q)
+        | Q(reservation__customer__last_name__icontains=q)
+        | Q(reservation__customer__email__icontains=q)
+        | Q(reservation__customer__phone__icontains=q)
+        | Q(reservation__car__registration_number__icontains=q)
+        | Q(reservation__car__make__icontains=q)
+        | Q(reservation__car__model__icontains=q)
+    )
+
+
+def list_rentals_pending_handover(search: str = "") -> QuerySet[Rental]:
     """Scheduled rentals awaiting handover; overdue and today first."""
     now = timezone.now()
-    return (
+    qs = (
         Rental.objects.filter(status=RentalStatus.SCHEDULED)
         .select_related(
             "reservation",
@@ -23,14 +40,16 @@ def list_rentals_pending_handover() -> QuerySet[Rental]:
                 output_field=IntegerField(),
             ),
         )
-        .order_by("queue_priority", "scheduled_start_at")
     )
+    if search.strip():
+        qs = qs.filter(_search_filter(search))
+    return qs.order_by("queue_priority", "scheduled_start_at")
 
 
-def list_rentals_pending_return() -> QuerySet[Rental]:
+def list_rentals_pending_return(search: str = "") -> QuerySet[Rental]:
     """Active rentals with completed handover; overdue returns first."""
     now = timezone.now()
-    return (
+    qs = (
         Rental.objects.filter(
             status=RentalStatus.ACTIVE,
             handover_protocol__completed_at__isnull=False,
@@ -48,14 +67,28 @@ def list_rentals_pending_return() -> QuerySet[Rental]:
                 output_field=IntegerField(),
             ),
         )
-        .order_by("queue_priority", "scheduled_end_at")
     )
+    if search.strip():
+        qs = qs.filter(_search_filter(search))
+    return qs.order_by("queue_priority", "scheduled_end_at")
 
 
 def get_handover_for_rental(rental_id: int) -> HandoverProtocol | None:
     return (
-        HandoverProtocol.objects.select_related("rental", "rental__reservation")
-        .prefetch_related("photos", "damage_snapshots", "signature")
+        HandoverProtocol.objects.select_related(
+            "rental",
+            "rental__reservation",
+            "rental__reservation__customer",
+            "rental__reservation__car",
+            "driver",
+        )
+        .prefetch_related(
+            "photos",
+            "damage_snapshots",
+            "damage_markers",
+            "equipment_lines",
+            "signature",
+        )
         .filter(rental_id=rental_id)
         .first()
     )
@@ -63,8 +96,20 @@ def get_handover_for_rental(rental_id: int) -> HandoverProtocol | None:
 
 def get_return_for_rental(rental_id: int) -> ReturnProtocol | None:
     return (
-        ReturnProtocol.objects.select_related("rental", "handover")
-        .prefetch_related("photos", "damage_snapshots", "signature")
+        ReturnProtocol.objects.select_related(
+            "rental",
+            "handover",
+            "rental__reservation__car",
+            "rental__reservation__customer",
+        )
+        .prefetch_related(
+            "photos",
+            "damage_snapshots",
+            "damage_markers",
+            "equipment_lines",
+            "settlement_lines",
+            "signature",
+        )
         .filter(rental_id=rental_id)
         .first()
     )

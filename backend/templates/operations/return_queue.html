@@ -12,6 +12,11 @@
         ← Operacje
     </a>
 
+    <form method="get" class="mb-4">
+        <input type="search" name="q" value="{{ search }}" placeholder="Szukaj: klient, rejestracja…"
+               class="w-full border rounded-xl px-4 py-3 text-sm">
+    </form>
+
     <ul class="space-y-3">
         {% for rental in pending_return %}
         <li class="bg-white rounded-xl border {% if rental.queue_priority == 0 %}border-red-400{% else %}border-gray-200{% endif %} p-4 flex justify-between items-center gap-3">

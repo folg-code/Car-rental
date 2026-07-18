@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Demo live — backlog opcjonalny (Sprint 12+) |
-| **Następny krok** | Release docs `dev`→`main` albo backlog (dynamic pricing / i18n / Sentry) |
-| **Postęp ogólny** | Sprint 0–12 ✅; demo na https://car-rental.filipf.online |
+| **Aktualny etap** | Sprint 13 — zaawansowane protokoły wydania/zwrotu |
+| **Następny krok** | PR `feat/advanced-handover-return-protocols` → `dev`, smoke na demo |
+| **Postęp ogólny** | Sprint 0–12 ✅; Sprint 13 w toku (flota + drafty + UI) |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -44,6 +44,7 @@
 | **10** | **Demo produkcyjne (VPS pokazowy)** | **✅** | **100%** |
 | 11 | Utrzymanie i observability demo | ✅ | 100% |
 | **12** | **Demo polish / UX v2** | **✅** | **100%** |
+| **13** | **Zaawansowane protokoły wydania/zwrotu** | **🟡** | **w toku** |
 
 ---
 
@@ -74,6 +75,9 @@
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
 **Sprint 10–12:** ✅ domknięte.
+
+**Sprint 13 (w toku):** zaawansowane protokoły wydania/zwrotu — flota (wyposażenie, bak, diagram),
+drafty wielokrokowe, UI mobilne, rozliczenie przy zwrocie. Branch: `feat/advanced-handover-return-protocols`.
 
 **Demo live:** https://car-rental.filipf.online — smoke 10.8–10.10 OK (2026-07-18).
 

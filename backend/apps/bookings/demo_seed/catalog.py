@@ -44,6 +44,7 @@ class CarSpec:
     fuel_type: str
     mileage: int
     seats: int
+    fuel_tank_capacity_liters: Decimal = Decimal("45.0")
     status: str = CarStatus.ACTIVE
 
 

@@ -102,6 +102,8 @@
             <dt class="text-gray-500">Kaucja (kategoria)</dt><dd>{{ car.category.deposit }} PLN</dd>
             <dt class="text-gray-500">Rok</dt><dd>{{ car.year }}</dd>
             <dt class="text-gray-500">Paliwo</dt><dd>{{ car.get_fuel_type_display }}</dd>
+            <dt class="text-gray-500">Pojemnosc baku</dt>
+            <dd>{% if car.fuel_tank_capacity_liters %}{{ car.fuel_tank_capacity_liters }} L{% else %}—{% endif %}</dd>
             <dt class="text-gray-500">Przebieg</dt><dd>{{ car.mileage }} km</dd>
             <dt class="text-gray-500">Miejsca</dt><dd>{{ car.seats }}</dd>
             {% if car.vin %}<dt class="text-gray-500">VIN</dt><dd>{{ car.vin }}</dd>{% endif %}
@@ -109,6 +111,22 @@
         </dl>
         {% if car.notes %}
         <p class="mt-4 text-sm text-gray-600"><span class="text-gray-500">Notatki:</span> {{ car.notes }}</p>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="font-medium mb-4">Wyposazenie</h2>
+        {% if car.equipment_lines.all %}
+        <ul class="space-y-1 text-sm">
+            {% for line in car.equipment_lines.all %}
+            <li class="flex justify-between border-b border-gray-100 py-1">
+                <span>{{ line.item.name }}</span>
+                <span class="text-gray-500">x{{ line.quantity }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-sm">Brak przypisanego wyposazenia.</p>
         {% endif %}
     </div>
 

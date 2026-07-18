@@ -62,6 +62,31 @@ class TestOperationsViews:
         response = staff_client.get(reverse("operations:home"))
         assert response.context["ops_mobile_layout"] is True
         assert b"lg:hidden" in response.content
+        assert b'id="panel-sidebar"' in response.content
+        assert b"hidden lg:flex" in response.content
+
+    def test_handover_queue_shows_mobile_optimized_tip(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        response = staff_client.get(reverse("operations:handover_queue"))
+        assert response.status_code == 200
+        assert b"ops-mobile-tip" in response.content
+        assert b"zoptymalizowany pod telefon" in response.content
+
+    def test_return_queue_shows_mobile_optimized_tip(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        HandoverService.complete_handover(
+            scheduled_rental.pk,
+            mileage=10_000,
+            fuel_level_percent=100,
+            signer_name="Jan",
+            signature_image=_tiny_image(),
+        )
+        response = staff_client.get(reverse("operations:return_queue"))
+        assert response.status_code == 200
+        assert b"ops-mobile-tip" in response.content
+        assert b"zoptymalizowany pod telefon" in response.content
 
     def test_handover_form_has_wizard(self, staff_client, scheduled_rental) -> None:
         url = reverse(

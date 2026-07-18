@@ -165,8 +165,8 @@ Repo Variables (GitHub): opcjonalnie `SMOKE_BASE_URL=https://<domena>`.
 ### Smoke funkcjonalny
 
 - [x] `SMOKE_BASE_URL=https://<domena> ./scripts/smoke-health.sh` *(OK 2026-07-18 na car-rental.filipf.online)*
-- [ ] `SMOKE_BASE_URL=https://<domena> ./scripts/smoke-presentation.sh` — publiczne URL ścieżki prezentacji
-- [ ] `… exec web python backend/manage.py seed_demo --check-only` — scenariusze prezentacji
+- [x] `SMOKE_BASE_URL=https://<domena> ./scripts/smoke-presentation.sh` — publiczne URL ścieżki prezentacji *(OK 2026-07-18 na car-rental.filipf.online)*
+- [ ] `… exec web python backend/manage.py seed_demo --check-only` — scenariusze prezentacji *(wymaga SSH/VPS)*
 - [x] `curl -I https://<domena>/` → 200
 - [x] Logowanie panelu `admin` / `demo1234` *(via `/konto/logowanie/`)*
 - [x] Pulpit ładuje KPI bez błędu 500

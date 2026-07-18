@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 15 — ścieżka prezentacji i niezawodność demo |
-| **Następny krok** | Seed + runbook + README (elevator) pod jedną ścieżkę end-to-end |
-| **Postęp ogólny** | Sprint 0–14 ✅; Sprint 15 🟡 |
+| **Aktualny etap** | Demo live — Sprint 15 domknięty |
+| **Następny krok** | Release `dev` → `main`; smoke-presentation na VPS |
+| **Postęp ogólny** | Sprint 0–15 ✅; dalej opcjonalny backlog |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -46,7 +46,7 @@
 | **12** | **Demo polish / UX v2** | **✅** | **100%** |
 | **13** | **Zaawansowane protokoły wydania/zwrotu** | **✅** | **100%** |
 | **14** | **Demo UX polish (baner, diagram, asystent)** | **✅** | **100%** |
-| **15** | **Ścieżka prezentacji i niezawodność demo** | **🟡** | **0%** |
+| **15** | **Ścieżka prezentacji i niezawodność demo** | **✅** | **100%** |
 
 ---
 
@@ -70,7 +70,7 @@
 16. ~~**Sprint 12 — Demo polish / UX v2**~~ ✅
 17. ~~**Sprint 13 — Zaawansowane protokoły**~~ ✅ — drafty, bak %, wyposażenie, diagram, PDF
 18. ~~**Sprint 14 — Demo UX polish**~~ ✅ — przewodnik demo, grafika diagramu, mock asystent
-19. **Sprint 15 — Ścieżka prezentacji i niezawodność demo** — seed, runbook, elevator w README
+19. ~~**Sprint 15 — Ścieżka prezentacji i niezawodność demo**~~ ✅
 20. **Backlog (później)** — eskalacja chatu, HTMX dashboard, Sentry, dynamic pricing, i18n
 
 ---
@@ -79,12 +79,9 @@
 
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-**Sprint 10–14:** ✅ domknięte.
+**Sprint 10–15:** ✅ domknięte.
 
-**Sprint 15 (w toku):** jedna spójna ścieżka prezentacji end-to-end + niezawodny seed + krótki opis produktu w README.
-Szczegóły: sekcja [Sprint 15](#sprint-15--ścieżka-prezentacji-i-niezawodność-demo-) poniżej.
-
-**Demo live:** https://car-rental.filipf.online — smoke + release `dev`→`main` (2026-07-18).
+**Demo live:** https://car-rental.filipf.online — ścieżka prezentacji w runbooku + `seed_demo --check-only`.
 
 **VPS:** env ✅, cron backup ✅, `smoke-health` ✅, backup ✅.
 **Gałęzie:** drobne docs → commit na `dev`; kod → `feat/*` → PR → `dev`; release → PR `dev` → `main`.
@@ -897,24 +894,24 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 ---
 
-# Sprint 15 — Ścieżka prezentacji i niezawodność demo 🟡
+# Sprint 15 — Ścieżka prezentacji i niezawodność demo ✅
 
 **Cel:** jedna ścieżka end-to-end (rezerwacja → płatność → wydanie → zwrot → dokumenty), która działa powtarzalnie po `seed_demo`, bez ręcznego przygotowania danych. Dodatkowo krótki, jasny opis produktu na starcie dokumentacji.
 
 | ID | Task | Opis | Status |
 |----|------|------|--------|
-| **15.1** | Ścieżka prezentacji w runbooku | Jedna numerowana ścieżka A→B→C (publiczny funnel + protokół + portal) z konkretnymi kluczami seed i URL | ⬜ |
-| **15.2** | Niezawodny `seed_demo` | Gwarantowane scenariusze: wynajem gotowy do wydania dziś, zwrot z dopłatami, aktywny portal klienta; idempotencja + krótki self-check po seedzie | ⬜ |
-| **15.3** | Przewodnik demo ↔ seed | Teksty w panelu przewodnika zgodne z aktualnymi kontami i krokami runbooka | ⬜ |
-| **15.4** | Elevator w README | Sekcja 5–7 zdań: problem → rozwiązanie → jak uruchomić demo → konta → link live | ⬜ |
-| **15.5** | Smoke ścieżki prezentacji | Checklist / skrypt: krytyczne URL i obecność rekordów seed po deploy | ⬜ |
+| **15.1** | Ścieżka prezentacji w runbooku | Jedna numerowana ścieżka end-to-end + A/B/C jako rozszerzenia | ✅ |
+| **15.2** | Niezawodny `seed_demo` | `verify_presentation_seed` + `--check-only` po seedzie | ✅ |
+| **15.3** | Przewodnik demo ↔ seed | Panel z kluczami `ops-handover-today` / `ops-return-surcharges` / `ops-active` | ✅ |
+| **15.4** | Elevator w README | Problem → rozwiązanie → live → konta → runbook | ✅ |
+| **15.5** | Smoke ścieżki prezentacji | `scripts/smoke-presentation.sh` (+ opcjonalny seed check) | ✅ |
 
 #### Definition of Done — Sprint 15
 
-- [ ] Po `seed_demo` można przejść ścieżkę prezentacji bez ręcznej edycji danych.
-- [ ] Runbook zawiera jedną główną ścieżkę z kluczami seed i URL.
-- [ ] README ma krótki opis produktu i wejście w demo (konta + link).
-- [ ] Przewodnik na stronie publicznej nie rozjeżdża się z runbookiem / seedem.
+- [x] Po `seed_demo` można przejść ścieżkę prezentacji bez ręcznej edycji danych.
+- [x] Runbook zawiera jedną główną ścieżkę z kluczami seed i URL.
+- [x] README ma krótki opis produktu i wejście w demo (konta + link).
+- [x] Przewodnik na stronie publicznej nie rozjeżdża się z runbookiem / seedem.
 
 **Szacunek:** 1–2 dni robocze.
 
@@ -1024,7 +1021,7 @@ Sprint 13 (zaawansowane protokoły wydania/zwrotu) ✅
     ↓
 Sprint 14 (demo UX: przewodnik, diagram, asystent) ✅
     ↓
-Sprint 15 (ścieżka prezentacji + niezawodność seed / README) 🟡
+Sprint 15 (ścieżka prezentacji + niezawodność seed / README) ✅
     ↓
 Backlog opcjonalny (eskalacja chatu, HTMX dashboard, Sentry, dynamic pricing, i18n, …)
 ```

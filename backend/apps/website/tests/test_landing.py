@@ -26,10 +26,9 @@ class TestWebsiteLanding:
         assert b"admin" in response.content
         assert b"demo1234" in response.content
         assert b"klient" in response.content
-        assert "Co warto sprawdzić".encode() in response.content
-        assert b"data-demo-guide-drawer" in response.content
-        assert "Protokoły wydania i zwrotu".encode() in response.content
-        assert b'data-open="false"' in response.content
+        assert "Ścieżka prezentacji".encode() in response.content
+        assert b"ops-handover-today" in response.content
+        assert b"ops-return-surcharges" in response.content
 
     def test_root_url_resolves_to_website(self, client) -> None:
         response = client.get("/")

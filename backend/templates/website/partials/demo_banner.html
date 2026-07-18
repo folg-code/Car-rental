@@ -97,34 +97,39 @@
             <a href="{% url 'accounts:login' %}" class="underline text-amber-900 hover:text-amber-950">/konto/logowanie/</a>
         </p>
 
-        <p class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2">Co warto sprawdzić</p>
-        <p class="text-xs text-gray-500 mb-2">Od najbardziej złożonych procesów do prostszych.</p>
-        <ol class="text-sm space-y-2.5 text-gray-700 list-decimal pl-4">
+        <p class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2">
+            Ścieżka prezentacji
+        </p>
+        <p class="text-xs text-gray-500 mb-2">
+            Kolejność end-to-end (szczegóły: runbook). Od operacji do funnelu publicznego.
+        </p>
+        <ol class="text-sm space-y-2.5 text-gray-700 list-decimal pl-4 mb-4">
             <li>
-                <span class="font-medium text-gray-900">Protokoły wydania i zwrotu</span>
-                — wielokrokowy workflow w panelu operacji (zdjęcia, szkody, paliwo, podpis).
+                <span class="font-medium text-gray-900">Wydanie dziś</span>
+                — panel → Operacje → Wydania → seed <code class="font-mono text-xs bg-gray-100 px-1 rounded">ops-handover-today</code>
+                (diagram, paliwo %, podpis).
             </li>
             <li>
-                <span class="font-medium text-gray-900">Panel operacyjny</span>
-                — flota, płatności, raporty i kolejki wydań/zwrotów.
+                <span class="font-medium text-gray-900">Zwrot z dopłatami</span>
+                — Zwroty → seed <code class="font-mono text-xs bg-gray-100 px-1 rounded">ops-return-surcharges</code>.
             </li>
             <li>
                 <span class="font-medium text-gray-900">Portal klienta</span>
-                — rezerwacje, dokumenty i historia (konto <code class="font-mono text-xs bg-gray-100 px-1 rounded">klient</code>).
+                — <code class="font-mono text-xs bg-gray-100 px-1 rounded">klient</code> / <code class="font-mono text-xs bg-gray-100 px-1 rounded">demo1234</code>
+                (wynajem <code class="font-mono text-xs bg-gray-100 px-1 rounded">ops-active</code>).
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Rezerwacja + mock płatność</span>
+                — dostępność → rezerwacja → <code class="font-mono text-xs bg-gray-100 px-1 rounded">/platnosc/mock/</code>.
             </li>
             <li>
                 <span class="font-medium text-gray-900">Asystent AI</span>
-                — mock LLM: FAQ floty i orientacyjna wycena.
-            </li>
-            <li>
-                <span class="font-medium text-gray-900">Rezerwacja online + mock płatność</span>
-                — pełny funnel bez prawdziwej karty.
-            </li>
-            <li>
-                <span class="font-medium text-gray-900">Wyszukiwanie dostępności i wycena</span>
-                — publiczna flota i kalkulacja terminu.
+                — <code class="font-mono text-xs bg-gray-100 px-1 rounded">/asystent/</code> (przyciski przykładowych pytań).
             </li>
         </ol>
+        <p class="text-xs text-gray-500">
+            Pełny runbook: dokumentacja w repozytorium (<code class="font-mono">docs/DEMO_RUNBOOK.md</code>).
+        </p>
     </div>
 </aside>
 <script>

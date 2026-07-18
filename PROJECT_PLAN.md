@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 10 — smoke 10.8 na domenie (po deploy fixa mock) |
-| **Następny krok** | Release `dev`→`main` (#86) → retest 10.8 mock Opłać → 10.10 portal |
-| **Postęp ogólny** | Funkcje ~99%; 10.9 na domenie ✅; 10.8 CI+fix ✅, domena po deploy |
+| **Aktualny etap** | Sprint 10 — smoke 10.10 portal |
+| **Następny krok** | 10.10 portal `klient` / `demo1234` na https://car-rental.filipf.online |
+| **Postęp ogólny** | Funkcje ~99%; 10.8 ✅ i 10.9 ✅ na domenie |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -41,7 +41,7 @@
 | 8b | Chat AI — konsultant klienta | ✅ | 100% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ | 100% |
-| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~95%** |
+| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~98%** |
 | 11 | Utrzymanie i observability demo | ✅ | 100% |
 | **12** | **Demo polish / UX v2** | **✅** | **100%** |
 
@@ -75,10 +75,11 @@
 
 **Sprint 11:** **11.1–11.7** ✅.
 
-**Sprint 10 — domknięcie:** 10.9 ✅ na domenie; 10.8 czeka na deploy fixa webhook secret; potem 10.10 portal.
+**Sprint 10 — domknięcie:** 10.8 ✅ i 10.9 ✅ na domenie; zostało 10.10 portal.
 
 **VPS (zrobione 2026-07-18):** env check ✅, cron backup ✅, `smoke-health` ✅, ręczny `backup.sh` ✅.
 **Smoke panel (2026-07-18):** wynajem #9 — wydanie → zwrot z dopłatami → płatność → `closed` + PDF ✅.
+**Smoke publiczny (2026-07-18):** rezerwacja #20 → mock Opłać → `confirmed` ✅ (po release #88).
 
 **Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
 
@@ -788,7 +789,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 | **10.5** | Pierwszy deploy VPS | `./scripts/deploy.sh`, `ENABLE_DEPLOY=true`, secrets SSH | `scripts/deploy.sh`, `docs/CICD.md` | ✅ |
 | **10.6** | HTTPS + domena | Caddy + Let's Encrypt; `DOMAIN`, `ACME_EMAIL` | `docker-compose.prod.yml`, `deploy/Caddyfile` | ✅ |
 | **10.7** | Seed na prod | `seed_demo` po deploy; konta `admin`/`manager`/`klient` | `bookings/management/commands/seed_demo.py` | ✅ |
-| **10.8** | Smoke: flow publiczny | Wyszukiwarka → rezerwacja → mock payment → `confirmed` → email w logach | CI+fix ✅ (PR #86); domena ⬜ do deploy | 🟡 |
+| **10.8** | Smoke: flow publiczny | Wyszukiwarka → rezerwacja → mock payment → `confirmed` → email w logach | domena ✅ rezerwacja #20 (2026-07-18, po #88) | ✅ |
 | **10.9** | Smoke: flow panelu | Wydanie → aktywny → zwrot z dopłatami → płatność → zamknięcie | domena ✅ wynajem #9 (2026-07-18) | ✅ |
 | **10.10** | Smoke: portal klienta | Login `klient` / `demo1234` → lista rezerwacji → szczegóły | ręcznie na domenie / `website/tests/test_portal_views.py` | 🟡 |
 | **10.11** | Runbook demo | Ścieżki testowe, konta, znane ograniczenia mock | `docs/DEMO_RUNBOOK.md` | ✅ |
@@ -809,7 +810,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 - [x] Aplikacja dostępna pod publiczną domeną HTTPS
 - [x] `seed_demo` załadowany — 18 scenariuszy do prezentacji
-- [ ] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end *(CI+fix z sekretem ✅ PR #86; smoke na domenie po deploy)*
+- [x] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end *(domena ✅ rezerwacja #20)*
 - [x] Pełny flow panelu (wydanie → zwrot → rozliczenie) działa na danych seed *(domena ✅ wynajem #9)*
 - [x] Backup DB skonfigurowany (cron) — zweryfikowane na VPS 2026-07-18
 - [x] Runbook demo dla prezentacji (`docs/DEMO_RUNBOOK.md`)
@@ -940,7 +941,7 @@ Sprint 9 (płatności online + Celery + deploy)
     ↓
 Sprint 9+ (raporty, SMS, seed rozbudowany) ✅
     ↓
-Sprint 10 (demo produkcyjne — VPS pokazowy) 🟡 (smoke/backup odłożone)
+Sprint 10 (demo produkcyjne — VPS pokazowy) 🟡 (zostało 10.10 portal)
     ↓
 Sprint 11 (utrzymanie demo — opcjonalnie)
     ↓

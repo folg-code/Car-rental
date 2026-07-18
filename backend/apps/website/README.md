@@ -77,6 +77,12 @@ Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).
 - `services/chat_tool_router.py` — heurystyki (mock provider) → tool calls
 - Tooli: `search_available_cars`, `estimate_price`, `get_my_reservation_status`, `get_faq_snippet`
 
+### Chat AI — polish demo (Sprint 14 ✅)
+
+- `DEMO_CHAT_PROMPTS` + powitalny dymek na `/asystent/`
+- Rozszerzone FAQ (`faq_content.py`) + bogatszy `MockLLMClient`
+- Opcjonalny `OpenAICompatibleLLMClient` — na demo zostaje `LLM_PROVIDER=mock`
+
 ### Chat AI (opcjonalnie — poza MVP 8b)
 
 - Retencja: `purge_chat_messages` + cron (patrz [`docs/DEPLOY.md`](../../../docs/DEPLOY.md))

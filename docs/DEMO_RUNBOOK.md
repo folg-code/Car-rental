@@ -45,7 +45,8 @@ Hasła demo są **zamierzone** na wersji pokazowej.
 3. **Rezerwacja online** — `/rezerwacja/` → status `oczekuje płatności`
 4. **Mock płatności** — przekierowanie na `/platnosc/mock/` → „Opłać” → rezerwacja `confirmed`
 5. **Potwierdzenie** — `/rezerwacja/potwierdzenie/<id>/`
-6. *(Opcjonalnie)* **Asystent AI** — `/asystent/` (mock LLM, FAQ + wycena orientacyjna)
+6. *(Opcjonalnie)* **Asystent AI** — `/asystent/` (mock): przyciski przykładowych pytań, dostępność „na jutro”, kaucja, FAQ
+7. **Przewodnik demo** — żółty baner → „Przewodnik demo” (panel z prawej: konta + co sprawdzić)
 
 **Co pokazać:** pełny funnel bez panelu — od wyszukiwania do opłaconej rezerwacji.
 
@@ -65,11 +66,12 @@ Po logowaniu wybierz tryb:
 | 1 | **Start** `/panel/` | Kafelki: admin vs teren |
 | 2 | **Operacje** `/panel/operacje/` | Kafelki Wydaj / Zwróć |
 | 3 | **Kolejka wydań** `/panel/operacje/wydania/` | Wynajem **ops-handover-today** — wydanie dziś |
-| 4 | **Wydanie** | Protokół wydania (zdjęcia, podpis) → wynajem `active` |
+| 4 | **Wydanie** | Protokół wielokrokowy: paliwo %, **diagram ze schematem auta**, zdjęcia, podpis → wynajem `active` |
 | 5 | **Kolejka zwrotów** `/panel/operacje/zwroty/` | **ops-return-surcharges** — dopłaty km/paliwo |
 | 6 | **Admin** `/panel/admin/` | KPI, nieopłacone, alerty floty (bez kolejek wydania/zwrotu) |
 | 7 | **Płatności** `/panel/platnosci/` | Rozliczenie, raporty |
 | 8 | **Flota** `/panel/flota/` | Dokumenty wygasające, uszkodzenia, blokada serwisowa KR1DEMO5 |
+| 9 | *(Opc.)* **Asystent** `/asystent/` | Quick prompts + dostępność / kaucja (mock) |
 
 ---
 
@@ -154,7 +156,9 @@ Repo Variables (GitHub): opcjonalnie `SMOKE_BASE_URL=https://<domena>`.
 | Płatności | Mock — `/platnosc/mock/`, brak prawdziwej karty/BLIK |
 | Regulamin | Placeholder — nie jest dokumentem prawnym |
 | SMS | Wyłączone lub mock — logi w bazie, bez wysyłki |
-| Chat AI | Domyślnie mock; opcjonalnie `LLM_PROVIDER=openai` + `LLM_API_KEY` |
+| Chat AI | Domyślnie **mock** (bez kosztów API); quick prompts na `/asystent/`. Opcjonalnie `LLM_PROVIDER=openai` + klucz |
+| Przewodnik demo | Widoczny przy `DEMO_SITE=True` — panel z prawej z kontami i listą funkcji |
+| Diagram uszkodzeń | Schemat PNG (góra + boki); long-press / PPM dodaje marker |
 | Hasła | Stałe demo (`demo1234`) — nie używać na prawdziwej prod |
 | Email | Domyślnie console — maile w `docker compose logs web celery` |
 

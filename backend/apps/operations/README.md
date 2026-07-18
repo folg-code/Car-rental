@@ -15,7 +15,7 @@ Wymagania produktowe (diagram, drafty, wyposażenie, rozliczenie): plik
 - Drafty wielokrokowe: `HandoverProtocol` / `ReturnProtocol` (`status`, `current_step`)
 - `ProtocolDriver`, `ProtocolDamageMarker`, `ProtocolEquipmentLine`, `ProtocolSettlementLine`
 - `ProtocolPhoto.category`, dyskretna skala paliwa (`fuel_level`) + kompatybilny `%`
-- UI mobilne `/panel/operacje/` — long-press diagram, obowiązkowe zdjęcia przy zwrocie
+- UI mobilne `/panel/operacje/` — long-press na diagramie ze schematem (`static/images/car_damage_diagram.png`), obowiązkowe zdjęcia przy zwrocie
 - `HandoverService` / `ReturnService`: `start_*`, `save_*`, `finalize_*` (+ facade `complete_*`)
 - Snapshoty szkód (`DamageSnapshot`) — PDF wyłącznie ze snapshotów
 - Wyszukiwanie w kolejkach wydania/zwrotu

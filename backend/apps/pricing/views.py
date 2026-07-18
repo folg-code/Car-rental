@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from apps.accounts.permissions import staff_required
+from apps.accounts.permissions import owner_or_manager_required
 from apps.pricing.forms import (
     DailyRateForm,
     ExtraServiceForm,
@@ -15,7 +15,7 @@ from apps.pricing.selectors.price_list import get_price_list_by_id, list_price_l
 from apps.pricing.services.price_list import PriceListService
 
 
-@staff_required
+@owner_or_manager_required
 def price_list_list(request: HttpRequest) -> HttpResponse:
     return render(
         request,
@@ -24,7 +24,7 @@ def price_list_list(request: HttpRequest) -> HttpResponse:
     )
 
 
-@staff_required
+@owner_or_manager_required
 def price_list_create(request: HttpRequest) -> HttpResponse:
     form = PriceListForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -39,7 +39,7 @@ def price_list_create(request: HttpRequest) -> HttpResponse:
     )
 
 
-@staff_required
+@owner_or_manager_required
 def price_list_edit(request: HttpRequest, pk: int) -> HttpResponse:
     price_list = get_object_or_404(PriceList, pk=pk)
     form = PriceListForm(request.POST or None, instance=price_list)
@@ -59,7 +59,7 @@ def price_list_edit(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-@staff_required
+@owner_or_manager_required
 def price_list_detail(request: HttpRequest, pk: int) -> HttpResponse:
     price_list = get_price_list_by_id(pk)
     if price_list is None:

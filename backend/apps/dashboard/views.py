@@ -5,7 +5,7 @@ from datetime import date
 from django.shortcuts import render
 from django.utils.dateparse import parse_date
 
-from apps.accounts.permissions import staff_required
+from apps.accounts.permissions import finance_access_required, staff_required
 from apps.dashboard.selectors.financial_reports import (
     PAYMENT_METHOD_LABELS,
     default_period_end,
@@ -54,7 +54,7 @@ def panel_home(request):
     )
 
 
-@staff_required
+@finance_access_required
 def financial_report(request):
     period_start, period_end = _resolve_report_period(request)
     report = get_financial_period_report(

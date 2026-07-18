@@ -152,6 +152,7 @@ pytest -q
 | `scripts/install-backup-cron.sh` | Idempotentny cron backup + purge chatu + offsite (`--check`) |
 | `scripts/backup-offsite.sh` | Sync backupów przez rclone (`BACKUP_OFFSITE_REMOTE`) |
 | `scripts/smoke-health.sh` | Smoke `GET /health/` + `/` po deployu |
+| `scripts/check-production-env.sh` | Walidacja kluczy `.env.production` (bez dumpowania sekretów) |
 | `scripts/restore.sh` | Przywracanie z backupu (`--confirm`) |
 | `scripts/backup-restore-selftest.sh` | Test roundtrip backup/restore (CI) |
 | `deploy/Caddyfile` | Reverse proxy HTTPS |

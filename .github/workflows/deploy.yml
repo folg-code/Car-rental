@@ -99,7 +99,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "docker-compose.prod.yml,deploy/Caddyfile,scripts/deploy.sh,scripts/backup.sh,scripts/restore.sh,scripts/backup-restore-selftest.sh,scripts/install-backup-cron.sh,scripts/backup-offsite.sh,scripts/smoke-health.sh,.env.example"
+          source: "docker-compose.prod.yml,deploy/Caddyfile,scripts/deploy.sh,scripts/backup.sh,scripts/restore.sh,scripts/backup-restore-selftest.sh,scripts/install-backup-cron.sh,scripts/backup-offsite.sh,scripts/smoke-health.sh,scripts/check-production-env.sh,.env.example"
           target: ${{ secrets.DEPLOY_PATH }}
 
       - name: Run deployment on VPS
@@ -122,6 +122,7 @@ jobs:
             chmod +x scripts/install-backup-cron.sh
             chmod +x scripts/backup-offsite.sh
             chmod +x scripts/smoke-health.sh
+            chmod +x scripts/check-production-env.sh
 
             if [ -n "${GHCR_READ_TOKEN:-}" ]; then
               echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

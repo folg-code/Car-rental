@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Demo live — smoke ręczny na domenie |
-| **Następny krok** | 10.8–10.10 na domenie; VPS: `CACHE_URL`, `SMOKE_BASE_URL`, `install-backup-cron.sh --check` |
-| **Postęp ogólny** | Funkcje ~99%; Sprint 11–12 ✅; Sprint 10 ~95% |
+| **Aktualny etap** | Sprint 10 — smoke na domenie + env VPS |
+| **Następny krok** | Na VPS: `./scripts/check-production-env.sh` + `CACHE_URL` + cron `--check`; potem smoke 10.8–10.10 |
+| **Postęp ogólny** | Funkcje ~99%; Sprint 11–12 ✅; RBAC na `main` |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -75,7 +75,7 @@
 
 **Sprint 11:** **11.1–11.7** ✅.
 
-**Sprint 10 — domknięcie:** smoke na domenie 10.8–10.10; na VPS: `CACHE_URL`, `install-backup-cron.sh --check`.
+**Sprint 10 — domknięcie:** smoke 10.8–10.10 na domenie; VPS env (`CACHE_URL`, cron, `check-production-env.sh`).
 
 **Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
 

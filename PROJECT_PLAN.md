@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 10 — smoke na domenie + env VPS |
-| **Następny krok** | Na VPS: `./scripts/check-production-env.sh` + `CACHE_URL` + cron `--check`; potem smoke 10.8–10.10 |
-| **Postęp ogólny** | Funkcje ~99%; Sprint 11–12 ✅; RBAC na `main` |
+| **Aktualny etap** | Sprint 10 — smoke funkcjonalny na domenie |
+| **Następny krok** | 10.8–10.10 (rezerwacja / panel / portal) na https://car-rental.filipf.online |
+| **Postęp ogólny** | Funkcje ~99%; VPS: env ✅, cron ✅, health smoke ✅, backup ✅ |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -75,7 +75,9 @@
 
 **Sprint 11:** **11.1–11.7** ✅.
 
-**Sprint 10 — domknięcie:** smoke 10.8–10.10 na domenie; VPS env (`CACHE_URL`, cron, `check-production-env.sh`).
+**Sprint 10 — domknięcie:** smoke funkcjonalny 10.8–10.10 na https://car-rental.filipf.online.
+
+**VPS (zrobione 2026-07-18):** env check ✅, cron backup ✅, `smoke-health` ✅, ręczny `backup.sh` ✅.
 
 **Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
 
@@ -808,8 +810,9 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 - [x] `seed_demo` załadowany — 18 scenariuszy do prezentacji
 - [ ] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end *(testy CI ✅; smoke na domenie ⬜)*
 - [ ] Pełny flow panelu (wydanie → zwrot → rozliczenie) działa na danych seed *(testy CI ✅; smoke na domenie ⬜)*
-- [ ] Backup DB skonfigurowany (cron) — instalator w repo; aktywacja po następnym deployu na VPS
+- [x] Backup DB skonfigurowany (cron) — zweryfikowane na VPS 2026-07-18
 - [x] Runbook demo dla prezentacji (`docs/DEMO_RUNBOOK.md`)
+- [x] Health smoke (`/health/` + `/`) na https://car-rental.filipf.online
 
 **Szacunek:** domknięcie operacyjne na VPS (10.14 + smoke ręczny 10.8–10.10).
 

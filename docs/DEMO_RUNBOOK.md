@@ -30,9 +30,9 @@ curl -I https://twoja-domena.pl
 
 | Rola | Login | Hasło | URL |
 |------|-------|-------|-----|
-| Właściciel (panel) | `admin` | `demo1234` | `/accounts/login/` → `/panel/` |
-| Kierownik (panel) | `manager` | `demo1234` | `/accounts/login/` |
-| Klient (portal) | `klient` | `demo1234` | `/accounts/login/` → `/konto/` |
+| Właściciel (panel) | `admin` | `demo1234` | `/konto/logowanie/` → `/panel/` |
+| Kierownik (panel) | `manager` | `demo1234` | `/konto/logowanie/` |
+| Klient (portal) | `klient` | `demo1234` | `/konto/logowanie/` → `/konto/` |
 
 Hasła demo są **zamierzone** na wersji pokazowej.
 

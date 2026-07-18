@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import pytest
+from django.test import override_settings
 from django.urls import reverse
 
 from apps.bookings.models import Reservation, ReservationStatus
@@ -120,6 +121,34 @@ class TestPublicPaymentViews:
         success = client.get(post_response.url)
         assert success.status_code == 200
         assert "Płatność przyjęta".encode() in success.content
+
+    @override_settings(PAYMENT_GATEWAY_WEBHOOK_SECRET="prod-like-secret")
+    def test_mock_checkout_completes_payment_with_webhook_secret(
+        self,
+        client,
+        pay_car: Car,
+    ) -> None:
+        """Regresja: mock checkout musi działać gdy sekret webhooka jest ustawiony."""
+        reservation = _book(client, pay_car)
+        client.get(
+            reverse(
+                "website:start_payment",
+                kwargs={"reservation_id": reservation.pk},
+            ),
+        )
+        intent = PaymentIntent.objects.get(reservation=reservation)
+        mock_url = (
+            f"{reverse('website:mock_payment_checkout')}"
+            f"?ref={intent.external_reference}&intent={intent.pk}"
+        )
+        post_response = client.post(mock_url)
+        assert post_response.status_code == 302
+        assert post_response.url == reverse(
+            "website:payment_success",
+            kwargs={"reservation_id": reservation.pk},
+        )
+        reservation.refresh_from_db()
+        assert reservation.status == ReservationStatus.CONFIRMED
 
     def test_start_payment_rejects_confirmed_reservation(
         self,

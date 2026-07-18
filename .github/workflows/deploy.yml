@@ -99,7 +99,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "docker-compose.prod.yml,deploy/Caddyfile,scripts/deploy.sh,scripts/backup.sh,scripts/restore.sh,scripts/backup-restore-selftest.sh,.env.example"
+          source: "docker-compose.prod.yml,deploy/Caddyfile,scripts/deploy.sh,scripts/backup.sh,scripts/restore.sh,scripts/backup-restore-selftest.sh,scripts/install-backup-cron.sh,scripts/backup-offsite.sh,scripts/smoke-health.sh,.env.example"
           target: ${{ secrets.DEPLOY_PATH }}
 
       - name: Run deployment on VPS
@@ -119,6 +119,9 @@ jobs:
             chmod +x scripts/backup.sh
             chmod +x scripts/restore.sh
             chmod +x scripts/backup-restore-selftest.sh
+            chmod +x scripts/install-backup-cron.sh
+            chmod +x scripts/backup-offsite.sh
+            chmod +x scripts/smoke-health.sh
 
             if [ -n "${GHCR_READ_TOKEN:-}" ]; then
               echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -127,3 +130,20 @@ jobs:
             export WEB_IMAGE=ghcr.io/${{ github.repository_owner }}/car-rental:latest
 
             ./scripts/deploy.sh
+
+  smoke:
+    name: Smoke health
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: vars.ENABLE_DEPLOY == 'true' && vars.SMOKE_BASE_URL != ''
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run smoke-health.sh
+        env:
+          SMOKE_BASE_URL: ${{ vars.SMOKE_BASE_URL }}
+        run: |
+          chmod +x scripts/smoke-health.sh
+          ./scripts/smoke-health.sh

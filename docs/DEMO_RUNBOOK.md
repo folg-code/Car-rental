@@ -30,9 +30,9 @@ curl -I https://twoja-domena.pl
 
 | Rola | Login | Hasło | URL |
 |------|-------|-------|-----|
-| Właściciel (panel) | `admin` | `demo1234` | `/accounts/login/` → `/panel/` |
-| Kierownik (panel) | `manager` | `demo1234` | `/accounts/login/` |
-| Klient (portal) | `klient` | `demo1234` | `/accounts/login/` → `/konto/` |
+| Właściciel (panel) | `admin` | `demo1234` | `/konto/logowanie/` → `/panel/` |
+| Kierownik (panel) | `manager` | `demo1234` | `/konto/logowanie/` |
+| Klient (portal) | `klient` | `demo1234` | `/konto/logowanie/` → `/konto/` |
 
 Hasła demo są **zamierzone** na wersji pokazowej.
 
@@ -131,16 +131,17 @@ Repo Variables (GitHub): opcjonalnie `SMOKE_BASE_URL=https://<domena>`.
 ### Smoke funkcjonalny
 
 - [x] `SMOKE_BASE_URL=https://<domena> ./scripts/smoke-health.sh` *(OK 2026-07-18 na car-rental.filipf.online)*
-- [ ] `curl -I https://<domena>/` → 200
-- [ ] Logowanie panelu `admin` / `demo1234`
-- [ ] Pulpit ładuje KPI bez błędu 500
-- [ ] Rezerwacja publiczna + mock payment → `confirmed`
-- [ ] Protokół wydania dla wynajmu scheduled → active
-- [ ] PDF protokołu dostępny po wydaniu (wolumen `private_documents`)
+- [x] `curl -I https://<domena>/` → 200
+- [x] Logowanie panelu `admin` / `demo1234` *(via `/konto/logowanie/`)*
+- [x] Pulpit ładuje KPI bez błędu 500
+- [ ] Rezerwacja publiczna + mock payment → `confirmed` *(rezerwacja OK; mock Opłać 500 do deploy PR #86)*
+- [x] Protokół wydania dla wynajmu scheduled → active *(wynajem #9)*
+- [x] PDF protokołu dostępny po wydaniu (wolumen `private_documents`) *(wydanie + zwrot)*
 - [ ] Portal: `klient` / `demo1234` lub `/konto/logowanie-kodem/`
 - [ ] `docker compose -f docker-compose.prod.yml logs celery celery-beat --tail 20` — brak crashy
 - [x] `./scripts/backup.sh` — backup OK *(20260718_091343)*
 - [x] `./scripts/install-backup-cron.sh --check` — cron backup zainstalowany
+- [x] Smoke panel 10.9: wydanie → zwrot z dopłatami → płatność → zamknięcie *(wynajem #9, 2026-07-18)*
 
 ---
 

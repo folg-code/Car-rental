@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Demo live — Sprint 15 domknięty |
-| **Następny krok** | Release `dev` → `main`; smoke-presentation na VPS |
-| **Postęp ogólny** | Sprint 0–15 ✅; dalej opcjonalny backlog |
+| **Aktualny etap** | Demo live — Sprint 0–15 ✅ |
+| **Następny krok** | Backlog opcjonalny albo polish UX wg feedbacku |
+| **Postęp ogólny** | Sprint 0–15 ✅; release #104 na `main` |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |

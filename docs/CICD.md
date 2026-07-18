@@ -82,8 +82,10 @@ Settings → Secrets and variables → Actions → **Variables** → New reposit
 | Variable | Value |
 |----------|--------|
 | `ENABLE_DEPLOY` | `true` |
+| `SMOKE_BASE_URL` | opcjonalnie `https://twoja-domena.pl` — po deployu job `Smoke health` |
 
 Bez `ENABLE_DEPLOY=true` job **Deploy to VPS** jest pomijany (build obrazu do GHCR i tak się wykona).
+Bez `SMOKE_BASE_URL` job smoke jest pomijany.
 
 > GitHub **nie pozwala** używać `secrets.*` w warunkach `if:` na poziomie joba.
 

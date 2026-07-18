@@ -14,7 +14,7 @@
 | Pole | Wartość |
 |------|---------|
 | **Aktualny etap** | Sprint 10 — smoke na domenie |
-| **Następny krok** | Smoke ręczny 10.8–10.10 + `CACHE_URL` / cron na VPS |
+| **Następny krok** | Merge release #78 + smoke 10.8–10.10; na VPS ustaw `CACHE_URL` i `SMOKE_BASE_URL` |
 | **Postęp ogólny** | Funkcje ~99%; Sprint 11–12 ✅ |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |

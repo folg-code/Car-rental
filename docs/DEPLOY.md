@@ -155,6 +155,9 @@ Skrypt ustawia:
 |---------|---------|-----|
 | 03:00 | `./scripts/backup.sh` | `$APP_DIR/logs/backup.log` |
 | 04:00 | `purge_chat_messages` | `$APP_DIR/logs/chat-purge.log` |
+| 05:00 | `./scripts/backup-offsite.sh` | `$APP_DIR/logs/backup-offsite.log` |
+
+`backup-offsite.sh` kończy się sukcesem bez syncu, gdy brak `BACKUP_OFFSITE_REMOTE` (świadoma rezygnacja w demo).
 
 Wyłączenie przy deployu: `INSTALL_BACKUP_CRON=0 ./scripts/deploy.sh`.
 
@@ -163,15 +166,25 @@ Ręcznie (crontab):
 ```cron
 0 3 * * * cd /opt/car-rental && ./scripts/backup.sh >> /opt/car-rental/logs/backup.log 2>&1
 0 4 * * * cd /opt/car-rental && docker compose -f docker-compose.prod.yml run --rm web python backend/manage.py purge_chat_messages >> /opt/car-rental/logs/chat-purge.log 2>&1
+0 5 * * * cd /opt/car-rental && ./scripts/backup-offsite.sh >> /opt/car-rental/logs/backup-offsite.log 2>&1
 ```
 
 ### Offsite (zalecane)
 
-Skopiuj `backups/` poza VPS (np. `rclone` do S3 / Backblaze / innego serwera):
+Ustaw w `.env.production` (albo w środowisku crona):
 
 ```bash
-rclone sync /opt/car-rental/backups remote:car-rental-backups
+BACKUP_OFFSITE_REMOTE=remote:car-rental-backups
 ```
+
+Wymaga zainstalowanego i skonfigurowanego `rclone` na VPS. Ręcznie:
+
+```bash
+cd /opt/car-rental
+./scripts/backup-offsite.sh
+```
+
+Bez `BACKUP_OFFSITE_REMOTE` skrypt wypisuje `SKIP` i wychodzi z kodem 0 — akceptowalne dla wersji demo.
 
 ---
 
@@ -252,6 +265,8 @@ Endpoint: `GET https://<DOMAIN>/health/` — zwraca `200` gdy DB i Redis odpowia
 3. Interval: 5 min.
 4. Alert email przy status ≠ 200 (próg 2–3 nieudane sprawdzenia).
 
+Po skonfigurowaniu alertu e-mail task Sprint **11.2** jest spełniony dla demo.
+
 ### Opcja B — cron na VPS
 
 ```bash
@@ -259,6 +274,14 @@ Endpoint: `GET https://<DOMAIN>/health/` — zwraca `200` gdy DB i Redis odpowia
 */5 * * * * curl -fsS -o /dev/null -w "%{http_code}" https://twoja-domena.pl/health/ \
   | grep -q 200 || logger -t car-rental-health "health check failed"
 ```
+
+### Smoke po deployu
+
+```bash
+SMOKE_BASE_URL=https://twoja-domena.pl ./scripts/smoke-health.sh
+```
+
+Sprawdza `GET /health/` oraz `GET /` (HTTP 200).
 
 Logi aplikacji (Gunicorn / Celery) idą na stdout kontenerów — `docker compose -f docker-compose.prod.yml logs -f web celery`. Poziom: `LOG_LEVEL` (domyślnie `INFO`).
 

@@ -14,7 +14,7 @@ MARKER_END="# END car-rental-managed-cron"
 
 usage() {
 	echo "Usage: $0 [--check|--help]" >&2
-	echo "  Installs daily backup (03:00) and chat purge (04:00) cron entries." >&2
+	echo "  Installs daily backup (03:00), chat purge (04:00), offsite sync (05:00)." >&2
 }
 
 strip_managed_block() {
@@ -30,6 +30,7 @@ managed_block() {
 $MARKER_BEGIN
 0 3 * * * cd $APP_DIR && ./scripts/backup.sh >> $LOG_DIR/backup.log 2>&1
 0 4 * * * cd $APP_DIR && docker compose -f $COMPOSE_FILE run --rm web python backend/manage.py purge_chat_messages >> $LOG_DIR/chat-purge.log 2>&1
+0 5 * * * cd $APP_DIR && ./scripts/backup-offsite.sh >> $LOG_DIR/backup-offsite.log 2>&1
 $MARKER_END
 EOF
 }
@@ -39,7 +40,8 @@ check_installed() {
 	current="$(crontab -l 2>/dev/null || true)"
 	echo "$current" | grep -Fq "$MARKER_BEGIN" \
 		&& echo "$current" | grep -Fq "scripts/backup.sh" \
-		&& echo "$current" | grep -Fq "purge_chat_messages"
+		&& echo "$current" | grep -Fq "purge_chat_messages" \
+		&& echo "$current" | grep -Fq "scripts/backup-offsite.sh"
 }
 
 MODE="${1:-install}"
@@ -87,5 +89,5 @@ trap 'rm -f "$tmp"' EXIT
 } | crontab -
 
 echo "==> Installed managed cron for APP_DIR=$APP_DIR"
-echo "==> Logs: $LOG_DIR/backup.log , $LOG_DIR/chat-purge.log"
+echo "==> Logs: $LOG_DIR/backup.log , $LOG_DIR/chat-purge.log , $LOG_DIR/backup-offsite.log"
 crontab -l | sed -n "/^$MARKER_BEGIN\$/,/^$MARKER_END\$/p"

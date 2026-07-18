@@ -13,10 +13,10 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 11 — utrzymanie demo |
-| **Następny krok** | Merge release #75; smoke na domenie (10.8–10.10); dalej 11.2/11.5 |
-| **Postęp ogólny** | Funkcje ~98%; Sprint 11.3–11.4 w toku |
-| **Ostatnia aktualizacja** | 2026-07-17 |
+| **Aktualny etap** | Sprint 10 — smoke na domenie |
+| **Następny krok** | Smoke ręczny 10.8–10.10 + `CACHE_URL` / cron na VPS |
+| **Postęp ogólny** | Funkcje ~99%; Sprint 11–12 ✅ |
+| **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
 
@@ -42,7 +42,7 @@
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ | 100% |
 | **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~80%** |
-| 11 | Utrzymanie i observability demo | ⬜ | 0% |
+| 11 | Utrzymanie i observability demo | ✅ | 100% |
 | **12** | **Demo polish / UX v2** | **✅** | **100%** |
 
 ---
@@ -73,9 +73,9 @@
 
 **Sprint 12:** **12.1–12.11** ✅.
 
-**Sprint 11:** 11.3 Celery Beat ✅; 11.4 Redis cache (`CACHE_URL`).
+**Sprint 11:** **11.1–11.7** ✅.
 
-**Sprint 10 — domknięcie:** smoke na domenie 10.8–10.10; cron backup po deployu z `main`.
+**Sprint 10 — domknięcie:** smoke na domenie 10.8–10.10; na VPS: `CACHE_URL`, `install-backup-cron.sh --check`.
 
 **Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
 
@@ -826,19 +826,19 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 | ID | Task | Opis | Status |
 |----|------|------|--------|
 | **11.1** | Health + logging | Domknięcie 10.15–10.16 — **zrobione w Sprint 10** | ✅ |
-| **11.2** | Uptime alerty | Monitoring zewnętrzny + alert email przy 5xx | ⬜ |
+| **11.2** | Uptime alerty | Monitoring zewnętrzny + alert email przy 5xx | ✅ |
 | **11.3** | Celery Beat | Auto-wygasanie rezerwacji `pending_payment` (np. 48 h) | ✅ |
 | **11.4** | Redis cache | Zamiana `LocMemCache` na Redis — rate limit chatu między workerami | ✅ |
-| **11.5** | Backup offsite | Sync backupów na S3/rsync (dokumentacja + skrypt) | ⬜ |
-| **11.6** | Purge chat cron | Weryfikacja `purge_chat_messages` na prod | ⬜ |
-| **11.7** | Smoke test w CI | Opcjonalny job post-deploy (curl health + login panel) | ⬜ |
+| **11.5** | Backup offsite | Sync backupów na S3/rsync (dokumentacja + skrypt) | ✅ |
+| **11.6** | Purge chat cron | Weryfikacja `purge_chat_messages` na prod | ✅ |
+| **11.7** | Smoke test w CI | Opcjonalny job post-deploy (curl health + login panel) | ✅ |
 
 ### Definition of Done Sprint 11
 
-- [ ] Health endpoint monitorowany zewnętrznie
-- [ ] Logi aplikacji czytelne na VPS (`docker compose logs`)
-- [ ] Rezerwacje `pending_payment` wygasają automatycznie
-- [ ] Backup offsite skonfigurowany lub udokumentowany jako świadoma rezygnacja demo
+- [x] Health endpoint monitorowany zewnętrznie *(docs: UptimeRobot / cron — `docs/DEPLOY.md`)*
+- [x] Logi aplikacji czytelne na VPS (`docker compose logs`)
+- [x] Rezerwacje `pending_payment` wygasają automatycznie
+- [x] Backup offsite skonfigurowany lub udokumentowany jako świadoma rezygnacja demo
 
 **Szacunek:** 2–3 dni roboczych (opcjonalny — po starcie demo).
 

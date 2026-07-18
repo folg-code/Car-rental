@@ -433,6 +433,10 @@ Checklist: [`docs/DEPLOY.md`](docs/DEPLOY.md). Po deploy:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec web python backend/manage.py seed_demo
+# opcjonalnie:
+# CACHE_URL=redis://redis:6379/2  w .env.production
+# ./scripts/install-backup-cron.sh --check
+# SMOKE_BASE_URL=https://twoja-domena.pl ./scripts/smoke-health.sh
 ```
 
 Konta demo (`admin` / `demo1234`) są **zamierzone** na wersji pokazowej. Pełny runbook: [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md).
@@ -448,6 +452,9 @@ Konta demo (`admin` / `demo1234`) są **zamierzone** na wersji pokazowej. Pełny
 | `POSTGRES_PASSWORD` | Hasło bazy | (generuj) |
 | `POSTGRES_HOST` | Host bazy | `db` |
 | `PUBLIC_SITE_BASE_URL` | Bazowy URL w linkach email | `http://localhost:8000` |
+| `CACHE_URL` | Redis cache (rate limity); puste = LocMem | `redis://redis:6379/2` |
+| `RESERVATION_PENDING_PAYMENT_TTL_HOURS` | TTL auto-wygasania `pending_payment` | `48` |
+| `BACKUP_OFFSITE_REMOTE` | rclone remote (puste = SKIP) | `remote:car-rental-backups` |
 | `DEFAULT_FROM_EMAIL` | Nadawca emaili | `noreply@car-rental.local` |
 | `EMAIL_BACKEND` | Backend Django (`console` / `smtp`) | `console` w dev |
 | `EMAIL_HOST` | Serwer SMTP | `smtp.gmail.com` |
@@ -581,8 +588,9 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 9 | Produkcja i płatności online (mock) | ✅ |
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ |
 | **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** |
-| 11 | Utrzymanie demo (health, logging, Beat) | ⬜ |
-| 12+ | Backlog (RBAC, i18n, pełna prod) | Backlog |
+| 11 | Utrzymanie demo (health, Beat, Redis, smoke) | ✅ |
+| 12 | Demo polish / UX v2 | ✅ |
+| 12+ | Backlog (RBAC granular, i18n, pełna prod) | Backlog |
 
 Szczegóły tasków Sprint 10–12: [`PROJECT_PLAN.md`](PROJECT_PLAN.md#sprint-10--demo-produkcyjne-vps-pokazowy-).
 

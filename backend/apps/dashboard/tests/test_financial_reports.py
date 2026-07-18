@@ -22,7 +22,7 @@ def staff_client(client, db):
     UserService.create_user(
         username="reports_staff",
         password="secure-pass-123",
-        role=UserRole.EMPLOYEE,
+        role=UserRole.MANAGER,
     )
     client.login(username="reports_staff", password="secure-pass-123")
     return client

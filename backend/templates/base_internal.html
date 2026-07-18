@@ -30,7 +30,10 @@
             </div>
         </header>
         {% else %}
-        <aside class="{% if ops_mobile_layout %}hidden lg:flex{% else %}flex{% endif %} w-64 bg-gray-900 text-gray-100 flex-col shrink-0">
+        <aside
+            id="panel-sidebar"
+            class="hidden lg:flex w-64 bg-gray-900 text-gray-100 flex-col shrink-0"
+        >
             <div class="p-4 border-b border-gray-700">
                 <a href="{% url 'dashboard:entry' %}" class="font-semibold text-white text-lg">
                     Car Rental
@@ -73,13 +76,88 @@
                 </form>
             </div>
         </aside>
+
+        <div
+            id="panel-mobile-nav"
+            class="lg:hidden fixed inset-0 z-40 hidden"
+            aria-hidden="true"
+        >
+            <button
+                type="button"
+                class="absolute inset-0 bg-black/40"
+                data-panel-nav-close
+                aria-label="Zamknij menu"
+            ></button>
+            <div class="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-gray-900 text-gray-100 flex flex-col shadow-xl">
+                <div class="p-4 border-b border-gray-700 flex items-center justify-between gap-3">
+                    <div>
+                        <a href="{% url 'dashboard:entry' %}" class="font-semibold text-white text-lg">
+                            Car Rental
+                        </a>
+                        <p class="text-xs text-gray-400 mt-1">Panel</p>
+                    </div>
+                    <button
+                        type="button"
+                        class="text-gray-400 hover:text-white text-sm px-2 py-1"
+                        data-panel-nav-close
+                        aria-label="Zamknij"
+                    >
+                        ✕
+                    </button>
+                </div>
+                <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+                    {% for item in panel_navigation %}
+                        {% if item.enabled and item.url_name %}
+                            <a
+                                href="{% url item.url_name %}"
+                                class="block px-3 py-2.5 rounded text-sm {% if panel_section == item.section_key %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}"
+                            >
+                                {{ item.label }}
+                            </a>
+                        {% else %}
+                            <span class="block px-3 py-2.5 rounded text-sm text-gray-500">
+                                {{ item.label }}
+                                <span class="text-xs block text-gray-600">wkrótce</span>
+                            </span>
+                        {% endif %}
+                    {% endfor %}
+                </nav>
+                <div class="p-4 border-t border-gray-700 text-sm">
+                    <p class="text-gray-300 truncate">{{ user.get_full_name|default:user.username }}</p>
+                    <a href="{% url 'dashboard:entry' %}" class="block mt-2 text-gray-400 hover:text-white text-xs underline">
+                        Zmień tryb pracy
+                    </a>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="mt-3">
+                        {% csrf_token %}
+                        <button type="submit" class="text-gray-400 hover:text-white text-xs underline">
+                            Wyloguj
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
         {% endif %}
 
-        <div class="flex-1 flex flex-col min-w-0">
-            {% if ops_mobile_layout and not minimal_panel_layout %}
-            <div class="lg:hidden bg-gray-900 text-white px-4 py-3 flex items-center justify-between gap-3">
-                <a href="{% url 'operations:home' %}" class="font-medium text-sm">Operacje</a>
-                <div class="flex items-center gap-3 text-xs">
+        <div class="flex-1 flex flex-col min-w-0 w-full">
+            {% if not minimal_panel_layout %}
+            <div class="lg:hidden bg-gray-900 text-white px-3 py-2.5 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <button
+                        type="button"
+                        id="panel-nav-open"
+                        class="shrink-0 inline-flex items-center justify-center rounded-md border border-gray-600 px-2.5 py-1.5 text-xs text-gray-100 hover:bg-gray-800"
+                        aria-controls="panel-mobile-nav"
+                        aria-expanded="false"
+                    >
+                        Menu
+                    </button>
+                    {% if ops_mobile_layout %}
+                    <a href="{% url 'operations:home' %}" class="font-medium text-sm truncate">Operacje</a>
+                    {% else %}
+                    <span class="font-medium text-sm truncate">Panel</span>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-3 text-xs shrink-0">
                     <a href="{% url 'dashboard:entry' %}" class="text-gray-300 hover:text-white">Start</a>
                     <form method="post" action="{% url 'accounts:logout' %}">
                         {% csrf_token %}
@@ -89,17 +167,17 @@
                     </form>
                 </div>
             </div>
-            {% endif %}
 
-            {% if not minimal_panel_layout %}
-            <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex justify-between items-center gap-3">
+            <header class="bg-white border-b border-gray-200 px-4 sm:px-6 flex justify-between items-center gap-3 {% if ops_mobile_layout %}py-2 lg:py-4{% else %}py-3 lg:py-4{% endif %}">
                 <div class="min-w-0">
-                    <h1 class="text-lg font-semibold text-gray-900">
+                    <h1 class="text-base lg:text-lg font-semibold text-gray-900 truncate">
                         {% block page_heading %}Panel{% endblock %}
                     </h1>
-                    {% block page_subheading %}{% endblock %}
+                    <div class="{% if ops_mobile_layout %}hidden lg:block{% endif %}">
+                        {% block page_subheading %}{% endblock %}
+                    </div>
                 </div>
-                <a href="{% url 'website:home' %}" class="text-sm text-gray-500 hover:text-gray-800 shrink-0 {% if ops_mobile_layout %}hidden sm:inline{% endif %}">
+                <a href="{% url 'website:home' %}" class="text-sm text-gray-500 hover:text-gray-800 shrink-0 hidden sm:inline">
                     Strona publiczna
                 </a>
             </header>
@@ -118,10 +196,35 @@
             </div>
             {% endif %}
 
-            <main class="flex-1 {% if minimal_panel_layout %}p-4 sm:p-8{% else %}p-4 sm:p-6{% endif %}">
+            <main class="flex-1 {% if minimal_panel_layout %}p-4 sm:p-8{% else %}p-3 sm:p-6{% endif %}">
                 {% block content %}{% endblock %}
             </main>
         </div>
     </div>
+
+    {% if not minimal_panel_layout %}
+    <script>
+    (function () {
+        var nav = document.getElementById("panel-mobile-nav");
+        var openBtn = document.getElementById("panel-nav-open");
+        if (!nav || !openBtn) return;
+
+        function setOpen(open) {
+            nav.classList.toggle("hidden", !open);
+            nav.setAttribute("aria-hidden", open ? "false" : "true");
+            openBtn.setAttribute("aria-expanded", open ? "true" : "false");
+            document.body.classList.toggle("overflow-hidden", open);
+        }
+
+        openBtn.addEventListener("click", function () { setOpen(true); });
+        nav.querySelectorAll("[data-panel-nav-close]").forEach(function (el) {
+            el.addEventListener("click", function () { setOpen(false); });
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") setOpen(false);
+        });
+    })();
+    </script>
+    {% endif %}
 </body>
 </html>

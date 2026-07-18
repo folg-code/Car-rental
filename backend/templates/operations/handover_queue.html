@@ -8,6 +8,8 @@
 
 {% block content %}
 <div class="max-w-xl mx-auto">
+    {% include "operations/partials/_mobile_optimized_tip.html" %}
+
     <a href="{% url 'operations:home' %}" class="inline-block text-sm text-gray-500 hover:text-gray-800 mb-4">
         ← Operacje
     </a>

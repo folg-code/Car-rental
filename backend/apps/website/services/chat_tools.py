@@ -168,13 +168,13 @@ def execute_get_my_reservation_status(
     if user is None or not user.is_authenticated:
         return ChatToolResult(
             tool_name="get_my_reservation_status",
-            data={"error": "Zaloguj sie jako klient, aby sprawdzic status rezerwacji."},
+            data={"error": "Zaloguj się jako klient, aby sprawdzić status rezerwacji."},
         )
     customer = get_customer_by_user_id(user.pk)
     if customer is None:
         return ChatToolResult(
             tool_name="get_my_reservation_status",
-            data={"error": "Brak profilu klienta powiazanego z kontem."},
+            data={"error": "Brak profilu klienta powiązanego z kontem."},
         )
     reservations = list(
         list_reservations(customer_id=customer.pk).order_by("-start_at")[:5],
@@ -240,8 +240,8 @@ def _format_chat_date(iso_value: str) -> str:
 def _format_search(data: dict) -> str:
     if data.get("count", 0) == 0:
         return (
-            "Na podany termin nie mam wolnych aut. Sprobuj inny termin "
-            "albo skorzystaj z wyszukiwarki dostepnosci na stronie."
+            "Na podany termin nie mam wolnych aut. Spróbuj inny termin "
+            "albo skorzystaj z wyszukiwarki dostępności na stronie."
         )
     start_label = _format_chat_date(str(data["start_at"]))
     end_label = _format_chat_date(str(data["end_at"]))
@@ -254,7 +254,11 @@ def _format_search(data: dict) -> str:
             f"- {car['label']} ({car['category']}) — zarezerwuj: {car['booking_link']}",
         )
     if data["count"] > len(data["cars"]):
-        lines.append("… i wiecej — pelna lista na stronie oferty.")
+        lines.append("… i więcej — pełna lista na stronie oferty.")
+    lines.append(
+        "Rezerwacji i płatności nie finalizuję w czacie — użyj linku albo "
+        "formularza online."
+    )
     return "\n".join(lines)
 
 
@@ -273,8 +277,8 @@ def _format_faq(data: dict) -> str:
     snippets = data.get("snippets") or []
     if not snippets:
         return (
-            "Nie znalazlem pasujacego fragmentu FAQ. "
-            "Zobacz strone FAQ lub zapytaj inaczej."
+            "Nie znalazłem pasującego fragmentu FAQ. "
+            "Zobacz stronę FAQ albo zapytaj inaczej."
         )
     lines = ["Oto odpowiedzi z FAQ:"]
     for item in snippets:
@@ -288,7 +292,7 @@ def _format_reservations(data: dict) -> str:
         return str(data["error"])
     rows = data.get("reservations") or []
     if not rows:
-        return "Nie masz jeszcze rezerwacji powiazanych z tym kontem."
+        return "Nie masz jeszcze rezerwacji powiązanych z tym kontem."
     lines = ["Twoje ostatnie rezerwacje:"]
     for row in rows:
         lines.append(
@@ -299,7 +303,7 @@ def _format_reservations(data: dict) -> str:
 
 
 def _format_clarifying(data: dict) -> str:
-    return str(data.get("question") or "Mozesz doprecyzowac pytanie?")
+    return str(data.get("question") or "Możesz doprecyzować pytanie?")
 
 
 def _format_deposit(data: dict) -> str:

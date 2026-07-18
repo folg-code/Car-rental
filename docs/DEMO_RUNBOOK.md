@@ -154,7 +154,7 @@ Repo Variables (GitHub): opcjonalnie `SMOKE_BASE_URL=https://<domena>`.
 | Płatności | Mock — `/platnosc/mock/`, brak prawdziwej karty/BLIK |
 | Regulamin | Placeholder — nie jest dokumentem prawnym |
 | SMS | Wyłączone lub mock — logi w bazie, bez wysyłki |
-| Chat AI | Mock LLM — bez klucza OpenAI |
+| Chat AI | Domyślnie mock; opcjonalnie `LLM_PROVIDER=openai` + `LLM_API_KEY` |
 | Hasła | Stałe demo (`demo1234`) — nie używać na prawdziwej prod |
 | Email | Domyślnie console — maile w `docker compose logs web celery` |
 

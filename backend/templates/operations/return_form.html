@@ -1,4 +1,5 @@
 {% extends "base_internal.html" %}
+{% load static %}
 
 {% block title %}Protokół zwrotu{% endblock %}
 {% block page_heading %}Protokół zwrotu{% endblock %}
@@ -114,9 +115,10 @@
     <p class="text-sm text-gray-500">Istniejące z wydania są już na diagramie. Nowe: przytrzymaj palec (zdjęcie obowiązkowe).</p>
     <h3 class="text-sm font-medium mt-2">Porównanie szkód</h3>
     {% include "operations/_damage_comparison.html" %}
-    <div id="damage-diagram" class="relative bg-gray-100 rounded-xl aspect-[2/1] border-2 border-dashed">
+    <div id="damage-diagram" class="relative bg-white rounded-xl border border-gray-200 touch-none select-none overflow-hidden">
+      {% include "operations/_damage_diagram_image.html" %}
       {% for marker in return_protocol.damage_markers.all %}
-      <span class="absolute w-7 h-7 -ml-3.5 -mt-3.5 rounded-full {% if marker.is_new %}bg-red-500{% else %}bg-amber-500{% endif %} text-white text-xs font-bold flex items-center justify-center"
+      <span class="absolute z-10 w-7 h-7 -ml-3.5 -mt-3.5 rounded-full {% if marker.is_new %}bg-red-500{% else %}bg-amber-500{% endif %} text-white text-xs font-bold flex items-center justify-center"
             style="left:{{ marker.pos_x }}%; top:{{ marker.pos_y }}%">{{ marker.damage_type }}</span>
       {% endfor %}
     </div>

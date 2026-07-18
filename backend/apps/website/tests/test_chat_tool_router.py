@@ -135,6 +135,12 @@ class TestChatToolRouter:
         assert len(results) == 1
         assert results[0].tool_name == "get_faq_snippet"
 
+    def test_routes_documents_to_faq(self) -> None:
+        results = ChatToolRouter.run_for_message("Jakie dokumenty sa potrzebne?")
+        assert len(results) == 1
+        assert results[0].tool_name == "get_faq_snippet"
+        assert results[0].data["snippets"]
+
     def test_anonymous_reservation_status(self) -> None:
         results = ChatToolRouter.run_for_message("Jaki status mojej rezerwacji?")
         assert results[0].tool_name == "get_my_reservation_status"

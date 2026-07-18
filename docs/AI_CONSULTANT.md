@@ -68,29 +68,38 @@ Powiązane dokumenty: [`AGENT_CONTEXT.md`](../AGENT_CONTEXT.md), [`backend/ARCHI
 ## Adapter LLM
 
 ```python
-# website/adapters/llm.py — kontrakt (szkic)
+# website/adapters/llm.py
 
 class LLMClient(Protocol):
     def complete(
         self,
-        messages: list[dict],
+        messages: list[dict[str, str]],
         *,
-        tools: list[dict] | None = None,
+        max_tokens: int | None = None,
     ) -> LLMResponse: ...
 ```
 
-- Implementacja: OpenAI-compatible API (konfiguracja przez env).
-- Klucze API **tylko** w `.env` / secrets — nigdy w repo.
-- Timeout, retry z backoff, max tokens — w adapterze.
-- Logowanie request_id; **nie** logować pełnej treści wiadomości z PII na produkcji (lub maskowanie).
+Implementacje:
 
-Zmienne env (planowane):
+| `LLM_PROVIDER` | Klient | Uwagi |
+|----------------|--------|--------|
+| `mock` (default) | `MockLLMClient` | Deterministyczne odpowiedzi po słowach kluczowych — bez sieci |
+| `openai` / `openai_compatible` | `OpenAICompatibleLLMClient` | HTTP `POST {LLM_BASE_URL}/chat/completions` (OpenAI, LiteLLM, kompatybilne proxy) |
+
+- Klucze API **tylko** w `.env` / secrets — nigdy w repo.
+- Timeout (`LLM_TIMEOUT_SECONDS`), `max_tokens` — w adapterze.
+- Błędy HTTP/timeout → `LLMClientError` → w serwisie komunikat dla użytkownika (bez logowania treści PII).
+
+Zmienne env:
 
 ```env
-LLM_PROVIDER=openai
+LLM_PROVIDER=mock
+# LLM_PROVIDER=openai
 LLM_API_KEY=
 LLM_MODEL=gpt-4o-mini
 LLM_MAX_TOKENS=1024
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_TIMEOUT_SECONDS=30
 CHAT_RATE_LIMIT_PER_HOUR=30
 ```
 
@@ -191,7 +200,11 @@ Heurystyczny router (`ChatToolRouter`) rozpoznaje:
 - kaucję wg kategorii → tool `get_deposit_info` (pole `CarCategory.deposit`);
 - domyślne godziny odbioru/zwrotu: `CHAT_DEFAULT_PICKUP_HOUR` / `CHAT_DEFAULT_RETURN_HOUR` (domyślnie 10).
 
-Scenariusze pokryte testami w `test_chat_tool_router.py` oraz `test_consultant_tools_integration.py`.
+### UX demo (mock)
+
+- Strona `/asystent/`: powitalny dymek + przyciski przykładowych pytań (`DEMO_CHAT_PROMPTS`).
+- Rozszerzone FAQ (dokumenty, wiek, paliwo, godziny) + bogatszy `MockLLMClient`.
+- Router FAQ łapie też pytania o dokumenty / wiek / paliwo / godziny.
 
 ---
 

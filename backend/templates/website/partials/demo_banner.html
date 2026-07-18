@@ -1,75 +1,155 @@
 {% if demo_site %}
+<style>
+  [data-demo-guide-drawer] {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    width: min(24rem, 100vw);
+    height: 100%;
+    background: #fff;
+    color: #111827;
+    border-left: 1px solid #fde68a;
+    box-shadow: -12px 0 40px -12px rgb(15 23 42 / 0.25);
+    transform: translateX(100%);
+    transition: transform 0.28s ease-out;
+    pointer-events: none;
+  }
+  [data-demo-guide-drawer][data-open="true"] {
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  [data-demo-guide-drawer] .demo-guide-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex: 1;
+    padding: 1rem 1.25rem 1.5rem;
+  }
+  [data-demo-guide-drawer] .demo-guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #fef3c7;
+    background: #fffbeb;
+  }
+</style>
 <div class="relative z-40 bg-amber-500 text-amber-950">
     <div class="site-container flex flex-wrap items-center justify-center gap-x-3 gap-y-1 py-2 px-4 text-sm font-medium">
         <span class="text-center">
             Wersja demonstracyjna — płatności online są symulowane. System służy do prezentacji możliwości platformy.
         </span>
-        <div class="relative group/demo">
-            <button
-                type="button"
-                class="inline-flex items-center gap-1 rounded-full bg-amber-950/15 hover:bg-amber-950/25 px-3 py-1 text-xs font-semibold tracking-wide uppercase"
-                aria-describedby="demo-guide-popover"
-                aria-expanded="false"
-                data-demo-guide-trigger
-            >
-                Przewodnik demo
-                <span aria-hidden="true">▾</span>
-            </button>
-            <div
-                id="demo-guide-popover"
-                role="tooltip"
-                data-demo-guide-panel
-                class="invisible opacity-0 pointer-events-none group-hover/demo:visible group-hover/demo:opacity-100 group-hover/demo:pointer-events-auto group-focus-within/demo:visible group-focus-within/demo:opacity-100 group-focus-within/demo:pointer-events-auto data-[open=true]:visible data-[open=true]:opacity-100 data-[open=true]:pointer-events-auto absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-xl bg-white text-gray-900 shadow-lg border border-amber-200 p-4 text-left font-normal normal-case tracking-normal transition-opacity duration-150 z-50"
-            >
-                <p class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2">Co warto sprawdzić</p>
-                <ul class="text-sm space-y-1.5 text-gray-700 mb-4 list-disc pl-4">
-                    <li>Rezerwacja online i mock płatności (bez prawdziwej karty)</li>
-                    <li>Wyszukiwanie dostępności floty i wycena</li>
-                    <li>Asystent AI (mock) — FAQ i orientacyjna wycena</li>
-                    <li>Portal klienta: rezerwacje i dokumenty</li>
-                    <li>Panel: protokoły wydania/zwrotu, flota, płatności, raporty</li>
-                </ul>
-                <p class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2">Konta demo</p>
-                <dl class="text-sm space-y-2 text-gray-800">
-                    <div class="flex flex-col sm:flex-row sm:justify-between gap-0.5 border-b border-gray-100 pb-2">
-                        <dt class="text-gray-500">Panel (właściciel)</dt>
-                        <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">admin</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
-                    </div>
-                    <div class="flex flex-col sm:flex-row sm:justify-between gap-0.5 border-b border-gray-100 pb-2">
-                        <dt class="text-gray-500">Panel (kierownik)</dt>
-                        <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">manager</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
-                    </div>
-                    <div class="flex flex-col sm:flex-row sm:justify-between gap-0.5">
-                        <dt class="text-gray-500">Portal klienta</dt>
-                        <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">klient</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
-                    </div>
-                </dl>
-                <p class="mt-3 text-xs text-gray-500">
-                    Logowanie:
-                    <a href="{% url 'accounts:login' %}" class="underline text-amber-900 hover:text-amber-950">/konto/logowanie/</a>
-                </p>
-            </div>
-        </div>
+        <button
+            type="button"
+            class="inline-flex items-center gap-1 rounded-full bg-amber-950/15 hover:bg-amber-950/25 px-3 py-1 text-xs font-semibold tracking-wide uppercase"
+            aria-controls="demo-guide-drawer"
+            aria-expanded="false"
+            data-demo-guide-trigger
+        >
+            Przewodnik demo
+            <span aria-hidden="true">→</span>
+        </button>
     </div>
 </div>
+<aside
+    id="demo-guide-drawer"
+    data-demo-guide-drawer
+    data-open="false"
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="demo-guide-title"
+    aria-hidden="true"
+>
+    <div class="demo-guide-header">
+        <h2 id="demo-guide-title" class="text-sm font-semibold uppercase tracking-wide text-amber-900">
+            Przewodnik demo
+        </h2>
+        <button
+            type="button"
+            class="rounded-lg px-2 py-1 text-sm font-medium text-amber-950 hover:bg-amber-100"
+            data-demo-guide-close
+            aria-label="Zamknij przewodnik"
+        >
+            Zamknij
+        </button>
+    </div>
+    <div class="demo-guide-body text-left font-normal normal-case tracking-normal">
+        <p class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2">Konta demo</p>
+        <dl class="text-sm space-y-2 text-gray-800 mb-5">
+            <div class="flex flex-col gap-0.5 border-b border-gray-100 pb-2">
+                <dt class="text-gray-500">Panel (właściciel)</dt>
+                <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">admin</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
+            </div>
+            <div class="flex flex-col gap-0.5 border-b border-gray-100 pb-2">
+                <dt class="text-gray-500">Panel (kierownik)</dt>
+                <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">manager</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
+            </div>
+            <div class="flex flex-col gap-0.5">
+                <dt class="text-gray-500">Portal klienta</dt>
+                <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">klient</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
+            </div>
+        </dl>
+        <p class="mb-4 text-xs text-gray-500">
+            Logowanie:
+            <a href="{% url 'accounts:login' %}" class="underline text-amber-900 hover:text-amber-950">/konto/logowanie/</a>
+        </p>
+
+        <p class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2">Co warto sprawdzić</p>
+        <p class="text-xs text-gray-500 mb-2">Od najbardziej złożonych procesów do prostszych.</p>
+        <ol class="text-sm space-y-2.5 text-gray-700 list-decimal pl-4">
+            <li>
+                <span class="font-medium text-gray-900">Protokoły wydania i zwrotu</span>
+                — wielokrokowy workflow w panelu operacji (zdjęcia, szkody, paliwo, podpis).
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Panel operacyjny</span>
+                — flota, płatności, raporty i kolejki wydań/zwrotów.
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Portal klienta</span>
+                — rezerwacje, dokumenty i historia (konto <code class="font-mono text-xs bg-gray-100 px-1 rounded">klient</code>).
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Asystent AI</span>
+                — mock LLM: FAQ floty i orientacyjna wycena.
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Rezerwacja online + mock płatność</span>
+                — pełny funnel bez prawdziwej karty.
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Wyszukiwanie dostępności i wycena</span>
+                — publiczna flota i kalkulacja terminu.
+            </li>
+        </ol>
+    </div>
+</aside>
 <script>
 (function () {
   var trigger = document.querySelector("[data-demo-guide-trigger]");
-  var panel = document.querySelector("[data-demo-guide-panel]");
-  if (!trigger || !panel) return;
+  var drawer = document.querySelector("[data-demo-guide-drawer]");
+  var closeBtn = document.querySelector("[data-demo-guide-close]");
+  if (!trigger || !drawer) return;
+
   function setOpen(open) {
-    panel.setAttribute("data-open", open ? "true" : "false");
+    drawer.setAttribute("data-open", open ? "true" : "false");
+    drawer.setAttribute("aria-hidden", open ? "false" : "true");
     trigger.setAttribute("aria-expanded", open ? "true" : "false");
   }
-  trigger.addEventListener("click", function (e) {
-    e.stopPropagation();
-    setOpen(panel.getAttribute("data-open") !== "true");
+
+  trigger.addEventListener("click", function () {
+    setOpen(drawer.getAttribute("data-open") !== "true");
   });
-  document.addEventListener("click", function () {
-    setOpen(false);
-  });
-  panel.addEventListener("click", function (e) {
-    e.stopPropagation();
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
+      setOpen(false);
+    });
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") setOpen(false);
   });
 })();
 </script>

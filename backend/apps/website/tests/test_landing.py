@@ -22,6 +22,11 @@ class TestWebsiteLanding:
         settings.DEMO_SITE = True
         response = client.get(reverse("website:home"))
         assert b"Wersja demonstracyjna" in response.content
+        assert b"Przewodnik demo" in response.content
+        assert b"admin" in response.content
+        assert b"demo1234" in response.content
+        assert b"klient" in response.content
+        assert "Co warto sprawdzić".encode() in response.content
 
     def test_root_url_resolves_to_website(self, client) -> None:
         response = client.get("/")

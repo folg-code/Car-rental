@@ -46,6 +46,16 @@ def test_handover_draft_persists_across_steps(scheduled_rental) -> None:
         pos_y=Decimal("60"),
     )
     assert marker.is_new
+    assert marker.pos_x == Decimal("40")
+    assert marker.pos_y == Decimal("60")
+
+    HandoverService.resolve_damage_marker(
+        handover,
+        marker.pk,
+        resolution="mistaken",
+    )
+    marker.refresh_from_db()
+    assert marker.resolution == "mistaken"
 
     HandoverService.save_equipment(handover, lines=[], confirm_all=True)
     handover.refresh_from_db()

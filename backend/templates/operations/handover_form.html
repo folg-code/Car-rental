@@ -1,5 +1,5 @@
 {% extends "base_internal.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}Protokół wydania{% endblock %}
 {% block page_heading %}Protokół wydania{% endblock %}
@@ -135,7 +135,7 @@
       {% for marker in handover.damage_markers.all %}
         {% if marker.resolution == "active" or marker.resolution == "reported_at_return" or marker.resolution == "needs_assessment" or marker.resolution == "needs_quote" %}
         <button type="button" class="absolute z-10 w-7 h-7 -ml-3.5 -mt-3.5 rounded-full bg-amber-500 text-white text-xs font-bold shadow"
-                style="left:{{ marker.pos_x }}%; top:{{ marker.pos_y }}%"
+                {% include "operations/_damage_marker_style.html" %}
                 title="{{ marker.description }}">{{ marker.damage_type }}</button>
         {% endif %}
       {% endfor %}
@@ -145,8 +145,8 @@
       <form method="post" enctype="multipart/form-data" class="bg-white rounded-xl p-4 w-full max-w-md space-y-3">
         {% csrf_token %}
         <input type="hidden" name="action" value="add_damage">
-        <input type="hidden" name="pos_x" id="dmg-pos-x">
-        <input type="hidden" name="pos_y" id="dmg-pos-y">
+        <input type="hidden" name="pos_x" id="dmg-pos-x" value="50">
+        <input type="hidden" name="pos_y" id="dmg-pos-y" value="50">
         <h3 class="font-medium">Nowe uszkodzenie</h3>
         <select name="damage_type" class="w-full border rounded-lg px-3 py-2">
           {% for code, label in damage_types %}
@@ -165,6 +165,7 @@
 
     <ul class="text-sm space-y-2">
       {% for marker in handover.damage_markers.all %}
+        {% if marker.resolution != "mistaken" %}
       <li class="border rounded-lg p-2 flex justify-between gap-2">
         <span><strong>{{ marker.damage_type }}</strong> {{ marker.description|truncatechars:60 }}</span>
         {% if marker.is_new %}
@@ -177,6 +178,7 @@
         </form>
         {% endif %}
       </li>
+        {% endif %}
       {% empty %}
       <li class="text-gray-500">Brak punktów na diagramie.</li>
       {% endfor %}
@@ -188,29 +190,7 @@
       <button type="submit" class="w-full bg-black text-white py-3 rounded-lg">Dalej</button>
     </form>
   </div>
-  <script>
-  (function(){
-    const diagram = document.getElementById('damage-diagram');
-    const modal = document.getElementById('damage-modal');
-    let timer = null;
-    function openAt(clientX, clientY) {
-      const rect = diagram.getBoundingClientRect();
-      const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
-      const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
-      document.getElementById('dmg-pos-x').value = x.toFixed(2);
-      document.getElementById('dmg-pos-y').value = y.toFixed(2);
-      modal.classList.remove('hidden');
-    }
-    diagram.addEventListener('touchstart', function(e){
-      const t = e.touches[0];
-      timer = setTimeout(function(){ openAt(t.clientX, t.clientY); }, 500);
-    }, {passive:true});
-    diagram.addEventListener('touchend', function(){ clearTimeout(timer); });
-    diagram.addEventListener('touchmove', function(){ clearTimeout(timer); });
-    diagram.addEventListener('contextmenu', function(e){ e.preventDefault(); openAt(e.clientX, e.clientY); });
-    document.getElementById('dmg-cancel').addEventListener('click', function(){ modal.classList.add('hidden'); });
-  })();
-  </script>
+  {% include "operations/_damage_diagram_script.html" %}
 
   {% elif step == "photos" %}
   <div class="bg-white rounded-xl border p-4 space-y-3">

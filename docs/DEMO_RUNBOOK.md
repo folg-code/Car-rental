@@ -110,15 +110,37 @@ W panelu szukaj rezerwacji po markerze `DEMO_SEED:<klucz>` w polu notatki lub po
 
 ## Smoke test po deploy (checklist)
 
+### Env na VPS (przed smoke)
+
+Porownaj `.env.production` z `.env.production.example`, potem:
+
+```bash
+cd /opt/car-rental
+./scripts/check-production-env.sh
+# dopisz jesli brakuje:
+# CACHE_URL=redis://redis:6379/2
+# DEMO_SITE=True
+# DOMAIN=...  ACME_EMAIL=...
+# CELERY_BROKER_URL=redis://redis:6379/0
+# CELERY_RESULT_BACKEND=redis://redis:6379/1
+./scripts/install-backup-cron.sh --check
+```
+
+Repo Variables (GitHub): opcjonalnie `SMOKE_BASE_URL=https://<domena>`.
+
+### Smoke funkcjonalny
+
+- [x] `SMOKE_BASE_URL=https://<domena> ./scripts/smoke-health.sh` *(OK 2026-07-18 na car-rental.filipf.online)*
 - [ ] `curl -I https://<domena>/` → 200
 - [ ] Logowanie panelu `admin` / `demo1234`
 - [ ] Pulpit ładuje KPI bez błędu 500
 - [ ] Rezerwacja publiczna + mock payment → `confirmed`
 - [ ] Protokół wydania dla wynajmu scheduled → active
 - [ ] PDF protokołu dostępny po wydaniu (wolumen `private_documents`)
-- [ ] `docker compose -f docker-compose.prod.yml logs celery --tail 20` — brak crashy
-- [ ] `./scripts/backup.sh` — backup OK
-- [ ] `./scripts/install-backup-cron.sh --check` — cron backup zainstalowany
+- [ ] Portal: `klient` / `demo1234` lub `/konto/logowanie-kodem/`
+- [ ] `docker compose -f docker-compose.prod.yml logs celery celery-beat --tail 20` — brak crashy
+- [x] `./scripts/backup.sh` — backup OK *(20260718_091343)*
+- [x] `./scripts/install-backup-cron.sh --check` — cron backup zainstalowany
 
 ---
 

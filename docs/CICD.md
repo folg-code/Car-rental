@@ -148,10 +148,12 @@ pytest -q
 | `Dockerfile.prod` | Obraz z Gunicorn |
 | `docker-compose.prod.yml` | Postgres + web + Celery + Redis (+ Caddy profil `https`) |
 | `scripts/deploy.sh` | Pull + migrate + collectstatic + restart |
+| `scripts/` (cały katalog) | Kopiowany na VPS przy każdym deployu (`scp`) |
 | `scripts/backup.sh` | Backup DB + media + private_documents |
 | `scripts/install-backup-cron.sh` | Idempotentny cron backup + purge chatu + offsite (`--check`) |
 | `scripts/backup-offsite.sh` | Sync backupów przez rclone (`BACKUP_OFFSITE_REMOTE`) |
 | `scripts/smoke-health.sh` | Smoke `GET /health/` + `/` po deployu |
+| `scripts/check-production-env.sh` | Walidacja kluczy `.env.production` (bez dumpowania sekretów) |
 | `scripts/restore.sh` | Przywracanie z backupu (`--confirm`) |
 | `scripts/backup-restore-selftest.sh` | Test roundtrip backup/restore (CI) |
 | `deploy/Caddyfile` | Reverse proxy HTTPS |

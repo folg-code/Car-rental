@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 
-class FuelLevel(str, Enum):
+class FuelLevel(StrEnum):
     """Opcjonalna etykieta przybliżona (kompatybilność / wyświetlanie)."""
 
     RESERVE = "reserve"

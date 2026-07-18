@@ -96,18 +96,37 @@ class SurchargePreviewService:
         return_mileage: int,
         return_fuel: int,
         on_date: date | None = None,
+        tank_capacity_liters: Decimal | None = None,
+        handover_fuel_level: str = "",
+        return_fuel_level: str = "",
     ) -> SurchargePreview:
-        fuel_delta = max(0, handover_fuel - return_fuel)
         driven_km = max(0, return_mileage - handover_mileage)
+
+        # Preferuj litry z procentów × pojemność baku.
+        if tank_capacity_liters is not None:
+            from apps.fleet.fuel import fuel_delta_liters_from_percent
+
+            fuel_liters = fuel_delta_liters_from_percent(
+                handover_percent=handover_fuel,
+                return_percent=return_fuel,
+                tank_capacity_liters=tank_capacity_liters,
+            )
+            fuel_delta = int(fuel_liters) if fuel_liters > 0 else 0
+            fuel_qty: Decimal = fuel_liters if fuel_liters > 0 else Decimal("0")
+            fuel_unit_label = "L"
+        else:
+            fuel_delta = max(0, handover_fuel - return_fuel)
+            fuel_qty = Decimal(fuel_delta)
+            fuel_unit_label = "p.p."
 
         price_list = get_price_list_for_date(on_date or date.today())
         lines: list[SurchargeLine] = []
 
-        if price_list is not None and fuel_delta > 0:
+        if price_list is not None and fuel_qty > 0:
             fuel_extra = get_extra_by_code(price_list, FUEL_REFILL_CODE)
             if fuel_extra is not None:
                 quantity = (
-                    Decimal(fuel_delta)
+                    fuel_qty
                     if fuel_extra.charge_type == ExtraServiceChargeType.PER_UNIT
                     else Decimal("1")
                 )
@@ -115,7 +134,7 @@ class SurchargePreviewService:
                     fuel_extra,
                     code=FUEL_REFILL_CODE,
                     quantity=quantity,
-                    label=fuel_extra.name,
+                    label=f"{fuel_extra.name} ({fuel_unit_label})",
                 )
                 if line is not None:
                     lines.append(line)

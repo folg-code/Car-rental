@@ -11,6 +11,7 @@
 <h2>Dane wynajmu</h2>
 <table>
     <tr><th>Klient</th><td>{{ customer_name }}</td></tr>
+    {% if driver_name %}<tr><th>Kierowca</th><td>{{ driver_name }}</td></tr>{% endif %}
     <tr><th>Pojazd</th><td>{{ car_label }}</td></tr>
     <tr><th>Nr rejestracyjny</th><td>{{ registration_number }}</td></tr>
 </table>
@@ -18,17 +19,27 @@
 <h2>Stan pojazdu przy wydaniu</h2>
 <table>
     <tr><th>Przebieg</th><td>{{ mileage }} km</td></tr>
-    <tr><th>Poziom paliwa</th><td>{{ fuel_level_percent }}%</td></tr>
+    <tr><th>Poziom paliwa</th><td>{% if fuel_level %}{{ fuel_level }}{% else %}{{ fuel_level_percent }}%{% endif %}</td></tr>
     {% if notes %}
     <tr><th>Uwagi</th><td>{{ notes }}</td></tr>
     {% endif %}
 </table>
+
+{% if equipment_lines %}
+<h2>Wyposazenie</h2>
+<ul>
+    {% for line in equipment_lines %}
+    <li>{{ line }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 
 <h2>Uszkodzenia (snapshot)</h2>
 <ul class="damages">
     {% for damage in damages %}
     <li class="{% if damage.is_new %}new{% endif %}">
         {% if damage.is_new %}[NOWE] {% endif %}
+        {% if damage.damage_type %}<strong>{{ damage.damage_type }}</strong> {% endif %}
         {% if damage.location %}{{ damage.location }}: {% endif %}
         {{ damage.description }}
         ({{ damage.severity }})

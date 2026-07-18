@@ -15,13 +15,11 @@ if [ -f .env.production ]; then
 	set +a
 fi
 
-if [ -n "${DOMAIN:-}" ]; then
-	export COMPOSE_PROFILES=https
-	echo "==> HTTPS enabled for DOMAIN=$DOMAIN (Caddy profile)"
-else
-	unset COMPOSE_PROFILES
-	echo "==> DOMAIN not set — HTTP only on 127.0.0.1:8000"
-fi
+# Publiczny TLS = /opt/edge na VPS (nie ten Compose).
+# Nigdy nie ustawiaj COMPOSE_PROFILES=https — stary profil Caddy
+# mapował :80/:443 i zabierał porty edge.
+unset COMPOSE_PROFILES
+echo "==> App stack only (web/celery/db/redis) — TLS via /opt/edge"
 
 echo "==> Pull latest image"
 docker compose -f "$COMPOSE_FILE" pull web celery
@@ -29,6 +27,14 @@ docker compose -f "$COMPOSE_FILE" pull web celery
 echo "==> Start services"
 export WEB_IMAGE
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
+
+# Usuń legacy kontener Caddy z poprzednich deployów (trzymał 80/443).
+legacy="$(docker ps -a --format '{{.Names}}' | grep -E '^car-rental[-_]caddy' || true)"
+if [ -n "$legacy" ]; then
+	echo "==> Removing legacy app-Caddy container(s): $legacy"
+	# shellcheck disable=SC2086
+	docker rm -f $legacy 2>/dev/null || true
+fi
 
 echo "==> Wait for database"
 sleep 10

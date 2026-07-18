@@ -8,58 +8,67 @@
 
 | Element | Plik / serwis |
 |---------|----------------|
-| Reverse proxy HTTPS | `caddy` (profil `https`) + `deploy/Caddyfile` |
-| Aplikacja | `web` (Gunicorn), `celery`, `celery-beat`, `redis`, `db` |
+| Reverse proxy HTTPS | **`/opt/edge`** na VPS (osobny stack Caddy) — nie ten Compose |
+| Aplikacja | `web` (Gunicorn `127.0.0.1:8000`), `celery`, `celery-beat`, `redis`, `db` |
 | Cache | Redis (`CACHE_URL`, baza /2) — rate limity chatu i portalu |
-| Deploy | `scripts/deploy.sh` (pull, migrate, collectstatic) |
+| Deploy | `scripts/deploy.sh` (pull, migrate, collectstatic) — **bez** Caddy |
 | Backup | `scripts/backup.sh` |
 | Restore | `scripts/restore.sh --confirm <timestamp>` |
 | Test odtworzenia | `scripts/backup-restore-selftest.sh` (CI + VPS) |
 
 ---
 
-## HTTPS (Caddy)
+## HTTPS (edge na VPS)
 
-### 1. DNS
+Publiczny TLS i routing domen prowadzi **`/opt/edge`** (nie `docker-compose.prod.yml`).
 
-Wskaz `A` / `AAAA` domeny na IP VPS.
+| Host | Upstream |
+|------|----------|
+| `car-rental.filipf.online` | `web:8000` (sieć Dockera `car-rental_default`) |
+| `dashboard.filipf.online` | host `:8080` (osobny projekt) |
 
-### 2. Zmienne w `.env.production`
+Źródło prawdy Caddy: `/opt/edge/caddy/Caddyfile` (infra na VPS, poza tym repo).
+
+### Wymagania po recreate edge
+
+- Sieć `car-rental_default` musi być podpięta pod `edge-caddy` (zdefiniowane w `/opt/edge/docker-compose.yml`).
+- Edge montuje external volumes: `car-rental_static_data`, `car-rental_media_data`.
+- Aplikacja nasłuchuje lokalnie: `127.0.0.1:8000` (oraz `web:8000` w sieci compose).
+
+### Zmienne Django (`.env.production`)
 
 ```env
 DEBUG=False
-ALLOWED_HOSTS=twoja-domena.pl,www.twoja-domena.pl
-DOMAIN=twoja-domena.pl
-ACME_EMAIL=admin@twoja-domena.pl
-SECRET_KEY=<dlugi-losowy-klucz>
+ALLOWED_HOSTS=car-rental.filipf.online
+CSRF_TRUSTED_ORIGINS=https://car-rental.filipf.online
+PUBLIC_SITE_BASE_URL=https://car-rental.filipf.online
 SECURE_SSL_REDIRECT=True
+SECRET_KEY=<dlugi-losowy-klucz>
 ```
 
-Caddy automatycznie wystawia certyfikat Let's Encrypt (porty **80** i **443** muszą być otwarte).
+`DOMAIN` / `ACME_EMAIL` są **legacy** (stary app-Caddy) — nie startują już HTTPS w tym projekcie.
 
-### 3. Uruchomienie ze profilem HTTPS
-
-`scripts/deploy.sh` włącza profil `https`, gdy `DOMAIN` jest ustawione:
+### Deploy aplikacji (bez Caddy)
 
 ```bash
 export WEB_IMAGE=ghcr.io/folg-code/car-rental:latest
 ./scripts/deploy.sh
 ```
 
-Ręcznie:
+Stack podnosi tylko `db`, `web`, `redis`, `celery`, `celery-beat`.  
+**Nie** uruchamiaj `COMPOSE_PROFILES=https` — zabierzesz :80/:443 od edge.
+
+### Weryfikacja
 
 ```bash
-COMPOSE_PROFILES=https docker compose -f docker-compose.prod.yml up -d
+curl -I https://car-rental.filipf.online
+curl -fsS https://car-rental.filipf.online/health/
+docker compose -f docker-compose.prod.yml ps
+# Edge (osobno):
+cd /opt/edge && docker compose ps
 ```
 
-### 4. Weryfikacja
-
-```bash
-curl -I https://twoja-domena.pl
-docker compose -f docker-compose.prod.yml logs caddy --tail 50
-```
-
-Statyczne pliki (`/static/*`) serwuje Caddy z wolumenu `static_data`.
+`deploy/Caddyfile` w tym repo to tylko **legacy / local** — nie commitować tu upstreamów dashboardu.
 
 ---
 
@@ -226,14 +235,14 @@ Skrypt:
 ## Checklist pierwszego deployu VPS
 
 - [ ] Docker + Compose plugin
-- [ ] `.env.production` według `.env.example`
-- [ ] `DOMAIN` + `ACME_EMAIL` (HTTPS)
-- [ ] `DEBUG=False`, silny `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`
+- [ ] Edge TLS na VPS: `/opt/edge` (80/443) + sieć `car-rental_default`
+- [ ] `.env.production` według `.env.production.example`
+- [ ] `DEBUG=False`, silny `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `PUBLIC_SITE_BASE_URL`
 - [ ] `PAYMENT_GATEWAY_PROVIDER=mock` — **zamierzone** dla wersji demo (strona `/platnosc/mock/`)
 - [ ] `EMAIL_BACKEND=smtp` lub `console` (demo: maile w logach wystarczą)
 - [ ] `docker login ghcr.io` (jeśli obraz prywatny)
 - [ ] GitHub Actions: `ENABLE_DEPLOY=true` + secrets SSH
-- [ ] `./scripts/deploy.sh`
+- [ ] `./scripts/deploy.sh` (app stack — **bez** Caddy na 80/443)
 - [ ] `docker compose -f docker-compose.prod.yml exec web python backend/manage.py seed_demo`
 - [ ] `./scripts/backup-restore-selftest.sh`
 - [ ] `./scripts/install-backup-cron.sh` (+ `--check`) albo `./scripts/backup.sh` + ręczny cron
@@ -289,10 +298,12 @@ Logi aplikacji (Gunicorn / Celery) idą na stdout kontenerów — `docker compos
 
 ## Rozwiązywanie problemów
 
-**Caddy nie startuje** — sprawdź `DOMAIN` w `.env.production` i logi: `docker compose logs caddy`.
+**502 / brak HTTPS** — sprawdź `/opt/edge` (`docker compose ps`, logi Caddy). Aplikacja ma działać na `127.0.0.1:8000` / `web:8000`; edge musi być w sieci `car-rental_default`.
 
-**Pętla przekierowań HTTPS** — upewnij się, że Caddy przekazuje ruch do `web:8000` (nagłówek `X-Forwarded-Proto` jest obsługiwany w `settings.py`).
+**Pętla przekierowań HTTPS** — upewnij się, że edge przekazuje ruch do `web:8000` (nagłówek `X-Forwarded-Proto` jest obsługiwany w `settings.py`).
 
 **`dropdb` failed during restore** — zatrzymaj aplikację: `docker compose stop web celery`, potem ponów restore.
 
-**Brak certyfikatu** — port 80 musi być dostępny z internetu (HTTP-01 ACME).
+**Porty 80/443 zajęte** — nie uruchamiaj app-Caddy (`COMPOSE_PROFILES=https`). Usuń legacy: `docker rm -f` kontenera `car-rental-*-caddy*`.
+
+**Brak certyfikatu** — certy wystawia `/opt/edge` (Let's Encrypt); port 80 musi być wolny dla ACME na edge.

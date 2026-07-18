@@ -516,7 +516,7 @@ Car-rental/
 │   ├── DOCKER.md               # Docker stack, roadmap Celery/Redis
 │   └── AI_CONSULTANT.md        # Specyfikacja chatbota AI
 ├── docker-compose.yml          # dev (db + web + tailwind)
-├── docker-compose.prod.yml     # prod (db + web + caddy)
+├── docker-compose.prod.yml     # prod (db + web + celery + redis; TLS: /opt/edge)
 ├── Dockerfile                  # dev image
 ├── Dockerfile.prod             # prod image (Gunicorn, non-root)
 ├── pyproject.toml              # zależności, Ruff config, pytest config

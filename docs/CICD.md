@@ -146,7 +146,7 @@ pytest -q
 | Plik | Rola |
 |------|------|
 | `Dockerfile.prod` | Obraz z Gunicorn |
-| `docker-compose.prod.yml` | Postgres + web + Celery + Redis (+ Caddy profil `https`) |
+| `docker-compose.prod.yml` | Postgres + web + Celery + Redis (TLS: `/opt/edge`, nie ten plik) |
 | `scripts/deploy.sh` | Pull + migrate + collectstatic + restart |
 | `scripts/` (cały katalog) | Kopiowany na VPS przy każdym deployu (`scp`) |
 | `scripts/backup.sh` | Backup DB + media + private_documents |
@@ -156,7 +156,7 @@ pytest -q
 | `scripts/check-production-env.sh` | Walidacja kluczy `.env.production` (bez dumpowania sekretów) |
 | `scripts/restore.sh` | Przywracanie z backupu (`--confirm`) |
 | `scripts/backup-restore-selftest.sh` | Test roundtrip backup/restore (CI) |
-| `deploy/Caddyfile` | Reverse proxy HTTPS |
+| `deploy/Caddyfile` | Legacy / local only — publiczny TLS = `/opt/edge` |
 | [`docs/DEPLOY.md`](./DEPLOY.md) | Checklist VPS, cron, offsite |
 
 ## Rozwiązywanie problemów

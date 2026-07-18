@@ -88,23 +88,9 @@ services:
       redis:
         condition: service_healthy
 
-  caddy:
-    profiles: ["https"]
-    image: caddy:2-alpine
-    restart: unless-stopped
-    env_file:
-      - .env.production
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-      - static_data:/srv/static:ro
-      - media_data:/srv/media:ro
-    depends_on:
-      - web
+  # Brak Caddy w tym stacku — publiczny TLS jest na VPS w /opt/edge
+  # (car-rental.filipf.online → web:8000 na sieci car-rental_default).
+  # Nie publikuj tu :80/:443 — zabierzesz porty edge i dostaniesz 502.
 
 volumes:
   postgres_data:
@@ -112,5 +98,3 @@ volumes:
   static_data:
   redis_data:
   private_documents_data:
-  caddy_data:
-  caddy_config:

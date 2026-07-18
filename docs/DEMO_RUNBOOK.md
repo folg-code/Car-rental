@@ -120,9 +120,9 @@ cd /opt/car-rental
 # dopisz jesli brakuje:
 # CACHE_URL=redis://redis:6379/2
 # DEMO_SITE=True
-# DOMAIN=...  ACME_EMAIL=...
 # CELERY_BROKER_URL=redis://redis:6379/0
 # CELERY_RESULT_BACKEND=redis://redis:6379/1
+# TLS: /opt/edge na VPS (nie DOMAIN/ACME w tym compose)
 ./scripts/install-backup-cron.sh --check
 ```
 

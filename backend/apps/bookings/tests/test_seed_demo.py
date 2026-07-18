@@ -127,3 +127,14 @@ class TestSeedDemoCommand:
             username=DEMO_CUSTOMER_USERNAME,
             password=DEMO_CUSTOMER_PASSWORD,
         )
+
+    def test_seed_demo_presentation_check_passes(self) -> None:
+        from apps.bookings.demo_seed.presentation_check import verify_presentation_seed
+
+        call_command("seed_demo")
+        result = verify_presentation_seed()
+        assert result.ok, result.errors
+
+    def test_seed_demo_check_only_command(self) -> None:
+        call_command("seed_demo")
+        call_command("seed_demo", check_only=True)

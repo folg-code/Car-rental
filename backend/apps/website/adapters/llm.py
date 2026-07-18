@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import unicodedata
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -33,7 +34,7 @@ class LLMClient(Protocol):
 
 
 class MockLLMClient:
-    """Deterministyczny mock dla dev/test — odpowiedzi oparte na slowach kluczowych."""
+    """Deterministyczny mock dla demo/dev — odpowiedzi po intencji (PL)."""
 
     provider_name = "mock"
 
@@ -46,37 +47,113 @@ class MockLLMClient:
         del max_tokens
         user_messages = [m["content"] for m in messages if m.get("role") == "user"]
         last = user_messages[-1].lower() if user_messages else ""
+        folded = self._fold(last)
 
-        if "kaucj" in last:
+        if self._any(folded, ("czesc", "cześć", "hej", "dzien dobry", "dzień dobry")):
             return LLMResponse(
                 content=(
-                    "Kaucja jest blokowana na karcie i zwracana po zakonczeniu "
-                    "wynajmu, jesli auto zostanie oddane bez uszkodzen. "
-                    "Szczegoly znajdziesz w regulaminie."
+                    "Cześć! Mogę pomóc z dostępnością aut, orientacyjną wyceną, "
+                    "kaucją i zasadami wynajmu. Podaj termin (np. „jutro” albo "
+                    "„weekend”) albo wybierz jedno z przykładowych pytań."
                 ),
             )
-        if "rezerw" in last or "zarezerw" in last:
+        if self._any(folded, ("dzieki", "dzięki", "dziekuje", "dziękuję")):
             return LLMResponse(
                 content=(
-                    "Rezerwacji dokonasz przez formularz online: sprawdz dostepnosc, "
-                    "zobacz wycene i wypelnij dane kontaktowe. "
-                    "Nie wymagamy konta — wystarczy e-mail lub telefon."
+                    "Nie ma za co. Jeśli chcesz, sprawdź dostępność albo "
+                    "przejdź do formularza rezerwacji na stronie."
                 ),
             )
-        if "anul" in last:
+        if self._any(folded, ("kontakt", "telefon", "mail", "email", "e-mail")):
+            return LLMResponse(
+                content=(
+                    "Dane kontaktowe znajdziesz na stronie Kontakt. "
+                    "W czacie odpowiadam na pytania o flotę, ceny i zasady — "
+                    "rezerwacji i płatności nie finalizuję tutaj."
+                ),
+            )
+        if self._any(folded, ("kaucj", "depozyt")):
+            return LLMResponse(
+                content=(
+                    "Kaucja jest blokowana na karcie przy wydaniu i zwracana "
+                    "po rozliczeniu zwrotu, jeśli auto wróci bez uszkodzeń "
+                    "i dopłat. Wysokość zależy od kategorii — zapytaj np. "
+                    "„ile kaucji za SUV?” albo zajrzyj do regulaminu."
+                ),
+            )
+        if self._any(folded, ("dokument", "prawo jazdy", "dowod", "dowód")):
+            return LLMResponse(
+                content=(
+                    "Do odbioru potrzebujesz ważnego prawa jazdy kat. B "
+                    "oraz dokumentu tożsamości. Szczegóły wieku i stażu "
+                    "kierowcy są w regulaminie."
+                ),
+            )
+        if self._any(folded, ("wiek", "ile lat", "mlody", "młody")):
+            return LLMResponse(
+                content=(
+                    "Wynajem jest dla osób pełnoletnich z ważnym prawem jazdy. "
+                    "Niektóre kategorie mogą mieć wyższy limit wieku lub stażu — "
+                    "sprawdź regulamin przed rezerwacją."
+                ),
+            )
+        if self._any(folded, ("paliw", "tankow", "bak")):
+            return LLMResponse(
+                content=(
+                    "Oddajesz auto z poziomem paliwa zgodnym z protokołem "
+                    "wydania. Niedobór może oznaczać dopłatę przy zwrocie."
+                ),
+            )
+        if self._any(folded, ("godzin", "otwarcia", "biuro")):
+            return LLMResponse(
+                content=(
+                    "Termin odbioru i zwrotu wybierasz przy rezerwacji. "
+                    "Jeśli nie podasz godziny, przyjmuję domyślnie 10:00. "
+                    "Godziny biura — strona Kontakt."
+                ),
+            )
+        if self._any(folded, ("anul", "odwol", "odwoł")):
             return LLMResponse(
                 content=(
                     "Zasady anulowania rezerwacji opisuje regulamin. "
-                    "W razie watpliwosci skontaktuj sie z nami przez strone Kontakt."
+                    "W razie wątpliwości skorzystaj ze strony Kontakt."
+                ),
+            )
+        if self._any(folded, ("rezerw", "zarezerw", "jak wynaj")):
+            return LLMResponse(
+                content=(
+                    "Rezerwacji dokonasz przez formularz online: sprawdź "
+                    "dostępność → wycena → dane kontaktowe → płatność. "
+                    "Konta nie wymagamy. Mogę też sprawdzić wolne auta — "
+                    "napisz termin, np. „wolne auta na jutro”."
+                ),
+            )
+        if self._any(folded, ("kategori", "jakie auta", "jaka flota", "rodzaje")):
+            return LLMResponse(
+                content=(
+                    "We flocie są m.in. kategorie kompakt, SUV, premium "
+                    "i rodzinne. Mogę sprawdzić dostępność na termin albo "
+                    "podać kaucję dla wybranej kategorii."
                 ),
             )
         return LLMResponse(
             content=(
-                "Dziekuje za pytanie. Jestem asystentem wypozyczalni samochodow — "
-                "moge pomoc w kwestiach rezerwacji, kaucji i ogolnych zasad wynajmu. "
-                "Nie moge tworzyc rezerwacji ani przyjmowac platnosci w czacie."
+                "Jestem asystentem wypożyczalni — pomagam z dostępnością, "
+                "wyceną orientacyjną, kaucją i zasadami wynajmu. "
+                "Nie tworzę rezerwacji ani nie przyjmuję płatności w czacie. "
+                "Spróbuj: „wolne auta na jutro”, „ile kaucji za SUV” "
+                "albo „jakie dokumenty są potrzebne?”."
             ),
         )
+
+    @staticmethod
+    def _fold(text: str) -> str:
+        normalized = unicodedata.normalize("NFKD", text)
+        return "".join(ch for ch in normalized if not unicodedata.combining(ch))
+
+    @staticmethod
+    def _any(folded: str, keywords: tuple[str, ...]) -> bool:
+        return any(MockLLMClient._fold(keyword) in folded for keyword in keywords)
 
 
 class OpenAICompatibleLLMClient:

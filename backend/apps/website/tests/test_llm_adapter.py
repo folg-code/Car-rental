@@ -31,8 +31,19 @@ class TestMockLLMClient:
             [{"role": "user", "content": "Czesc"}],
         )
         assert (
-            "rezerw" in response.content.lower() or "platn" in response.content.lower()
+            "rezerw" in response.content.lower()
+            or "dostępn" in response.content.lower()
         )
+        assert "cześć" in response.content.lower() or "czesc" in MockLLMClient._fold(
+            response.content.lower()
+        )
+
+    def test_documents_intent(self) -> None:
+        client = MockLLMClient()
+        response = client.complete(
+            [{"role": "user", "content": "Jakie dokumenty sa potrzebne?"}],
+        )
+        assert "jazdy" in response.content.lower()
 
     def test_get_llm_client_returns_mock_by_default(self) -> None:
         client = get_llm_client()

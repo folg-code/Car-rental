@@ -122,7 +122,7 @@ class TestChatTools:
 
     def test_clarifying_question_formatter(self) -> None:
         result = execute_ask_clarifying_question(
-            question="Na jaki termin mam sprawdzic dostepnosc?",
+            question="Na jaki termin mam sprawdzić dostępność?",
         )
         text = format_tool_results((result,))
         assert "termin" in text.lower()

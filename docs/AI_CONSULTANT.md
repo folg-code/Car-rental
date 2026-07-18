@@ -200,7 +200,11 @@ Heurystyczny router (`ChatToolRouter`) rozpoznaje:
 - kaucję wg kategorii → tool `get_deposit_info` (pole `CarCategory.deposit`);
 - domyślne godziny odbioru/zwrotu: `CHAT_DEFAULT_PICKUP_HOUR` / `CHAT_DEFAULT_RETURN_HOUR` (domyślnie 10).
 
-Scenariusze pokryte testami w `test_chat_tool_router.py` oraz `test_consultant_tools_integration.py`.
+### UX demo (mock)
+
+- Strona `/asystent/`: powitalny dymek + przyciski przykładowych pytań (`DEMO_CHAT_PROMPTS`).
+- Rozszerzone FAQ (dokumenty, wiek, paliwo, godziny) + bogatszy `MockLLMClient`.
+- Router FAQ łapie też pytania o dokumenty / wiek / paliwo / godziny.
 
 ---
 

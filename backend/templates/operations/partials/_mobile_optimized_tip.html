@@ -1,0 +1,41 @@
+{# Dismissible tip: wydania/zwroty are mobile-first. #}
+<div
+    id="ops-mobile-tip"
+    class="mb-4 rounded-xl border border-orange-300 bg-orange-50 text-orange-950 px-4 py-3 shadow-sm"
+    role="status"
+    hidden
+>
+    <div class="flex items-start gap-3">
+        <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-orange-900">Wersja mobilna</p>
+            <p class="text-sm text-orange-800/90 mt-0.5 leading-snug">
+                Ten proces (wydania i zwroty) jest zoptymalizowany pod telefon —
+                wygodniej wypełnisz protokół w terenie przy pojeździe.
+            </p>
+        </div>
+        <button
+            type="button"
+            id="ops-mobile-tip-dismiss"
+            class="shrink-0 rounded-md px-2 py-1 text-orange-700/80 hover:bg-orange-100 hover:text-orange-950 text-sm"
+            aria-label="Ukryj wskazówkę"
+        >
+            ✕
+        </button>
+    </div>
+</div>
+<script>
+(function () {
+    var KEY = "ops-mobile-tip-dismissed";
+    var tip = document.getElementById("ops-mobile-tip");
+    var btn = document.getElementById("ops-mobile-tip-dismiss");
+    if (!tip || !btn) return;
+    try {
+        if (localStorage.getItem(KEY) === "1") return;
+    } catch (e) {}
+    tip.hidden = false;
+    btn.addEventListener("click", function () {
+        tip.hidden = true;
+        try { localStorage.setItem(KEY, "1"); } catch (e) {}
+    });
+})();
+</script>

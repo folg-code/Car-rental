@@ -1,8 +1,9 @@
-"""Dokumenty floty, blokady dostepnosci i uszkodzenia dla demo."""
+"""Dokumenty floty, blokady, uszkodzenia i wyposazenie dla demo."""
 
 from __future__ import annotations
 
 from datetime import timedelta
+from decimal import Decimal
 
 from django.core.files.base import ContentFile
 from django.utils import timezone
@@ -14,14 +15,38 @@ from apps.fleet.models import (
     Car,
     CarDocument,
     CarDocumentType,
+    CarEquipment,
     Damage,
     DamageSeverity,
     DamageStatus,
+    DamageType,
+    EquipmentItem,
 )
 
+DEFAULT_EQUIPMENT: tuple[tuple[str, str, int], ...] = (
+    ("main_key", "Kluczyk glowny", 10),
+    ("spare_key", "Kluczyk zapasowy", 20),
+    ("vehicle_docs", "Dokumenty pojazdu", 30),
+    ("fire_extinguisher", "Gasnica", 40),
+    ("warning_triangle", "Trojkat ostrzegawczy", 50),
+    ("first_aid_kit", "Apteczka", 60),
+    ("repair_kit", "Zestaw naprawczy", 70),
+    ("spare_wheel", "Kolo zapasowe", 80),
+    ("phone_mount", "Uchwyt na telefon", 90),
+    ("ev_cable", "Kabel do ladowania", 100),
+)
 
-def _demo_pdf(name: str) -> ContentFile:
-    return ContentFile(b"%PDF-1.4 demo", name=name)
+# Standardowe wyposazenie per auto (bez kabla EV).
+_STANDARD_CODES: tuple[str, ...] = (
+    "main_key",
+    "spare_key",
+    "vehicle_docs",
+    "fire_extinguisher",
+    "warning_triangle",
+    "first_aid_kit",
+    "repair_kit",
+    "phone_mount",
+)
 
 
 def seed_fleet_extras(
@@ -30,10 +55,37 @@ def seed_fleet_extras(
     panel_user_id: int | None,
 ) -> tuple[int, int, int]:
     """Zwraca (dokumenty, blokady, uszkodzenia) utworzone w tej sesji."""
+    _seed_equipment_catalog(cars)
     docs = _seed_car_documents(cars)
     blocks = _seed_availability_blocks(cars, panel_user_id)
     damages = _seed_damages(cars)
     return docs, blocks, damages
+
+
+def _seed_equipment_catalog(cars: dict[str, Car]) -> None:
+    items: dict[str, EquipmentItem] = {}
+    for code, name, sort_order in DEFAULT_EQUIPMENT:
+        item, _ = EquipmentItem.objects.update_or_create(
+            code=code,
+            defaults={
+                "name": name,
+                "is_active": True,
+                "sort_order": sort_order,
+            },
+        )
+        items[code] = item
+
+    for car in cars.values():
+        codes = list(_STANDARD_CODES)
+        if car.fuel_type == "electric":
+            codes.append("ev_cable")
+        for code in codes:
+            item = items[code]
+            CarEquipment.objects.update_or_create(
+                car=car,
+                item=item,
+                defaults={"quantity": 1},
+            )
 
 
 def _seed_car_documents(cars: dict[str, Car]) -> int:
@@ -77,6 +129,10 @@ def _seed_car_documents(cars: dict[str, Car]) -> int:
     return created
 
 
+def _demo_pdf(name: str) -> ContentFile:
+    return ContentFile(b"%PDF-1.4 demo", name=name)
+
+
 def _seed_availability_blocks(
     cars: dict[str, Car],
     panel_user_id: int | None,
@@ -108,6 +164,9 @@ def _seed_damages(cars: dict[str, Car]) -> int:
             "zderzak tylny",
             DamageSeverity.MINOR,
             DamageStatus.ACTIVE,
+            DamageType.SCRATCH,
+            Decimal("50.00"),
+            Decimal("85.00"),
         ),
         (
             "KR1DEMO3",
@@ -115,10 +174,22 @@ def _seed_damages(cars: dict[str, Car]) -> int:
             "drzwi prawe tylne",
             DamageSeverity.MODERATE,
             DamageStatus.REPAIRED,
+            DamageType.DENT,
+            Decimal("78.00"),
+            Decimal("55.00"),
         ),
     )
     created = 0
-    for reg, description, location, severity, status in specs:
+    for (
+        reg,
+        description,
+        location,
+        severity,
+        status,
+        damage_type,
+        pos_x,
+        pos_y,
+    ) in specs:
         car = cars.get(reg)
         if car is None:
             continue
@@ -131,6 +202,9 @@ def _seed_damages(cars: dict[str, Car]) -> int:
             location=location,
             severity=severity,
             status=status,
+            damage_type=damage_type,
+            pos_x=pos_x,
+            pos_y=pos_y,
         )
         if status == DamageStatus.REPAIRED:
             damage.repaired_at = timezone.now() - timedelta(days=30)

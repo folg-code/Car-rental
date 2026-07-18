@@ -178,6 +178,7 @@ class DemoSeedBuilder:
                 "color": spec.color,
                 "status": spec.status,
                 "fuel_type": spec.fuel_type,
+                "fuel_tank_capacity_liters": spec.fuel_tank_capacity_liters,
                 "mileage": spec.mileage,
                 "seats": spec.seats,
             },
@@ -308,7 +309,7 @@ class DemoSeedBuilder:
             (
                 "fuel_refill",
                 "Uzupelnienie paliwa",
-                Decimal("5.00"),
+                Decimal("8.00"),
                 ExtraServiceChargeType.PER_UNIT,
             ),
             (
@@ -316,6 +317,36 @@ class DemoSeedBuilder:
                 "Dodatkowy kilometr",
                 Decimal("1.50"),
                 ExtraServiceChargeType.PER_UNIT,
+            ),
+            (
+                "late_return",
+                "Spozniony zwrot",
+                Decimal("50.00"),
+                ExtraServiceChargeType.PER_UNIT,
+            ),
+            (
+                "missing_equipment",
+                "Brakujace wyposazenie",
+                Decimal("100.00"),
+                ExtraServiceChargeType.PER_UNIT,
+            ),
+            (
+                "damaged_equipment",
+                "Uszkodzone wyposazenie",
+                Decimal("150.00"),
+                ExtraServiceChargeType.PER_UNIT,
+            ),
+            (
+                "dirty_return",
+                "Zwrot brudnego pojazdu",
+                Decimal("120.00"),
+                ExtraServiceChargeType.PER_RENTAL,
+            ),
+            (
+                "interior_cleaning",
+                "Pranie tapicerki / czyszczenie wnetrza",
+                Decimal("200.00"),
+                ExtraServiceChargeType.PER_RENTAL,
             ),
         ):
             ExtraService.objects.get_or_create(

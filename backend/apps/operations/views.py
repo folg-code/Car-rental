@@ -43,6 +43,22 @@ from apps.operations.services.signature_upload import signature_file_from_form
 from apps.operations.services.surcharge_preview import SurchargePreviewService
 
 
+def _parse_diagram_percent(raw: str | None, *, default: str = "50") -> Decimal:
+    """Parse diagram % from POST; accept comma decimals from localized clients."""
+    text = (raw or "").strip().replace(",", ".")
+    if not text:
+        text = default
+    try:
+        value = Decimal(text)
+    except InvalidOperation as exc:
+        msg = "Nieprawidłowa pozycja na diagramie."
+        raise ValidationError(msg) from exc
+    if value < 0 or value > 100:
+        msg = "Pozycja na diagramie musi być w zakresie 0–100%."
+        raise ValidationError(msg)
+    return value
+
+
 def _add_validation_errors(request: HttpRequest, exc: ValidationError) -> None:
     if hasattr(exc, "messages") and exc.messages:
         for msg in exc.messages:
@@ -147,8 +163,8 @@ def handover_create(request: HttpRequest, rental_id: int) -> HttpResponse:
                     handover,
                     damage_type=request.POST.get("damage_type", "U"),
                     description=request.POST.get("description", ""),
-                    pos_x=Decimal(request.POST.get("pos_x", "50")),
-                    pos_y=Decimal(request.POST.get("pos_y", "50")),
+                    pos_x=_parse_diagram_percent(request.POST.get("pos_x")),
+                    pos_y=_parse_diagram_percent(request.POST.get("pos_y")),
                     size_note=request.POST.get("size_note", ""),
                     photo=request.FILES.get("photo"),
                 )
@@ -160,6 +176,7 @@ def handover_create(request: HttpRequest, rental_id: int) -> HttpResponse:
                     int(request.POST.get("marker_id")),
                     resolution=request.POST.get("resolution", "mistaken"),
                 )
+                messages.success(request, "Uszkodzenie oznaczone jako omyłkowe.")
                 return redirect(f"{request.path}?step=damages")
             elif action == "next_damages":
                 handover.current_step = "photos"
@@ -397,8 +414,8 @@ def return_create(request: HttpRequest, rental_id: int) -> HttpResponse:
                     return_protocol,
                     damage_type=request.POST.get("damage_type", "U"),
                     description=request.POST.get("description", ""),
-                    pos_x=Decimal(request.POST.get("pos_x", "50")),
-                    pos_y=Decimal(request.POST.get("pos_y", "50")),
+                    pos_x=_parse_diagram_percent(request.POST.get("pos_x")),
+                    pos_y=_parse_diagram_percent(request.POST.get("pos_y")),
                     size_note=request.POST.get("size_note", ""),
                     photo=request.FILES.get("photo"),
                 )

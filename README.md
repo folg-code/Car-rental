@@ -592,9 +592,10 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 12 | Demo polish / UX v2 | ✅ |
 | 13 | Zaawansowane protokoły wydania/zwrotu | ✅ |
 | 14 | Demo UX (przewodnik, diagram, asystent) | ✅ |
+| **15** | **Ścieżka prezentacji i niezawodność demo** | **🟡** |
 | 12+ | Backlog (eskalacja chatu, HTMX, Sentry, i18n, pełna prod) | Backlog |
 
-Szczegóły tasków Sprint 10–14: [`PROJECT_PLAN.md`](PROJECT_PLAN.md).
+Szczegóły tasków Sprint 10–15: [`PROJECT_PLAN.md`](PROJECT_PLAN.md).
 
 ### Sprint 8 — taski (szczegóły w [`PROJECT_PLAN.md`](PROJECT_PLAN.md))
 

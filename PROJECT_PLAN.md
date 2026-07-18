@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Demo live + backlog opcjonalny |
-| **Następny krok** | Prezentacja / polish pod rekrutera; backlog tylko gdy potrzeba biznesowa |
-| **Postęp ogólny** | Sprint 0–14 ✅; dalej tylko opcjonalny backlog |
+| **Aktualny etap** | Sprint 15 — ścieżka prezentacji i niezawodność demo |
+| **Następny krok** | Seed + runbook + README (elevator) pod jedną ścieżkę end-to-end |
+| **Postęp ogólny** | Sprint 0–14 ✅; Sprint 15 🟡 |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -46,6 +46,7 @@
 | **12** | **Demo polish / UX v2** | **✅** | **100%** |
 | **13** | **Zaawansowane protokoły wydania/zwrotu** | **✅** | **100%** |
 | **14** | **Demo UX polish (baner, diagram, asystent)** | **✅** | **100%** |
+| **15** | **Ścieżka prezentacji i niezawodność demo** | **🟡** | **0%** |
 
 ---
 
@@ -69,7 +70,8 @@
 16. ~~**Sprint 12 — Demo polish / UX v2**~~ ✅
 17. ~~**Sprint 13 — Zaawansowane protokoły**~~ ✅ — drafty, bak %, wyposażenie, diagram, PDF
 18. ~~**Sprint 14 — Demo UX polish**~~ ✅ — przewodnik demo, grafika diagramu, mock asystent
-19. **Backlog (opcjonalnie)** — patrz poniżej (kolejność sugerowana)
+19. **Sprint 15 — Ścieżka prezentacji i niezawodność demo** — seed, runbook, elevator w README
+20. **Backlog (później)** — eskalacja chatu, HTMX dashboard, Sentry, dynamic pricing, i18n
 
 ---
 
@@ -77,22 +79,25 @@
 
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-**Sprint 10–14:** ✅ domknięte (w tym protokoły zaawansowane + polish demo UX).
+**Sprint 10–14:** ✅ domknięte.
+
+**Sprint 15 (w toku):** jedna spójna ścieżka prezentacji end-to-end + niezawodny seed + krótki opis produktu w README.
+Szczegóły: sekcja [Sprint 15](#sprint-15--ścieżka-prezentacji-i-niezawodność-demo-) poniżej.
 
 **Demo live:** https://car-rental.filipf.online — smoke + release `dev`→`main` (2026-07-18).
 
 **VPS:** env ✅, cron backup ✅, `smoke-health` ✅, backup ✅.
 **Gałęzie:** drobne docs → commit na `dev`; kod → `feat/*` → PR → `dev`; release → PR `dev` → `main`.
 
-### Sugerowana kolejność backlogu (opcjonalnie)
-
-1. **Chat eskalacja / analityka** — przycisk „kontakt z człowiekiem”, metryki konwersji czatu → rezerwacja
-2. **HTMX dashboard** — partial refresh widgetów pulpitu bez przeładowania strony
-3. **Sentry (lub podobne)** — błędy prod z alertem (obecnie logi + smoke)
-4. **Dynamic pricing / i18n** — tylko jeśli demo ma iść w stronę produktu komercyjnego
-5. **Prawdziwa bramka / RODO prawnik / Twilio** — **poza zakresem wersji demo**
-
 **Poza zakresem wersji demo:** prawdziwa bramka płatności, regulamin/RODO od prawnika, Twilio SMS prod.
+
+### Backlog po Sprint 15 (niższy priorytet)
+
+1. Chat eskalacja / analityka konwersji czatu → rezerwacja
+2. HTMX — partial refresh widgetów pulpitu
+3. Sentry (lub podobne) — błędy prod z alertem
+4. Dynamic pricing / i18n — przy rozwoju produktu komercyjnego
+5. Prawdziwa bramka / RODO prawnik / Twilio — poza zakresem demo
 
 ---
 
@@ -880,7 +885,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 # Sprint 14 — Demo UX polish ✅
 
-**Cel:** czytelniejsza prezentacja dla rekrutera (bez zmiany zakresu biznesowego).
+**Cel:** czytelniejsza prezentacja możliwości platformy (bez zmiany zakresu biznesowego).
 
 | ID | Task | Status |
 |----|------|--------|
@@ -889,6 +894,31 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 | 14.3 | Adapter OpenAI-compatible (opcjonalny; default `mock`) | ✅ PR #99 |
 | 14.4 | Mock asystent — quick prompts, FAQ, polskie odpowiedzi | ✅ PR #100 |
 | 14.5 | Release `dev` → `main` | ✅ PR #101 |
+
+---
+
+# Sprint 15 — Ścieżka prezentacji i niezawodność demo 🟡
+
+**Cel:** jedna ścieżka end-to-end (rezerwacja → płatność → wydanie → zwrot → dokumenty), która działa powtarzalnie po `seed_demo`, bez ręcznego przygotowania danych. Dodatkowo krótki, jasny opis produktu na starcie dokumentacji.
+
+| ID | Task | Opis | Status |
+|----|------|------|--------|
+| **15.1** | Ścieżka prezentacji w runbooku | Jedna numerowana ścieżka A→B→C (publiczny funnel + protokół + portal) z konkretnymi kluczami seed i URL | ⬜ |
+| **15.2** | Niezawodny `seed_demo` | Gwarantowane scenariusze: wynajem gotowy do wydania dziś, zwrot z dopłatami, aktywny portal klienta; idempotencja + krótki self-check po seedzie | ⬜ |
+| **15.3** | Przewodnik demo ↔ seed | Teksty w panelu przewodnika zgodne z aktualnymi kontami i krokami runbooka | ⬜ |
+| **15.4** | Elevator w README | Sekcja 5–7 zdań: problem → rozwiązanie → jak uruchomić demo → konta → link live | ⬜ |
+| **15.5** | Smoke ścieżki prezentacji | Checklist / skrypt: krytyczne URL i obecność rekordów seed po deploy | ⬜ |
+
+#### Definition of Done — Sprint 15
+
+- [ ] Po `seed_demo` można przejść ścieżkę prezentacji bez ręcznej edycji danych.
+- [ ] Runbook zawiera jedną główną ścieżkę z kluczami seed i URL.
+- [ ] README ma krótki opis produktu i wejście w demo (konta + link).
+- [ ] Przewodnik na stronie publicznej nie rozjeżdża się z runbookiem / seedem.
+
+**Szacunek:** 1–2 dni robocze.
+
+**Poza Sprint 15:** HTMX dashboard, Sentry, eskalacja chatu, dynamic pricing, i18n, prawdziwa bramka.
 
 ---
 
@@ -993,6 +1023,8 @@ Sprint 12 (demo polish / UX v2) ✅
 Sprint 13 (zaawansowane protokoły wydania/zwrotu) ✅
     ↓
 Sprint 14 (demo UX: przewodnik, diagram, asystent) ✅
+    ↓
+Sprint 15 (ścieżka prezentacji + niezawodność seed / README) 🟡
     ↓
 Backlog opcjonalny (eskalacja chatu, HTMX dashboard, Sentry, dynamic pricing, i18n, …)
 ```

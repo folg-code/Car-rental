@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 10 — smoke na domenie |
-| **Następny krok** | Merge release #78 + smoke 10.8–10.10; na VPS ustaw `CACHE_URL` i `SMOKE_BASE_URL` |
-| **Postęp ogólny** | Funkcje ~99%; Sprint 11–12 ✅ |
+| **Aktualny etap** | Demo live — smoke ręczny na domenie |
+| **Następny krok** | 10.8–10.10 na domenie; VPS: `CACHE_URL`, `SMOKE_BASE_URL`, `install-backup-cron.sh --check` |
+| **Postęp ogólny** | Funkcje ~99%; Sprint 11–12 ✅; Sprint 10 ~95% |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -41,7 +41,7 @@
 | 8b | Chat AI — konsultant klienta | ✅ | 100% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ | 100% |
-| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~80%** |
+| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~95%** |
 | 11 | Utrzymanie i observability demo | ✅ | 100% |
 | **12** | **Demo polish / UX v2** | **✅** | **100%** |
 
@@ -815,7 +815,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 ---
 
-# Sprint 11 — Utrzymanie i observability demo ⬜
+# Sprint 11 — Utrzymanie i observability demo ✅
 
 **Cel:** stabilność demo na VPS w czasie — bez zmiany zakresu biznesowego (nadal mock płatności).
 
@@ -888,7 +888,7 @@ Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla k
 - [x] Audit log operacji krytycznych — `apps.audit`
 - [x] Bezpieczne uploady — PR #56
 - [ ] Dokumenty prawne RODO — **poza zakresem demo**
-- [ ] RBAC per rola (accountant vs employee) — task 12.1
+- [x] RBAC per rola (accountant vs employee) — cennik / raporty / zwrot kaucji
 
 ### Infrastruktura
 
@@ -898,7 +898,7 @@ Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla k
 
 | ID | Task | Opis |
 |----|------|------|
-| 12.1 | RBAC granular | `owner_or_manager_required` na wrażliwych widokach |
+| 12.1 | RBAC granular | `owner_or_manager_required` na cennikach; raporty dla owner/manager/accountant; zwrot kaucji tylko owner/manager | ✅ |
 | 12.2 | Dynamic pricing | Zaawansowany cennik sezonowy |
 | 12.3 | i18n UI | Wielojęzyczność |
 | 12.4 | HTMX dashboard | Partial refresh widgetów pulpitu |

@@ -54,6 +54,17 @@ def owner_or_manager_required(
     return role_required(UserRole.OWNER, UserRole.MANAGER)(view_func)
 
 
+def finance_access_required(
+    view_func: Callable[..., HttpResponse],
+) -> Callable[..., HttpResponse]:
+    """Raporty finansowe: owner / manager / accountant."""
+    return role_required(
+        UserRole.OWNER,
+        UserRole.MANAGER,
+        UserRole.ACCOUNTANT,
+    )(view_func)
+
+
 def customer_required(
     view_func: Callable[..., HttpResponse],
 ) -> Callable[..., HttpResponse]:

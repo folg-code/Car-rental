@@ -7,9 +7,12 @@ from apps.fleet.models import (
     CarCategory,
     CarDocument,
     CarDocumentType,
+    CarEquipment,
     CarImage,
     Damage,
     DamageSeverity,
+    DamageType,
+    EquipmentItem,
 )
 
 
@@ -41,13 +44,37 @@ class CarForm(forms.ModelForm):
             "color",
             "status",
             "fuel_type",
+            "fuel_tank_capacity_liters",
             "mileage",
             "seats",
             "notes",
         ]
         widgets = {
             "notes": forms.Textarea(attrs={"rows": 3}),
+            "fuel_tank_capacity_liters": forms.NumberInput(
+                attrs={"step": "0.1", "min": "0.1"}
+            ),
         }
+
+
+class CarEquipmentForm(forms.ModelForm):
+    class Meta:
+        model = CarEquipment
+        fields = ["item", "quantity", "notes"]
+        widgets = {
+            "quantity": forms.NumberInput(attrs={"min": "1"}),
+            "notes": forms.TextInput(attrs={"class": "form-input"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["item"].queryset = EquipmentItem.objects.filter(is_active=True)
+
+
+class EquipmentItemForm(forms.ModelForm):
+    class Meta:
+        model = EquipmentItem
+        fields = ["code", "name", "is_active", "sort_order"]
 
 
 class AvailabilityBlockForm(forms.ModelForm):
@@ -70,15 +97,30 @@ class AvailabilityBlockForm(forms.ModelForm):
 class DamageForm(forms.ModelForm):
     class Meta:
         model = Damage
-        fields = ["description", "location", "severity"]
+        fields = [
+            "description",
+            "location",
+            "damage_type",
+            "pos_x",
+            "pos_y",
+            "severity",
+        ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3}),
             "severity": forms.Select(),
+            "damage_type": forms.Select(),
+            "pos_x": forms.NumberInput(
+                attrs={"step": "0.01", "min": "0", "max": "100"}
+            ),
+            "pos_y": forms.NumberInput(
+                attrs={"step": "0.01", "min": "0", "max": "100"}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["severity"].initial = DamageSeverity.MINOR
+        self.fields["damage_type"].initial = DamageType.OTHER
 
 
 class CarImageForm(forms.ModelForm):

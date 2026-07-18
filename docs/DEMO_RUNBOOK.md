@@ -137,12 +137,13 @@ Repo Variables (GitHub): opcjonalnie `SMOKE_BASE_URL=https://<domena>`.
 - [x] Rezerwacja publiczna + mock payment → `confirmed` *(rezerwacja #20, 2026-07-18)*
 - [x] Protokół wydania dla wynajmu scheduled → active *(wynajem #9)*
 - [x] PDF protokołu dostępny po wydaniu (wolumen `private_documents`) *(wydanie + zwrot)*
-- [ ] Portal: `klient` / `demo1234` lub `/konto/logowanie-kodem/`
+- [x] Portal: `klient` / `demo1234` lub `/konto/logowanie-kodem/` *(login + lista #6 + OTP page, 2026-07-18)*
 - [ ] `docker compose -f docker-compose.prod.yml logs celery celery-beat --tail 20` — brak crashy
 - [x] `./scripts/backup.sh` — backup OK *(20260718_091343)*
 - [x] `./scripts/install-backup-cron.sh --check` — cron backup zainstalowany
 - [x] Smoke panel 10.9: wydanie → zwrot z dopłatami → płatność → zamknięcie *(wynajem #9, 2026-07-18)*
 - [x] Smoke publiczny 10.8: dostępność → rezerwacja → mock Opłać → confirmed *(#20, 2026-07-18)*
+- [x] Smoke portal 10.10: `klient` → `/konto/` → rezerwacje → szczegóły *(#6, 2026-07-18)*
 
 ---
 

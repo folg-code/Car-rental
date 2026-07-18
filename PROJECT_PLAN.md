@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Sprint 10 — smoke 10.8 na domenie (po deploy fixa mock) |
-| **Następny krok** | Release `dev`→`main` (#86) → retest 10.8 mock Opłać → 10.10 portal |
-| **Postęp ogólny** | Funkcje ~99%; 10.9 na domenie ✅; 10.8 CI+fix ✅, domena po deploy |
+| **Aktualny etap** | Demo live — backlog opcjonalny (Sprint 12+) |
+| **Następny krok** | Release docs `dev`→`main` albo backlog (dynamic pricing / i18n / Sentry) |
+| **Postęp ogólny** | Sprint 0–12 ✅; demo na https://car-rental.filipf.online |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -41,7 +41,7 @@
 | 8b | Chat AI — konsultant klienta | ✅ | 100% |
 | CI/CD | GitHub Actions (CI + deploy) | ✅ | 100% |
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ | 100% |
-| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** | **~95%** |
+| **10** | **Demo produkcyjne (VPS pokazowy)** | **✅** | **100%** |
 | 11 | Utrzymanie i observability demo | ✅ | 100% |
 | **12** | **Demo polish / UX v2** | **✅** | **100%** |
 
@@ -62,8 +62,10 @@
 11. ~~**Sprint 9**~~ ✅ — płatności online + Celery + deploy (taski 9.1–9.10)
 12. ~~**Sprint 8b — Chat AI**~~ ✅ — [`docs/AI_CONSULTANT.md`](docs/AI_CONSULTANT.md)
 13. ~~**Sprint 9+**~~ ✅ — raporty, SMS, rozbudowany `seed_demo`
-14. **Sprint 10 — Demo produkcyjne** — VPS, HTTPS, smoke testy, runbook (taski 10.1–10.18)
-15. **Sprint 11 — Utrzymanie demo** — health, logging, Celery Beat (opcjonalnie po 10)
+14. ~~**Sprint 10 — Demo produkcyjne**~~ ✅ — VPS, HTTPS, smoke 10.8–10.10, runbook
+15. ~~**Sprint 11 — Utrzymanie demo**~~ ✅
+16. ~~**Sprint 12 — Demo polish / UX v2**~~ ✅
+17. **Backlog (opcjonalnie)** — dynamic pricing, i18n, HTMX dashboard, chat eskalacja, Sentry
 
 ---
 
@@ -71,16 +73,14 @@
 
 <!-- Bieżące zadania — szczegóły w sekcjach sprintów poniżej -->
 
-**Sprint 12:** **12.1–12.11** ✅.
+**Sprint 10–12:** ✅ domknięte.
 
-**Sprint 11:** **11.1–11.7** ✅.
+**Demo live:** https://car-rental.filipf.online — smoke 10.8–10.10 OK (2026-07-18).
 
-**Sprint 10 — domknięcie:** 10.9 ✅ na domenie; 10.8 czeka na deploy fixa webhook secret; potem 10.10 portal.
+**VPS:** env ✅, cron backup ✅, `smoke-health` ✅, backup ✅.
+**Smoke:** publiczny #20 ✅ · panel #9 ✅ · portal `klient` (#6) ✅.
 
-**VPS (zrobione 2026-07-18):** env check ✅, cron backup ✅, `smoke-health` ✅, ręczny `backup.sh` ✅.
-**Smoke panel (2026-07-18):** wynajem #9 — wydanie → zwrot z dopłatami → płatność → `closed` + PDF ✅.
-
-**Gałęzie:** `feat/*` → PR do `dev` → PR `dev` → `main` (deploy).
+**Gałęzie:** drobne docs → commit na `dev`; kod → `feat/*` → PR → `dev`; release → PR `dev` → `main`.
 
 **Poza zakresem wersji demo:** prawdziwa bramka płatności, regulamin/RODO od prawnika, Twilio SMS prod.
 
@@ -108,6 +108,7 @@
 - [x] Gałąź `dev` jako integracja sprintów (CI na PR → `dev`)
 - [x] `seed_demo` na produkcji (Sprint 10.7)
 - [x] Sprint 12.1–12.11 — demo polish / UX v2 (asystent, portal OTP, emaile, ops panel)
+- [x] Sprint 10.8–10.10 — smoke na domenie (publiczny / panel / portal)
 - [x] Sprint 10.14 — `install-backup-cron.sh` + hook w `deploy.sh`
 
 ---
@@ -769,7 +770,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 ---
 
-# Sprint 10 — Demo produkcyjne (VPS pokazowy) 🟡
+# Sprint 10 — Demo produkcyjne (VPS pokazowy) ✅
 
 **Cel:** system działa na publicznym VPS jak produkcja (HTTPS, Docker, backup, pełny flow operacyjny), ale **bez prawdziwych płatności i bez dokumentów prawnych**. Mock bramki (`PAYMENT_GATEWAY_PROVIDER=mock`) i placeholder regulaminu są **zamierzone**.
 
@@ -788,9 +789,9 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 | **10.5** | Pierwszy deploy VPS | `./scripts/deploy.sh`, `ENABLE_DEPLOY=true`, secrets SSH | `scripts/deploy.sh`, `docs/CICD.md` | ✅ |
 | **10.6** | HTTPS + domena | Caddy + Let's Encrypt; `DOMAIN`, `ACME_EMAIL` | `docker-compose.prod.yml`, `deploy/Caddyfile` | ✅ |
 | **10.7** | Seed na prod | `seed_demo` po deploy; konta `admin`/`manager`/`klient` | `bookings/management/commands/seed_demo.py` | ✅ |
-| **10.8** | Smoke: flow publiczny | Wyszukiwarka → rezerwacja → mock payment → `confirmed` → email w logach | CI+fix ✅ (PR #86); domena ⬜ do deploy | 🟡 |
+| **10.8** | Smoke: flow publiczny | Wyszukiwarka → rezerwacja → mock payment → `confirmed` → email w logach | domena ✅ rezerwacja #20 (2026-07-18, po #88) | ✅ |
 | **10.9** | Smoke: flow panelu | Wydanie → aktywny → zwrot z dopłatami → płatność → zamknięcie | domena ✅ wynajem #9 (2026-07-18) | ✅ |
-| **10.10** | Smoke: portal klienta | Login `klient` / `demo1234` → lista rezerwacji → szczegóły | ręcznie na domenie / `website/tests/test_portal_views.py` | 🟡 |
+| **10.10** | Smoke: portal klienta | Login `klient` / `demo1234` → lista rezerwacji → szczegóły | domena ✅ rezerwacja #6 + OTP page (2026-07-18) | ✅ |
 | **10.11** | Runbook demo | Ścieżki testowe, konta, znane ograniczenia mock | `docs/DEMO_RUNBOOK.md` | ✅ |
 | **10.12** | Baner „wersja demo” | `DEMO_SITE=True` + baner na `base_public.html` | `settings.py`, `demo_banner.html` | ✅ |
 | **10.13** | Etykieta mock checkout | Tekst „wersja demonstracyjna” na `/platnosc/mock/` | `mock_payment_checkout.html` | ✅ |
@@ -809,13 +810,14 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 - [x] Aplikacja dostępna pod publiczną domeną HTTPS
 - [x] `seed_demo` załadowany — 18 scenariuszy do prezentacji
-- [ ] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end *(CI+fix z sekretem ✅ PR #86; smoke na domenie po deploy)*
+- [x] Pełny flow publiczny (rezerwacja + mock płatność) działa end-to-end *(domena ✅ rezerwacja #20)*
 - [x] Pełny flow panelu (wydanie → zwrot → rozliczenie) działa na danych seed *(domena ✅ wynajem #9)*
 - [x] Backup DB skonfigurowany (cron) — zweryfikowane na VPS 2026-07-18
 - [x] Runbook demo dla prezentacji (`docs/DEMO_RUNBOOK.md`)
 - [x] Health smoke (`/health/` + `/`) na https://car-rental.filipf.online
+- [x] Portal klienta: login `klient` → lista/szczegóły rezerwacji *(domena ✅ #6)*
 
-**Szacunek:** domknięcie operacyjne na VPS (10.14 + smoke ręczny 10.8–10.10).
+**Szacunek:** ukończony 2026-07-18.
 
 ---
 
@@ -940,11 +942,13 @@ Sprint 9 (płatności online + Celery + deploy)
     ↓
 Sprint 9+ (raporty, SMS, seed rozbudowany) ✅
     ↓
-Sprint 10 (demo produkcyjne — VPS pokazowy) 🟡 (smoke/backup odłożone)
+Sprint 10 (demo produkcyjne — VPS pokazowy) ✅
     ↓
-Sprint 11 (utrzymanie demo — opcjonalnie)
+Sprint 11 (utrzymanie demo) ✅
     ↓
-Sprint 12 (demo polish / UX v2)  ← DONE (12.1–12.11)
+Sprint 12 (demo polish / UX v2) ✅
+    ↓
+Backlog opcjonalny (dynamic pricing, i18n, …)
 ```
 
 **Nie przeskakiwać:** operations i PDF przed fleet + bookings + snapshotami cen.

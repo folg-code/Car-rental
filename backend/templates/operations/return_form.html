@@ -1,5 +1,5 @@
 {% extends "base_internal.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}Protokół zwrotu{% endblock %}
 {% block page_heading %}Protokół zwrotu{% endblock %}
@@ -118,16 +118,18 @@
     <div id="damage-diagram" class="relative bg-white rounded-xl border border-gray-200 touch-none select-none overflow-hidden">
       {% include "operations/_damage_diagram_image.html" %}
       {% for marker in return_protocol.damage_markers.all %}
+        {% if marker.resolution != "mistaken" %}
       <span class="absolute z-10 w-7 h-7 -ml-3.5 -mt-3.5 rounded-full {% if marker.is_new %}bg-red-500{% else %}bg-amber-500{% endif %} text-white text-xs font-bold flex items-center justify-center"
-            style="left:{{ marker.pos_x }}%; top:{{ marker.pos_y }}%">{{ marker.damage_type }}</span>
+            {% include "operations/_damage_marker_style.html" %}>{{ marker.damage_type }}</span>
+        {% endif %}
       {% endfor %}
     </div>
     <div id="damage-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end justify-center p-4">
       <form method="post" enctype="multipart/form-data" class="bg-white rounded-xl p-4 w-full max-w-md space-y-3">
         {% csrf_token %}
         <input type="hidden" name="action" value="add_damage">
-        <input type="hidden" name="pos_x" id="dmg-pos-x">
-        <input type="hidden" name="pos_y" id="dmg-pos-y">
+        <input type="hidden" name="pos_x" id="dmg-pos-x" value="50">
+        <input type="hidden" name="pos_y" id="dmg-pos-y" value="50">
         <h3 class="font-medium">Nowe uszkodzenie</h3>
         <select name="damage_type" class="w-full border rounded-lg px-3 py-2">
           {% for code, label in damage_types %}<option value="{{ code }}">{{ code }} — {{ label }}</option>{% endfor %}
@@ -142,23 +144,7 @@
     </div>
     <form method="post">{% csrf_token %}<input type="hidden" name="action" value="next_damages"><button class="w-full bg-black text-white py-3 rounded-lg">Dalej</button></form>
   </div>
-  <script>
-  (function(){
-    const diagram = document.getElementById('damage-diagram');
-    const modal = document.getElementById('damage-modal');
-    let timer = null;
-    function openAt(clientX, clientY) {
-      const rect = diagram.getBoundingClientRect();
-      document.getElementById('dmg-pos-x').value = (((clientX - rect.left) / rect.width) * 100).toFixed(2);
-      document.getElementById('dmg-pos-y').value = (((clientY - rect.top) / rect.height) * 100).toFixed(2);
-      modal.classList.remove('hidden');
-    }
-    diagram.addEventListener('touchstart', function(e){ const t=e.touches[0]; timer=setTimeout(function(){openAt(t.clientX,t.clientY);},500); }, {passive:true});
-    diagram.addEventListener('touchend', function(){ clearTimeout(timer); });
-    diagram.addEventListener('contextmenu', function(e){ e.preventDefault(); openAt(e.clientX,e.clientY); });
-    document.getElementById('dmg-cancel').addEventListener('click', function(){ modal.classList.add('hidden'); });
-  })();
-  </script>
+  {% include "operations/_damage_diagram_script.html" %}
 
   {% elif step == "photos" %}
   <div class="bg-white rounded-xl border p-4 space-y-3">

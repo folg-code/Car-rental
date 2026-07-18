@@ -38,20 +38,53 @@ Hasła demo są **zamierzone** na wersji pokazowej.
 
 ---
 
-## Ścieżka prezentacji A — klient publiczny (15 min)
+## Ścieżka prezentacji (główna, ~25 min)
+
+Jedna ścieżka end-to-end. Wymaga `seed_demo` (potwierdź: `python backend/manage.py seed_demo --check-only`).
+
+| # | Krok | URL / seed | Co zobaczysz |
+|---|------|------------|--------------|
+| 1 | Przewodnik | `/` → baner **Przewodnik demo** | Konta + ta sama kolejność kroków |
+| 2 | Wydanie dziś | `admin` → `/panel/operacje/wydania/` → **ops-handover-today** | Protokół: paliwo %, diagram ze schematem, podpis |
+| 3 | Zwrot z dopłatami | `/panel/operacje/zwroty/` → **ops-return-surcharges** | Dopłaty km/paliwo, rozliczenie |
+| 4 | Portal klienta | `klient` / `demo1234` → `/konto/` | Wynajem **ops-active**, dokumenty |
+| 5 | Funnel publiczny | `/flota/dostepnosc/` → rezerwacja → `/platnosc/mock/` | Opłacenie bez prawdziwej karty |
+| 6 | Asystent | `/asystent/` | Przyciski przykładowych pytań (mock) |
+
+**Weryfikacja danych:**
+
+```bash
+docker compose -f docker-compose.prod.yml exec web \
+  python backend/manage.py seed_demo --check-only
+```
+
+**Smoke HTTP (publiczne URL):**
+
+```bash
+SMOKE_BASE_URL=https://car-rental.filipf.online ./scripts/smoke-presentation.sh
+# z checkiem seeda w kontenerze:
+COMPOSE_FILE=docker-compose.prod.yml SMOKE_BASE_URL=https://… ./scripts/smoke-presentation.sh
+```
+
+Poniżej: rozszerzone warianty A/B/C (opcjonalne).
+
+---
+
+## Ścieżka A — tylko klient publiczny (15 min)
 
 1. **Strona główna** — `/`
 2. **Wyszukiwarka dostępności** — `/flota/dostepnosc/` (daty za 30+ dni, auto np. KR1DEMO7)
 3. **Rezerwacja online** — `/rezerwacja/` → status `oczekuje płatności`
 4. **Mock płatności** — przekierowanie na `/platnosc/mock/` → „Opłać” → rezerwacja `confirmed`
 5. **Potwierdzenie** — `/rezerwacja/potwierdzenie/<id>/`
-6. *(Opcjonalnie)* **Asystent AI** — `/asystent/` (mock LLM, FAQ + wycena orientacyjna)
+6. *(Opcjonalnie)* **Asystent AI** — `/asystent/` (mock): przyciski przykładowych pytań, dostępność „na jutro”, kaucja, FAQ
+7. **Przewodnik demo** — żółty baner → „Przewodnik demo” (panel z prawej: konta + co sprawdzić)
 
 **Co pokazać:** pełny funnel bez panelu — od wyszukiwania do opłaconej rezerwacji.
 
 ---
 
-## Ścieżka prezentacji B — panel operacyjny (20 min)
+## Ścieżka B — panel operacyjny (szczegóły)
 
 Zaloguj się jako **`admin`** / `demo1234`.
 
@@ -65,15 +98,16 @@ Po logowaniu wybierz tryb:
 | 1 | **Start** `/panel/` | Kafelki: admin vs teren |
 | 2 | **Operacje** `/panel/operacje/` | Kafelki Wydaj / Zwróć |
 | 3 | **Kolejka wydań** `/panel/operacje/wydania/` | Wynajem **ops-handover-today** — wydanie dziś |
-| 4 | **Wydanie** | Protokół wydania (zdjęcia, podpis) → wynajem `active` |
+| 4 | **Wydanie** | Protokół wielokrokowy: paliwo %, **diagram ze schematem auta**, zdjęcia, podpis → wynajem `active` |
 | 5 | **Kolejka zwrotów** `/panel/operacje/zwroty/` | **ops-return-surcharges** — dopłaty km/paliwo |
 | 6 | **Admin** `/panel/admin/` | KPI, nieopłacone, alerty floty (bez kolejek wydania/zwrotu) |
 | 7 | **Płatności** `/panel/platnosci/` | Rozliczenie, raporty |
 | 8 | **Flota** `/panel/flota/` | Dokumenty wygasające, uszkodzenia, blokada serwisowa KR1DEMO5 |
+| 9 | *(Opc.)* **Asystent** `/asystent/` | Quick prompts + dostępność / kaucja (mock) |
 
 ---
 
-## Ścieżka prezentacji C — portal klienta (5 min)
+## Ścieżka C — portal klienta (OTP / szczegóły)
 
 1. Wyloguj z panelu.
 2. Wejdź na `/konto/logowanie-kodem/` — podaj email klienta ze seeda albo numer rezerwacji.
@@ -131,6 +165,8 @@ Repo Variables (GitHub): opcjonalnie `SMOKE_BASE_URL=https://<domena>`.
 ### Smoke funkcjonalny
 
 - [x] `SMOKE_BASE_URL=https://<domena> ./scripts/smoke-health.sh` *(OK 2026-07-18 na car-rental.filipf.online)*
+- [ ] `SMOKE_BASE_URL=https://<domena> ./scripts/smoke-presentation.sh` — publiczne URL ścieżki prezentacji
+- [ ] `… exec web python backend/manage.py seed_demo --check-only` — scenariusze prezentacji
 - [x] `curl -I https://<domena>/` → 200
 - [x] Logowanie panelu `admin` / `demo1234` *(via `/konto/logowanie/`)*
 - [x] Pulpit ładuje KPI bez błędu 500
@@ -154,7 +190,9 @@ Repo Variables (GitHub): opcjonalnie `SMOKE_BASE_URL=https://<domena>`.
 | Płatności | Mock — `/platnosc/mock/`, brak prawdziwej karty/BLIK |
 | Regulamin | Placeholder — nie jest dokumentem prawnym |
 | SMS | Wyłączone lub mock — logi w bazie, bez wysyłki |
-| Chat AI | Domyślnie mock; opcjonalnie `LLM_PROVIDER=openai` + `LLM_API_KEY` |
+| Chat AI | Domyślnie **mock** (bez kosztów API); quick prompts na `/asystent/`. Opcjonalnie `LLM_PROVIDER=openai` + klucz |
+| Przewodnik demo | Widoczny przy `DEMO_SITE=True` — panel z prawej z kontami i listą funkcji |
+| Diagram uszkodzeń | Schemat PNG (góra + boki); long-press / PPM dodaje marker |
 | Hasła | Stałe demo (`demo1234`) — nie używać na prawdziwej prod |
 | Email | Domyślnie console — maile w `docker compose logs web celery` |
 

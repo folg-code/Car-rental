@@ -1,6 +1,17 @@
 # Car Rental Operations Platform
 
-Platforma operacyjna do zarządzania wypożyczalnią samochodów — od rezerwacji, przez wydanie i zwrot pojazdu, po dokumentację PDF i rozliczenia. Zoptymalizowana pod małe i średnie firmy (~15 pojazdów, 1–5 pracowników), z naciskiem na mobilne workflow terenowe.
+Mała/średnia wypożyczalnia (~15 aut) potrzebuje jednego systemu od rezerwacji online,
+przez wydanie i zwrot pojazdu w terenie, po PDF i rozliczenia — bez papierowych protokołów
+i bez rozjeżdżających się arkuszy.
+
+Ta platforma łączy kanał publiczny (dostępność, rezerwacja, mock płatności), panel
+pracownika (flota, KPI, raporty) oraz mobilne operacje (protokół wydania/zwrotu ze
+schematem uszkodzeń). Dane historyczne są chronione snapshotami cen i szkód.
+
+**Demo live:** https://car-rental.filipf.online  
+**Konta po `seed_demo`:** `admin` / `manager` / `klient` — hasło `demo1234`  
+**Uruchomienie lokalne:** Docker Compose → `migrate` → `seed_demo` (sekcja poniżej).  
+**Ścieżka prezentacji:** [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md) (jedna ścieżka end-to-end + seed check).
 
 ---
 
@@ -587,12 +598,15 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 8b | AI Chatbot — konsultant klienta | ✅ |
 | 9 | Produkcja i płatności online (mock) | ✅ |
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ |
-| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** |
+| **10** | **Demo produkcyjne (VPS pokazowy)** | ✅ |
 | 11 | Utrzymanie demo (health, Beat, Redis, smoke) | ✅ |
 | 12 | Demo polish / UX v2 | ✅ |
-| 12+ | Backlog (RBAC granular, i18n, pełna prod) | Backlog |
+| 13 | Zaawansowane protokoły wydania/zwrotu | ✅ |
+| 14 | Demo UX (przewodnik, diagram, asystent) | ✅ |
+| **15** | **Ścieżka prezentacji i niezawodność demo** | ✅ |
+| 12+ | Backlog (eskalacja chatu, HTMX, Sentry, i18n, pełna prod) | Backlog |
 
-Szczegóły tasków Sprint 10–12: [`PROJECT_PLAN.md`](PROJECT_PLAN.md#sprint-10--demo-produkcyjne-vps-pokazowy-).
+Szczegóły tasków Sprint 10–15: [`PROJECT_PLAN.md`](PROJECT_PLAN.md).
 
 ### Sprint 8 — taski (szczegóły w [`PROJECT_PLAN.md`](PROJECT_PLAN.md))
 

@@ -17,6 +17,8 @@ from pathlib import Path
 import environ
 from celery.schedules import crontab
 
+from config.sentry import init_sentry
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BASE_DIR.parent
 
@@ -357,3 +359,21 @@ LOGGING = {
         },
     },
 }
+
+# --- Sentry (opcjonalnie — puste SENTRY_DSN = wyłączone) ---
+SENTRY_DSN = env("SENTRY_DSN", default="")
+SENTRY_ENVIRONMENT = env(
+    "SENTRY_ENVIRONMENT",
+    default="development" if DEBUG else "production",
+)
+SENTRY_RELEASE = env("SENTRY_RELEASE", default="")
+SENTRY_TRACES_SAMPLE_RATE = env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0)
+SENTRY_SEND_DEFAULT_PII = env.bool("SENTRY_SEND_DEFAULT_PII", default=False)
+
+init_sentry(
+    dsn=SENTRY_DSN,
+    environment=SENTRY_ENVIRONMENT,
+    release=SENTRY_RELEASE,
+    traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+    send_default_pii=SENTRY_SEND_DEFAULT_PII,
+)

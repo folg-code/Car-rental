@@ -604,7 +604,7 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 13 | Zaawansowane protokoły wydania/zwrotu | ✅ |
 | 14 | Demo UX (przewodnik, diagram, asystent) | ✅ |
 | **15** | **Ścieżka prezentacji i niezawodność demo** | ✅ |
-| 12+ | Backlog (eskalacja chatu, HTMX, Sentry, i18n, pełna prod) | Backlog |
+| 12+ | Backlog (eskalacja chatu, HTMX, i18n, pełna prod) | Backlog |
 
 Szczegóły tasków Sprint 10–15: [`PROJECT_PLAN.md`](PROJECT_PLAN.md).
 

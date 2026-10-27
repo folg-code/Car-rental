@@ -296,6 +296,42 @@ Logi aplikacji (Gunicorn / Celery) idą na stdout kontenerów — `docker compos
 
 ---
 
+## Sentry — błędy aplikacji z alertem
+
+Uptime (`/health/`) łapie downtime; **Sentry** łapie wyjątki 500 i błędy Celery, gdy serwis działa.
+
+### Włączenie
+
+1. Załóż projekt [Sentry](https://sentry.io) (platforma **Django**).
+2. Skopiuj **DSN** → w `.env.production` na VPS:
+
+```env
+SENTRY_DSN=https://…@….ingest.sentry.io/…
+SENTRY_ENVIRONMENT=production
+SENTRY_TRACES_SAMPLE_RATE=0.0
+SENTRY_SEND_DEFAULT_PII=False
+```
+
+3. W Sentry: **Alerts → Create Alert** (np. „When an event is seen” → email).
+4. Redeploy / restart `web` i `celery` (SDK ładuje się przy starcie Django).
+
+Bez `SENTRY_DSN` (lub puste) integracja jest wyłączona — lokalnie i na demo bez konta nic nie wysyła.
+
+`SENTRY_SEND_DEFAULT_PII=False` (domyślnie) — bez automatycznego wysyłania danych użytkownika (RODO). Opcjonalnie `SENTRY_RELEASE` (np. tag obrazu GHCR) ułatwia grupowanie po deployu.
+
+### Weryfikacja
+
+W shellu kontenera `web` (tylko na chwilę, potem usuń):
+
+```python
+import sentry_sdk
+sentry_sdk.capture_message("sentry-smoke-test")
+```
+
+W Issues w Sentry powinien pojawić się event.
+
+---
+
 ## Rozwiązywanie problemów
 
 **502 / brak HTTPS** — sprawdź `/opt/edge` (`docker compose ps`, logi Caddy). Aplikacja ma działać na `127.0.0.1:8000` / `web:8000`; edge musi być w sieci `car-rental_default`.

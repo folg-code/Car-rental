@@ -15,6 +15,7 @@ dependencies = [
     "Pillow>=10.0",
     "weasyprint>=63.0",
     "celery[redis]>=5.4",
+    "sentry-sdk[django,celery]>=2.0",
 ]
 
 [project.optional-dependencies]

@@ -13,9 +13,9 @@
 
 | Pole | Wartość |
 |------|---------|
-| **Aktualny etap** | Demo live — Sprint 0–15 ✅ |
-| **Następny krok** | Backlog opcjonalny albo polish UX wg feedbacku |
-| **Postęp ogólny** | Sprint 0–15 ✅; release #104 na `main` |
+| **Aktualny etap** | Demo live — Sprint 0–15 ✅; Sentry ✅ (opcjonalny DSN) |
+| **Następny krok** | Backlog: eskalacja chatu, HTMX dashboard, albo polish UX |
+| **Postęp ogólny** | Sprint 0–15 ✅; Sentry w kodzie — włącz DSN na VPS gdy potrzeba |
 | **Ostatnia aktualizacja** | 2026-07-18 |
 | **Branch** | `feat/*` → `dev` → `main` (deploy) |
 | **Repozytorium** | Live VPS; integracja na `dev` |
@@ -71,7 +71,8 @@
 17. ~~**Sprint 13 — Zaawansowane protokoły**~~ ✅ — drafty, bak %, wyposażenie, diagram, PDF
 18. ~~**Sprint 14 — Demo UX polish**~~ ✅ — przewodnik demo, grafika diagramu, mock asystent
 19. ~~**Sprint 15 — Ścieżka prezentacji i niezawodność demo**~~ ✅
-20. **Backlog (później)** — eskalacja chatu, HTMX dashboard, Sentry, dynamic pricing, i18n
+20. **Backlog (później)** — eskalacja chatu, HTMX dashboard, dynamic pricing, i18n
+21. ~~**Sentry**~~ ✅ — opcjonalny DSN, Django + Celery (`config/sentry.py`)
 
 ---
 
@@ -92,7 +93,7 @@
 
 1. Chat eskalacja / analityka konwersji czatu → rezerwacja
 2. HTMX — partial refresh widgetów pulpitu
-3. Sentry (lub podobne) — błędy prod z alertem
+3. ~~Sentry (lub podobne) — błędy prod z alertem~~ ✅ — włącz DSN w `.env.production` (patrz `docs/DEPLOY.md`)
 4. Dynamic pricing / i18n — przy rozwoju produktu komercyjnego
 5. Prawdziwa bramka / RODO prawnik / Twilio — poza zakresem demo
 
@@ -102,7 +103,7 @@
 
 <!-- Przenoś tu ukończone TODO z sekcji powyżej -->
 
-- [x] Powiadomienia SMS — adapter mock/Twilio, Celery, SmsLog (Sprint 9+)
+- [x] Sentry SDK (opcjonalny `SENTRY_DSN`) — Django + Celery + Redis, docs w `DEPLOY.md`
 
 - [x] Upload zdjec/dokumentow w panelu floty (PR #52)
 - [x] Operations paperless — doplaty po zwrocie, wizard zwrotu, porownanie szkod (PR #51–#53)
@@ -915,7 +916,7 @@ Klient po rezerwacji online może opłacić ją (mock lub prawdziwa bramka w dev
 
 **Szacunek:** 1–2 dni robocze.
 
-**Poza Sprint 15:** HTMX dashboard, Sentry, eskalacja chatu, dynamic pricing, i18n, prawdziwa bramka.
+**Poza Sprint 15:** HTMX dashboard, eskalacja chatu, dynamic pricing, i18n, prawdziwa bramka.
 
 ---
 
@@ -967,7 +968,7 @@ Te zadania są priorytetowe, jeśli demo ma wyglądać jak spójny produkt dla k
 
 ### Infrastruktura
 
-- [ ] Monitoring / alerty zaawansowane (Sentry, Prometheus) — częściowo Sprint 11
+- [x] Monitoring / alerty — Sentry (opcjonalny DSN) + UptimeRobot health (Sprint 11)
 
 ### Rozszerzenia biznesowe
 
@@ -1023,7 +1024,7 @@ Sprint 14 (demo UX: przewodnik, diagram, asystent) ✅
     ↓
 Sprint 15 (ścieżka prezentacji + niezawodność seed / README) ✅
     ↓
-Backlog opcjonalny (eskalacja chatu, HTMX dashboard, Sentry, dynamic pricing, i18n, …)
+Backlog opcjonalny (eskalacja chatu, HTMX dashboard, dynamic pricing, i18n, …)
 ```
 
 **Nie przeskakiwać:** operations i PDF przed fleet + bookings + snapshotami cen.

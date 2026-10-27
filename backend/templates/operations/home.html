@@ -1,63 +1,40 @@
 {% extends "base_internal.html" %}
 
 {% block title %}Operacje{% endblock %}
-{% block page_heading %}Operacje w terenie{% endblock %}
+{% block page_heading %}Wydaj / zwróć pojazd{% endblock %}
 {% block page_subheading %}
-<p class="text-sm text-gray-500 mt-1">Wydanie i zwrot pojazdu</p>
+<p class="text-sm text-gray-500 mt-1">Praca terenowa przy pojeździe</p>
 {% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-medium mb-4">Do wydania</h2>
-        <ul class="space-y-3">
-            {% for rental in pending_handover %}
-            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
-                <div>
-                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
-                    <p class="text-sm text-gray-500">
-                        {{ rental.reservation.customer.full_name }} ·
-                        {{ rental.reservation.car.registration_number }}
-                    </p>
-                    <p class="text-xs text-gray-400">{{ rental.scheduled_start_at|date:"Y-m-d H:i" }}</p>
-                </div>
-                <a
-                    href="{% url 'operations:handover_create' rental.pk %}"
-                    class="bg-black text-white px-4 py-3 rounded-lg text-sm font-medium shrink-0"
-                >
-                    Wydaj
-                </a>
-            </li>
-            {% empty %}
-            <li class="text-gray-500 text-sm">Brak wynajmów do wydania.</li>
-            {% endfor %}
-        </ul>
-    </div>
+<div class="max-w-lg mx-auto grid grid-cols-1 gap-4">
+    <a
+        href="{% url 'operations:handover_queue' %}"
+        class="block rounded-xl bg-gray-900 text-white p-6 sm:p-8 hover:bg-black transition min-h-[8rem]"
+    >
+        <p class="text-xl font-semibold">Wydaj pojazd</p>
+        <p class="mt-2 text-sm text-gray-300">
+            Kolejka wynajmów gotowych do wydania
+            {% if handover_count %}· {{ handover_count }}{% endif %}
+        </p>
+    </a>
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-medium mb-4">Do zwrotu</h2>
-        <ul class="space-y-3">
-            {% for rental in pending_return %}
-            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
-                <div>
-                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
-                    <p class="text-sm text-gray-500">
-                        {{ rental.reservation.customer.full_name }} ·
-                        {{ rental.reservation.car.registration_number }}
-                    </p>
-                    <p class="text-xs text-gray-400">Plan zwrotu: {{ rental.scheduled_end_at|date:"Y-m-d H:i" }}</p>
-                </div>
-                <a
-                    href="{% url 'operations:return_create' rental.pk %}"
-                    class="bg-black text-white px-4 py-3 rounded-lg text-sm font-medium shrink-0"
-                >
-                    Zwrot
-                </a>
-            </li>
-            {% empty %}
-            <li class="text-gray-500 text-sm">Brak aktywnych wynajmów do zwrotu.</li>
-            {% endfor %}
-        </ul>
-    </div>
+    <a
+        href="{% url 'operations:return_queue' %}"
+        class="block rounded-xl border-2 border-gray-900 bg-white p-6 sm:p-8 hover:bg-gray-50 transition min-h-[8rem]"
+    >
+        <p class="text-xl font-semibold text-gray-900">Zwróć pojazd</p>
+        <p class="mt-2 text-sm text-gray-500">
+            Aktywne wynajmy do protokołu zwrotu
+            {% if return_count %}· {{ return_count }}{% endif %}
+        </p>
+    </a>
+
+    <a
+        href="{% url 'dashboard:entry' %}"
+        class="block text-center text-sm text-gray-500 hover:text-gray-800 py-2"
+    >
+        ← Wróć do wyboru trybu
+    </a>
 </div>
 {% endblock %}

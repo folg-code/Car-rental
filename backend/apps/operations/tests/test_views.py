@@ -26,19 +26,83 @@ class TestOperationsViews:
     def test_home_for_staff(self, staff_client, scheduled_rental) -> None:
         response = staff_client.get(reverse("operations:home"))
         assert response.status_code == 200
-        assert b"Operacje w terenie" in response.content
+        assert "Wydaj / zwróć pojazd".encode() in response.content
+        assert b"Wydaj pojazd" in response.content
+        assert "Zwróć pojazd".encode() in response.content
+        assert reverse("operations:handover_queue").encode() in response.content
+        assert reverse("operations:return_queue").encode() in response.content
+
+    def test_handover_queue_lists_scheduled_rental(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        response = staff_client.get(reverse("operations:handover_queue"))
+        assert response.status_code == 200
+        assert "Kolejka wydań".encode() in response.content
+        assert f"Wynajem #{scheduled_rental.pk}".encode() in response.content
+        assert b"Wydaj" in response.content
+
+    def test_return_queue_lists_active_rental(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        HandoverService.complete_handover(
+            scheduled_rental.pk,
+            mileage=10_000,
+            fuel_level_percent=100,
+            signer_name="Jan",
+            signature_image=_tiny_image(),
+        )
+        response = staff_client.get(reverse("operations:return_queue"))
+        assert response.status_code == 200
+        assert "Kolejka zwrotów".encode() in response.content
+        assert f"Wynajem #{scheduled_rental.pk}".encode() in response.content
+
+    def test_ops_pages_hide_sidebar_on_mobile_flag(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        response = staff_client.get(reverse("operations:home"))
+        assert response.context["ops_mobile_layout"] is True
+        assert b"lg:hidden" in response.content
+        assert b'id="panel-sidebar"' in response.content
+        assert b"hidden lg:flex" in response.content
+
+    def test_handover_queue_shows_mobile_optimized_tip(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        response = staff_client.get(reverse("operations:handover_queue"))
+        assert response.status_code == 200
+        assert b"ops-mobile-tip" in response.content
+        assert b"zoptymalizowany pod telefon" in response.content
+
+    def test_return_queue_shows_mobile_optimized_tip(
+        self, staff_client, scheduled_rental
+    ) -> None:
+        HandoverService.complete_handover(
+            scheduled_rental.pk,
+            mileage=10_000,
+            fuel_level_percent=100,
+            signer_name="Jan",
+            signature_image=_tiny_image(),
+        )
+        response = staff_client.get(reverse("operations:return_queue"))
+        assert response.status_code == 200
+        assert b"ops-mobile-tip" in response.content
+        assert b"zoptymalizowany pod telefon" in response.content
 
     def test_handover_form_has_wizard(self, staff_client, scheduled_rental) -> None:
-        response = staff_client.get(
-            reverse(
-                "operations:handover_create",
-                kwargs={"rental_id": scheduled_rental.pk},
-            )
+        url = reverse(
+            "operations:handover_create",
+            kwargs={"rental_id": scheduled_rental.pk},
         )
+        response = staff_client.get(url)
         assert response.status_code == 200
         assert "Protokół wydania".encode() in response.content
         assert b"op-wizard-nav" in response.content
         assert b"Krok 1: Dane pojazdu" in response.content
+
+        sig = staff_client.get(f"{url}?step=signature")
+        assert sig.status_code == 200
+        assert b"op-signature-canvas" in sig.content
+        assert b"data-signature-pad" in sig.content
 
     def test_return_form_has_wizard_and_htmx_preview(
         self, staff_client, scheduled_rental
@@ -50,19 +114,22 @@ class TestOperationsViews:
             signer_name="Jan",
             signature_image=_tiny_image(),
         )
-        response = staff_client.get(
-            reverse(
-                "operations:return_create",
-                kwargs={"rental_id": scheduled_rental.pk},
-            )
+        url = reverse(
+            "operations:return_create",
+            kwargs={"rental_id": scheduled_rental.pk},
         )
+        response = staff_client.get(url)
         assert response.status_code == 200
         assert "Protokół zwrotu".encode() in response.content
         assert b"op-wizard-nav" in response.content
         assert b"Krok 1: Stan przy zwrocie" in response.content
         assert "Podgląd dopłat".encode() in response.content
         assert b"hx-get" in response.content
-        assert "Porównanie szkód".encode() in response.content
+
+        damages = staff_client.get(f"{url}?step=damages")
+        assert damages.status_code == 200
+        assert "Porównanie szkód".encode() in damages.content
+        assert b"car_damage_diagram.png" in damages.content
 
     def test_return_surcharge_preview_endpoint(
         self, staff_client, scheduled_rental

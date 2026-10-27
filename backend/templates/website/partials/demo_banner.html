@@ -1,5 +1,161 @@
 {% if demo_site %}
-<div class="bg-amber-500 text-amber-950 text-center text-sm py-2 px-4 font-medium">
-    Wersja demonstracyjna — płatności online są symulowane. System służy do prezentacji możliwości platformy.
+<style>
+  [data-demo-guide-drawer] {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    width: min(24rem, 100vw);
+    height: 100%;
+    background: #fff;
+    color: #111827;
+    border-left: 1px solid #fde68a;
+    box-shadow: -12px 0 40px -12px rgb(15 23 42 / 0.25);
+    transform: translateX(100%);
+    transition: transform 0.28s ease-out;
+    pointer-events: none;
+  }
+  [data-demo-guide-drawer][data-open="true"] {
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  [data-demo-guide-drawer] .demo-guide-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex: 1;
+    padding: 1rem 1.25rem 1.5rem;
+  }
+  [data-demo-guide-drawer] .demo-guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #fef3c7;
+    background: #fffbeb;
+  }
+</style>
+<div class="relative z-40 bg-amber-500 text-amber-950">
+    <div class="site-container flex flex-wrap items-center justify-center gap-x-3 gap-y-1 py-2 px-4 text-sm font-medium">
+        <span class="text-center">
+            Wersja demonstracyjna — płatności online są symulowane. System służy do prezentacji możliwości platformy.
+        </span>
+        <button
+            type="button"
+            class="inline-flex items-center gap-1 rounded-full bg-amber-950/15 hover:bg-amber-950/25 px-3 py-1 text-xs font-semibold tracking-wide uppercase"
+            aria-controls="demo-guide-drawer"
+            aria-expanded="false"
+            data-demo-guide-trigger
+        >
+            Przewodnik demo
+            <span aria-hidden="true">→</span>
+        </button>
+    </div>
 </div>
+<aside
+    id="demo-guide-drawer"
+    data-demo-guide-drawer
+    data-open="false"
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="demo-guide-title"
+    aria-hidden="true"
+>
+    <div class="demo-guide-header">
+        <h2 id="demo-guide-title" class="text-sm font-semibold uppercase tracking-wide text-amber-900">
+            Przewodnik demo
+        </h2>
+        <button
+            type="button"
+            class="rounded-lg px-2 py-1 text-sm font-medium text-amber-950 hover:bg-amber-100"
+            data-demo-guide-close
+            aria-label="Zamknij przewodnik"
+        >
+            Zamknij
+        </button>
+    </div>
+    <div class="demo-guide-body text-left font-normal normal-case tracking-normal">
+        <p class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2">Konta demo</p>
+        <dl class="text-sm space-y-2 text-gray-800 mb-5">
+            <div class="flex flex-col gap-0.5 border-b border-gray-100 pb-2">
+                <dt class="text-gray-500">Panel (właściciel)</dt>
+                <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">admin</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
+            </div>
+            <div class="flex flex-col gap-0.5 border-b border-gray-100 pb-2">
+                <dt class="text-gray-500">Panel (kierownik)</dt>
+                <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">manager</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
+            </div>
+            <div class="flex flex-col gap-0.5">
+                <dt class="text-gray-500">Portal klienta</dt>
+                <dd><code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">klient</code> / <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">demo1234</code></dd>
+            </div>
+        </dl>
+        <p class="mb-4 text-xs text-gray-500">
+            Logowanie:
+            <a href="{% url 'accounts:login' %}" class="underline text-amber-900 hover:text-amber-950">/konto/logowanie/</a>
+        </p>
+
+        <p class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-2">
+            Ścieżka prezentacji
+        </p>
+        <p class="text-xs text-gray-500 mb-2">
+            Kolejność end-to-end (szczegóły: runbook). Od operacji do funnelu publicznego.
+        </p>
+        <ol class="text-sm space-y-2.5 text-gray-700 list-decimal pl-4 mb-4">
+            <li>
+                <span class="font-medium text-gray-900">Wydanie dziś</span>
+                — panel → Operacje → Wydania → seed <code class="font-mono text-xs bg-gray-100 px-1 rounded">ops-handover-today</code>
+                (diagram, paliwo %, podpis).
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Zwrot z dopłatami</span>
+                — Zwroty → seed <code class="font-mono text-xs bg-gray-100 px-1 rounded">ops-return-surcharges</code>.
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Portal klienta</span>
+                — <code class="font-mono text-xs bg-gray-100 px-1 rounded">klient</code> / <code class="font-mono text-xs bg-gray-100 px-1 rounded">demo1234</code>
+                (wynajem <code class="font-mono text-xs bg-gray-100 px-1 rounded">ops-active</code>).
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Rezerwacja + mock płatność</span>
+                — dostępność → rezerwacja → <code class="font-mono text-xs bg-gray-100 px-1 rounded">/platnosc/mock/</code>.
+            </li>
+            <li>
+                <span class="font-medium text-gray-900">Asystent AI</span>
+                — <code class="font-mono text-xs bg-gray-100 px-1 rounded">/asystent/</code> (przyciski przykładowych pytań).
+            </li>
+        </ol>
+        <p class="text-xs text-gray-500">
+            Pełny runbook: dokumentacja w repozytorium (<code class="font-mono">docs/DEMO_RUNBOOK.md</code>).
+        </p>
+    </div>
+</aside>
+<script>
+(function () {
+  var trigger = document.querySelector("[data-demo-guide-trigger]");
+  var drawer = document.querySelector("[data-demo-guide-drawer]");
+  var closeBtn = document.querySelector("[data-demo-guide-close]");
+  if (!trigger || !drawer) return;
+
+  function setOpen(open) {
+    drawer.setAttribute("data-open", open ? "true" : "false");
+    drawer.setAttribute("aria-hidden", open ? "false" : "true");
+    trigger.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  trigger.addEventListener("click", function () {
+    setOpen(drawer.getAttribute("data-open") !== "true");
+  });
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
+      setOpen(false);
+    });
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") setOpen(false);
+  });
+})();
+</script>
 {% endif %}

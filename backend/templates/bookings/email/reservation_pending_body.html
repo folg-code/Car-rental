@@ -7,12 +7,17 @@
     <li><strong>Kategoria:</strong> {{ category_name }}</li>
     <li><strong>Termin:</strong> {{ start_at|date:"d.m.Y H:i" }} — {{ end_at|date:"d.m.Y H:i" }}</li>
     <li><strong>Kwota do zaplaty:</strong> {{ total_amount }} PLN</li>
+    <li><strong>Kaucja:</strong> {{ deposit_amount }} PLN</li>
 </ul>
 <p>
     <a href="{{ payment_url }}">Zaplac online</a>
 </p>
 <p>
     <a href="{{ confirmation_url }}">Szczegoly rezerwacji</a>
+</p>
+<p>
+    Panel klienta (historia rezerwacji i dokumenty):
+    <a href="{{ portal_login_url }}">zaloguj sie do konta</a>
 </p>
 <p>
     W razie pytan odpowiedz na ten email lub skontaktuj sie z wypozyczalnia,

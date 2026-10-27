@@ -52,6 +52,24 @@ services:
       - .:/app
       - venv_cache:/app/.venv
 
+  celery-beat:
+    build: .
+
+    command: >
+      sh -c "uv sync --all-groups &&
+      cd backend && celery -A config beat -l info"
+
+    env_file:
+      - .env.docker
+
+    depends_on:
+      - db
+      - redis
+
+    volumes:
+      - .:/app
+      - venv_cache:/app/.venv
+
   tailwind:
     image: node:20
 

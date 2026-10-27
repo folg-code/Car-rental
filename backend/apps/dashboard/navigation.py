@@ -10,6 +10,7 @@ class PanelNavItem:
     enabled: bool = True
 
 
+# Admin panel only — field ops live under /panel/operacje/ (Sprint 12.7).
 PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
     PanelNavItem(
         label="Pulpit", url_name="dashboard:home", section_key="home", icon="home"
@@ -33,13 +34,6 @@ PANEL_NAVIGATION: tuple[PanelNavItem, ...] = (
         url_name="pricing:price_list_list",
         section_key="pricing",
         icon="tag",
-        enabled=True,
-    ),
-    PanelNavItem(
-        label="Operacje",
-        url_name="operations:home",
-        section_key="operations",
-        icon="clipboard",
         enabled=True,
     ),
     PanelNavItem(

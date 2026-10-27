@@ -11,7 +11,7 @@ class AccountLoginView(LoginView):
     def get_success_url(self) -> str:
         user = self.request.user
         if isinstance(user, User) and user.is_staff_member:
-            return reverse("dashboard:home")
+            return reverse("dashboard:entry")
         if isinstance(user, User) and user.is_customer_account:
             return reverse("customer_portal:home")
         return reverse("website:home")

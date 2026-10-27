@@ -1,0 +1,69 @@
+<script>
+(function () {
+  var diagram = document.getElementById("damage-diagram");
+  var modal = document.getElementById("damage-modal");
+  var cancelBtn = document.getElementById("dmg-cancel");
+  if (!diagram || !modal) return;
+
+  var timer = null;
+  var HOLD_MS = 500;
+
+  function clamp(value) {
+    return Math.max(0, Math.min(100, value));
+  }
+
+  function openAt(clientX, clientY) {
+    var rect = diagram.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    var x = clamp(((clientX - rect.left) / rect.width) * 100);
+    var y = clamp(((clientY - rect.top) / rect.height) * 100);
+    document.getElementById("dmg-pos-x").value = x.toFixed(2);
+    document.getElementById("dmg-pos-y").value = y.toFixed(2);
+    modal.classList.remove("hidden");
+  }
+
+  function clearHold() {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  }
+
+  diagram.addEventListener(
+    "touchstart",
+    function (e) {
+      var t = e.touches[0];
+      clearHold();
+      timer = setTimeout(function () {
+        openAt(t.clientX, t.clientY);
+      }, HOLD_MS);
+    },
+    { passive: true }
+  );
+  diagram.addEventListener("touchend", clearHold);
+  diagram.addEventListener("touchmove", clearHold);
+  diagram.addEventListener("touchcancel", clearHold);
+
+  diagram.addEventListener("mousedown", function (e) {
+    if (e.button !== 0) return;
+    clearHold();
+    timer = setTimeout(function () {
+      openAt(e.clientX, e.clientY);
+    }, HOLD_MS);
+  });
+  diagram.addEventListener("mouseup", clearHold);
+  diagram.addEventListener("mouseleave", clearHold);
+
+  diagram.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+    clearHold();
+    openAt(e.clientX, e.clientY);
+  });
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", function () {
+      modal.classList.add("hidden");
+    });
+  }
+})();
+</script>

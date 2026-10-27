@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import time
 from typing import TYPE_CHECKING
 
@@ -8,7 +9,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
-from apps.website.adapters.llm import LLMClient, get_llm_client
+from apps.website.adapters.llm import LLMClient, LLMClientError, get_llm_client
 from apps.website.faq_content import build_faq_context
 from apps.website.models import ChatMessage, ChatMessageRole, ChatSession
 from apps.website.services.chat_tool_router import ChatToolRouter
@@ -16,6 +17,8 @@ from apps.website.services.chat_tools import format_tool_results
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractBaseUser
+
+logger = logging.getLogger(__name__)
 
 MAX_HISTORY_MESSAGES = 20
 CHAT_SESSION_COOKIE = "chat_session_id"
@@ -128,9 +131,18 @@ class ConsultantChatService:
             reply = format_tool_results(tool_results)
         else:
             llm_messages = ConsultantChatService._build_llm_messages(session)
-            response = client.complete(llm_messages)
+            try:
+                response = client.complete(llm_messages)
+            except LLMClientError:
+                logger.exception("LLM complete failed for chat session")
+                raise ValidationError(
+                    "Asystent jest chwilowo niedostępny. Spróbuj ponownie za chwilę.",
+                ) from None
             reply = response.content.strip()
-
+            if not reply:
+                raise ValidationError(
+                    "Asystent nie zwrócił odpowiedzi. Spróbuj ponownie.",
+                )
         assistant_message = ChatMessage.objects.create(
             session=session,
             role=ChatMessageRole.ASSISTANT,

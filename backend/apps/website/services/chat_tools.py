@@ -10,7 +10,8 @@ from django.urls import reverse
 from apps.bookings.models import Reservation
 from apps.bookings.selectors.customer import get_customer_by_user_id
 from apps.bookings.selectors.reservation import list_reservations
-from apps.fleet.models import Car
+from apps.fleet.models import Car, CarCategory
+from apps.fleet.selectors.car import list_categories
 from apps.website.faq_content import FAQ_ITEMS
 from apps.website.selectors.availability_search import search_available_cars
 from apps.website.selectors.price_quote import get_price_quote
@@ -127,6 +128,39 @@ def execute_get_faq_snippet(*, topic: str = "") -> ChatToolResult:
     )
 
 
+def execute_ask_clarifying_question(*, question: str) -> ChatToolResult:
+    return ChatToolResult(
+        tool_name="ask_clarifying_question",
+        data={"question": question},
+    )
+
+
+def execute_get_deposit_info(*, category_id: int | None = None) -> ChatToolResult:
+    categories = list(list_categories())
+    if category_id is not None:
+        categories = [c for c in categories if c.pk == category_id]
+        if not categories:
+            category = CarCategory.objects.filter(pk=category_id).first()
+            if category is None:
+                return ChatToolResult(
+                    tool_name="get_deposit_info",
+                    data={"error": "Nie znaleziono takiej kategorii."},
+                )
+            categories = [category]
+    rows = [
+        {
+            "id": category.pk,
+            "name": category.name,
+            "deposit": str(category.deposit),
+        }
+        for category in categories
+    ]
+    return ChatToolResult(
+        tool_name="get_deposit_info",
+        data={"categories": rows},
+    )
+
+
 def execute_get_my_reservation_status(
     *,
     user: AbstractBaseUser | None,
@@ -134,13 +168,13 @@ def execute_get_my_reservation_status(
     if user is None or not user.is_authenticated:
         return ChatToolResult(
             tool_name="get_my_reservation_status",
-            data={"error": "Zaloguj sie jako klient, aby sprawdzic status rezerwacji."},
+            data={"error": "Zaloguj się jako klient, aby sprawdzić status rezerwacji."},
         )
     customer = get_customer_by_user_id(user.pk)
     if customer is None:
         return ChatToolResult(
             tool_name="get_my_reservation_status",
-            data={"error": "Brak profilu klienta powiazanego z kontem."},
+            data={"error": "Brak profilu klienta powiązanego z kontem."},
         )
     reservations = list(
         list_reservations(customer_id=customer.pk).order_by("-start_at")[:5],
@@ -178,23 +212,53 @@ def format_tool_results(results: tuple[ChatToolResult, ...]) -> str:
     return "\n\n".join(parts)
 
 
+def _polish_available_cars_phrase(count: int) -> str:
+    if count == 1:
+        return "1 wolne auto"
+    if 12 <= (count % 100) <= 14:
+        return f"{count} wolnych aut"
+    if (count % 10) in (2, 3, 4):
+        return f"{count} wolne auta"
+    return f"{count} wolnych aut"
+
+
+def _format_chat_date(iso_value: str) -> str:
+    """YYYY-MM-DD… → DD.MM.YYYY (opcjonalnie + HH:MM)."""
+    date_part = iso_value[:10]
+    try:
+        year, month, day = date_part.split("-")
+        label = f"{day}.{month}.{year}"
+    except ValueError:
+        return date_part
+    if len(iso_value) >= 16 and iso_value[10] in "T ":
+        time_part = iso_value[11:16]
+        if time_part and time_part != "00:00":
+            return f"{label}, {time_part}"
+    return label
+
+
 def _format_search(data: dict) -> str:
     if data.get("count", 0) == 0:
         return (
-            "Na podane daty nie mam wolnych aut. Sprobuj inny termin "
-            "lub skorzystaj z wyszukiwarki dostepnosci na stronie."
+            "Na podany termin nie mam wolnych aut. Spróbuj inny termin "
+            "albo skorzystaj z wyszukiwarki dostępności na stronie."
         )
+    start_label = _format_chat_date(str(data["start_at"]))
+    end_label = _format_chat_date(str(data["end_at"]))
     lines = [
-        f"Znalazlem {data['count']} wolne auto/auta "
-        f"({data['start_at'][:10]} — {data['end_at'][:10]}):",
+        f"Na termin {start_label} — {end_label} mam "
+        f"{_polish_available_cars_phrase(int(data['count']))}:",
     ]
     for car in data["cars"]:
         lines.append(
-            f"- {car['label']} ({car['category']}), rej. {car['registration_number']}"
+            f"- {car['label']} ({car['category']}) — zarezerwuj: {car['booking_link']}",
         )
-        lines.append(f"  Rezerwacja: {car['booking_link']}")
     if data["count"] > len(data["cars"]):
-        lines.append("… i wiecej — pelna lista na stronie Dostepnosc.")
+        lines.append("… i więcej — pełna lista na stronie oferty.")
+    lines.append(
+        "Rezerwacji i płatności nie finalizuję w czacie — użyj linku albo "
+        "formularza online."
+    )
     return "\n".join(lines)
 
 
@@ -213,8 +277,8 @@ def _format_faq(data: dict) -> str:
     snippets = data.get("snippets") or []
     if not snippets:
         return (
-            "Nie znalazlem pasujacego fragmentu FAQ. "
-            "Zobacz strone FAQ lub zapytaj inaczej."
+            "Nie znalazłem pasującego fragmentu FAQ. "
+            "Zobacz stronę FAQ albo zapytaj inaczej."
         )
     lines = ["Oto odpowiedzi z FAQ:"]
     for item in snippets:
@@ -228,7 +292,7 @@ def _format_reservations(data: dict) -> str:
         return str(data["error"])
     rows = data.get("reservations") or []
     if not rows:
-        return "Nie masz jeszcze rezerwacji powiazanych z tym kontem."
+        return "Nie masz jeszcze rezerwacji powiązanych z tym kontem."
     lines = ["Twoje ostatnie rezerwacje:"]
     for row in rows:
         lines.append(
@@ -238,9 +302,33 @@ def _format_reservations(data: dict) -> str:
     return "\n".join(lines)
 
 
+def _format_clarifying(data: dict) -> str:
+    return str(data.get("question") or "Możesz doprecyzować pytanie?")
+
+
+def _format_deposit(data: dict) -> str:
+    if "error" in data:
+        return str(data["error"])
+    rows = data.get("categories") or []
+    if not rows:
+        return "Nie mam jeszcze danych o kaucjach w cenniku kategorii."
+    if len(rows) == 1:
+        row = rows[0]
+        return (
+            f"Kaucja dla kategorii {row['name']}: {row['deposit']} PLN "
+            "(zwrotna po rozliczeniu wynajmu)."
+        )
+    lines = ["Kaucje wg kategorii:"]
+    for row in rows:
+        lines.append(f"- {row['name']}: {row['deposit']} PLN")
+    return "\n".join(lines)
+
+
 _FORMATTERS = {
     "search_available_cars": _format_search,
     "estimate_price": _format_estimate,
     "get_faq_snippet": _format_faq,
     "get_my_reservation_status": _format_reservations,
+    "ask_clarifying_question": _format_clarifying,
+    "get_deposit_info": _format_deposit,
 }

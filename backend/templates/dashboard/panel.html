@@ -61,12 +61,6 @@
 
 <div class="flex flex-wrap gap-3 mb-8">
     <a
-        href="{% url 'operations:home' %}"
-        class="inline-flex items-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-    >
-        Kolejka operacji
-    </a>
-    <a
         href="{% url 'payments:payment_list' %}"
         class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
     >
@@ -77,6 +71,12 @@
         class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
     >
         Flota
+    </a>
+    <a
+        href="{% url 'dashboard:entry' %}"
+        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
+    >
+        Zmień tryb pracy
     </a>
 </div>
 
@@ -144,70 +144,6 @@
             </li>
             {% empty %}
             <li class="text-gray-500 text-sm">Brak alertów dokumentów.</li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-medium">Do wydania</h2>
-            <a href="{% url 'operations:home' %}" class="text-sm text-blue-600 hover:underline">
-                Operacje
-            </a>
-        </div>
-        <ul class="space-y-3">
-            {% for rental in pending_handover %}
-            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
-                <div>
-                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
-                    <p class="text-sm text-gray-500">
-                        {{ rental.reservation.customer.full_name }} ·
-                        {{ rental.reservation.car.registration_number }}
-                    </p>
-                    <p class="text-xs text-gray-400">{{ rental.scheduled_start_at|date:"Y-m-d H:i" }}</p>
-                </div>
-                <a
-                    href="{% url 'operations:handover_create' rental.pk %}"
-                    class="bg-black text-white px-3 py-2 rounded-lg text-sm font-medium shrink-0"
-                >
-                    Wydaj
-                </a>
-            </li>
-            {% empty %}
-            <li class="text-gray-500 text-sm">Brak wynajmów do wydania.</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-medium">Do zwrotu</h2>
-            <a href="{% url 'operations:home' %}" class="text-sm text-blue-600 hover:underline">
-                Operacje
-            </a>
-        </div>
-        <ul class="space-y-3">
-            {% for rental in pending_return %}
-            <li class="flex justify-between items-center border-b border-gray-100 pb-3">
-                <div>
-                    <p class="font-medium">Wynajem #{{ rental.pk }}</p>
-                    <p class="text-sm text-gray-500">
-                        {{ rental.reservation.customer.full_name }} ·
-                        {{ rental.reservation.car.registration_number }}
-                    </p>
-                    <p class="text-xs text-gray-400">Plan zwrotu: {{ rental.scheduled_end_at|date:"Y-m-d H:i" }}</p>
-                </div>
-                <a
-                    href="{% url 'operations:return_create' rental.pk %}"
-                    class="bg-black text-white px-3 py-2 rounded-lg text-sm font-medium shrink-0"
-                >
-                    Zwrot
-                </a>
-            </li>
-            {% empty %}
-            <li class="text-gray-500 text-sm">Brak aktywnych wynajmów do zwrotu.</li>
             {% endfor %}
         </ul>
     </div>

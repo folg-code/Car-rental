@@ -8,17 +8,33 @@ Repozytorium: [folg-code/Car-rental](https://github.com/folg-code/Car-rental)
 
 | Workflow | Kiedy | Co robi |
 |----------|--------|---------|
-| **CI** (`ci.yml`) | Pull request → `main` | Ruff, Tailwind build, `django check`, pytest, test build obrazu Docker |
+| **CI** (`ci.yml`) | Pull request → `dev` lub `main` | Ruff, Tailwind build, `django check`, pytest, test build obrazu Docker |
 | **Deploy** (`deploy.yml`) | Push / merge → `main` | Uruchamia CI → buduje obraz → publikuje do GHCR → deploy na VPS (SSH) |
 
 ```text
-PR ──► ci.yml (lint + test + docker build)
+feature/* ──► PR → dev ──► ci.yml (lint + test + docker build)
+                              └── merge do dev (integracja)
 
-merge do main ──► deploy.yml
-                    ├── ci (workflow_call)
-                    ├── build-and-push → ghcr.io/folg-code/car-rental:latest
-                    └── deploy (SSH) → docker compose prod na VPS
+dev ──► PR → main ──► deploy.yml
+                        ├── ci (workflow_call)
+                        ├── build-and-push → ghcr.io/folg-code/car-rental:latest
+                        └── deploy (SSH) → docker compose prod na VPS
 ```
+
+### Strategia gałęzi (od Sprint 10+)
+
+| Gałąź | Rola |
+|-------|------|
+| `feat/*` (robocza) | Implementacja sprintu / taska — tu commitujemy na co dzień |
+| `dev` | Integracja — merge z gałęzi roboczych; **bez deployu** |
+| `main` | Produkcja live (VPS + domena) — merge z `dev` uruchamia deploy |
+
+```text
+feat/* ──► PR → dev ──► ci.yml (bez deployu)
+dev    ──► PR → main ──► deploy.yml → VPS
+```
+
+**Nie** mergujemy gałęzi roboczej prosto do `main` — każdy update na `dev` nie restartuje produkcji.
 
 ## Wymagania w repozytorium
 
@@ -49,13 +65,13 @@ Po pierwszym deployu obraz trafi do **Packages** repozytorium.
 
 ### 3. Branch protection (zalecane)
 
-Settings → Branches → rule dla `main`:
+Settings → Branches → rule dla `main` i `dev`:
 
 - [x] Require status check: **Lint, build CSS, test**
 - [x] Require status check: **Docker image build** (opcjonalnie)
 - [x] Require PR before merging
 
-Dzięki temu merge bez przejścia testów nie jest możliwy.
+Dzięki temu merge bez przejścia testów nie jest możliwy. Na `main` warto dodatkowo wymagać aktualnego `dev` jako bazę PR (review przed deployem).
 
 ### 4. Włączenie / wyłączenie deployu
 
@@ -66,8 +82,10 @@ Settings → Secrets and variables → Actions → **Variables** → New reposit
 | Variable | Value |
 |----------|--------|
 | `ENABLE_DEPLOY` | `true` |
+| `SMOKE_BASE_URL` | opcjonalnie `https://twoja-domena.pl` — po deployu job `Smoke health` |
 
 Bez `ENABLE_DEPLOY=true` job **Deploy to VPS** jest pomijany (build obrazu do GHCR i tak się wykona).
+Bez `SMOKE_BASE_URL` job smoke jest pomijany.
 
 > GitHub **nie pozwala** używać `secrets.*` w warunkach `if:` na poziomie joba.
 
@@ -128,12 +146,17 @@ pytest -q
 | Plik | Rola |
 |------|------|
 | `Dockerfile.prod` | Obraz z Gunicorn |
-| `docker-compose.prod.yml` | Postgres + web + Celery + Redis (+ Caddy profil `https`) |
+| `docker-compose.prod.yml` | Postgres + web + Celery + Redis (TLS: `/opt/edge`, nie ten plik) |
 | `scripts/deploy.sh` | Pull + migrate + collectstatic + restart |
+| `scripts/` (cały katalog) | Kopiowany na VPS przy każdym deployu (`scp`) |
 | `scripts/backup.sh` | Backup DB + media + private_documents |
+| `scripts/install-backup-cron.sh` | Idempotentny cron backup + purge chatu + offsite (`--check`) |
+| `scripts/backup-offsite.sh` | Sync backupów przez rclone (`BACKUP_OFFSITE_REMOTE`) |
+| `scripts/smoke-health.sh` | Smoke `GET /health/` + `/` po deployu |
+| `scripts/check-production-env.sh` | Walidacja kluczy `.env.production` (bez dumpowania sekretów) |
 | `scripts/restore.sh` | Przywracanie z backupu (`--confirm`) |
 | `scripts/backup-restore-selftest.sh` | Test roundtrip backup/restore (CI) |
-| `deploy/Caddyfile` | Reverse proxy HTTPS |
+| `deploy/Caddyfile` | Legacy / local only — publiczny TLS = `/opt/edge` |
 | [`docs/DEPLOY.md`](./DEPLOY.md) | Checklist VPS, cron, offsite |
 
 ## Rozwiązywanie problemów

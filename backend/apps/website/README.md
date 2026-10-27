@@ -66,16 +66,22 @@ Minimalne — np. `ContactFormSubmission`, `Page` (CMS light).
 ### Chat AI (Sprint 8b — Faza A ✅)
 
 - `ChatSession`, `ChatMessage` — modele + migracja `website.0001_chat_models`
-- `adapters/llm.py` — `LLMClient`, `MockLLMClient`, `get_llm_client()`
+- `adapters/llm.py` — `LLMClient`, `MockLLMClient`, `OpenAICompatibleLLMClient`, `get_llm_client()`
 - `ConsultantChatService` — FAQ-only, rate limit (cache), system prompt
 - `/asystent/` + widget „Pomoc / Chat” w `base_public.html`
-- Env: `LLM_PROVIDER`, `CHAT_RATE_LIMIT_PER_HOUR` — [`docs/AI_CONSULTANT.md`](../../../docs/AI_CONSULTANT.md)
+- Env: `LLM_PROVIDER` (`mock`|`openai`), `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_TIMEOUT_SECONDS`, `CHAT_RATE_LIMIT_PER_HOUR` — [`docs/AI_CONSULTANT.md`](../../../docs/AI_CONSULTANT.md)
 
 ### Chat AI (Sprint 8b — Faza B ✅)
 
 - `services/chat_tools.py` — read-only tools + deep link do rezerwacji
 - `services/chat_tool_router.py` — heurystyki (mock provider) → tool calls
 - Tooli: `search_available_cars`, `estimate_price`, `get_my_reservation_status`, `get_faq_snippet`
+
+### Chat AI — polish demo (Sprint 14 ✅)
+
+- `DEMO_CHAT_PROMPTS` + powitalny dymek na `/asystent/`
+- Rozszerzone FAQ (`faq_content.py`) + bogatszy `MockLLMClient`
+- Opcjonalny `OpenAICompatibleLLMClient` — na demo zostaje `LLM_PROVIDER=mock`
 
 ### Chat AI (opcjonalnie — poza MVP 8b)
 

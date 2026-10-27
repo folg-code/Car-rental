@@ -14,6 +14,8 @@ class TestConsultantViews:
         assert response.status_code == 200
         assert "Asystent wypożyczalni".encode() in response.content
         assert b"PESEL" in response.content
+        assert b"Wolne auta na jutro" in response.content
+        assert "Czy są wolne auta na jutro?".encode() in response.content
 
     def test_consultant_sets_session_cookie(self, client) -> None:
         response = client.get(reverse("website:consultant"))

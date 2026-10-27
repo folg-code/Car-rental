@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 
@@ -52,6 +53,7 @@ class PublicPaymentOrchestrator:
 
     @staticmethod
     def complete_mock_payment(*, external_reference: str) -> WebhookHandleResult:
+        """Symuluje zweryfikowany webhook bramki (wewnętrzny flow mock checkout)."""
         payload = json.dumps(
             {
                 "id": f"mock_evt_{external_reference}",
@@ -59,7 +61,13 @@ class PublicPaymentOrchestrator:
                 "external_reference": external_reference,
             },
         ).encode()
-        return PaymentGatewayService.handle_webhook(payload=payload)
+        # Gdy sekret jest ustawiony (prod), mock musi przekazać ten sam podpis
+        # co prawdziwy webhook — inaczej verify_webhook_signature odrzuca payload.
+        secret = settings.PAYMENT_GATEWAY_WEBHOOK_SECRET or None
+        return PaymentGatewayService.handle_webhook(
+            payload=payload,
+            signature=secret,
+        )
 
     @staticmethod
     def build_success_url(reservation_id: int) -> str:

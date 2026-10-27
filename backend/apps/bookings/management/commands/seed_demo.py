@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from apps.bookings.demo_seed.builder import DemoSeedBuilder
 from apps.bookings.demo_seed.catalog import (
@@ -12,15 +12,28 @@ from apps.bookings.demo_seed.catalog import (
     DEMO_PANEL_USERNAME,
     SCENARIOS,
 )
+from apps.bookings.demo_seed.presentation_check import verify_presentation_seed
 
 
 class Command(BaseCommand):
     help = (
         "Tworzy rozbudowane dane demo: flota, klienci, cennik, rezerwacje "
-        "i wynajmy w roznych statusach (idempotentne)."
+        "i wynajmy w roznych statusach (idempotentne). "
+        "Na koncu weryfikuje scenariusze sciezki prezentacji."
     )
 
+    def add_arguments(self, parser) -> None:
+        parser.add_argument(
+            "--check-only",
+            action="store_true",
+            help="Tylko weryfikacja sciezki prezentacji (bez seedowania).",
+        )
+
     def handle(self, *args, **options) -> None:
+        if options["check_only"]:
+            self._run_check()
+            return
+
         self.stdout.write("Seed demo — start")
         summary = DemoSeedBuilder(self.stdout).run()
         self.stdout.write(
@@ -36,4 +49,19 @@ class Command(BaseCommand):
                 f"kierownik: `{DEMO_MANAGER_USERNAME}` / `{DEMO_MANAGER_PASSWORD}`, "
                 f"portal: `{DEMO_CUSTOMER_USERNAME}` / `{DEMO_CUSTOMER_PASSWORD}`."
             )
+        )
+        self._run_check()
+
+    def _run_check(self) -> None:
+        result = verify_presentation_seed()
+        if result.ok:
+            self.stdout.write(
+                self.style.SUCCESS("OK presentation seed check (sciezka prezentacji).")
+            )
+            return
+        for error in result.errors:
+            self.stdout.write(self.style.ERROR(f"  - {error}"))
+        raise CommandError(
+            "Presentation seed check failed — uruchom seed_demo lub "
+            "sprawdz dane (ops-handover-today / ops-return-surcharges / ops-active)."
         )

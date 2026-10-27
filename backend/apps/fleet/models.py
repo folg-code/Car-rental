@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -63,6 +64,14 @@ class Car(models.Model):
         choices=FuelType.choices,
         default=FuelType.PETROL,
     )
+    fuel_tank_capacity_liters = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0.1"))],
+        help_text="Pojemnosc baku w litrach (null dla EV bez baku).",
+    )
     mileage = models.PositiveIntegerField(default=0, help_text="Przebieg w km")
     seats = models.PositiveSmallIntegerField(default=5)
     notes = models.TextField(blank=True)
@@ -80,6 +89,71 @@ class Car(models.Model):
     @property
     def display_name(self) -> str:
         return str(self)
+
+    def clean(self) -> None:
+        super().clean()
+        if (
+            self.fuel_type != FuelType.ELECTRIC
+            and self.fuel_tank_capacity_liters is None
+        ):
+            raise ValidationError(
+                {
+                    "fuel_tank_capacity_liters": (
+                        "Pojemnosc baku jest wymagana dla pojazdow z paliwem plynnym."
+                    )
+                }
+            )
+
+
+class EquipmentItem(models.Model):
+    """Globalny katalog wyposazenia przekazywanego przy wydaniu pojazdu."""
+
+    code = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(max_length=120)
+    is_active = models.BooleanField(default=True)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "name"]
+        verbose_name = "pozycja wyposazenia"
+        verbose_name_plural = "katalog wyposazenia"
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class CarEquipment(models.Model):
+    """Przypisanie pozycji katalogu do konkretnego pojazdu."""
+
+    car = models.ForeignKey(
+        Car,
+        on_delete=models.CASCADE,
+        related_name="equipment_lines",
+    )
+    item = models.ForeignKey(
+        EquipmentItem,
+        on_delete=models.PROTECT,
+        related_name="car_assignments",
+    )
+    quantity = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+    )
+    notes = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        ordering = ["item__sort_order", "item__name"]
+        verbose_name = "wyposazenie pojazdu"
+        verbose_name_plural = "wyposazenie pojazdow"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["car", "item"],
+                name="fleet_unique_car_equipment_item",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.car.registration_number}: {self.item.name} x{self.quantity}"
 
 
 class CarImage(models.Model):
@@ -173,6 +247,25 @@ class DamageStatus(models.TextChoices):
     WRITTEN_OFF = "written_off", "Odpisane"
 
 
+class DamageType(models.TextChoices):
+    """Litera na diagramie uszkodzen (protokol wydania/zwrotu)."""
+
+    SCRATCH = "R", "Rysa"
+    DENT = "W", "Wgniecenie"
+    CHIP = "O", "Odprysk"
+    CRACK = "P", "Pekniecie"
+    MISSING = "B", "Brak elementu"
+    OTHER = "U", "Inne uszkodzenie"
+
+
+class DamageResolutionStatus(models.TextChoices):
+    """Soft-close bez usuwania historii (audytowalna historia pojazdu)."""
+
+    MISTAKEN = "mistaken", "Dodane omyłkowo"
+    REPAIRED = "repaired", "Naprawione"
+    OBSOLETE = "obsolete", "Nieaktualne"
+
+
 class Damage(models.Model):
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name="damages")
     description = models.TextField()
@@ -180,6 +273,27 @@ class Damage(models.Model):
         max_length=120,
         blank=True,
         help_text="Np. zderzak przedni, drzwi lewe przednie",
+    )
+    damage_type = models.CharField(
+        max_length=1,
+        choices=DamageType.choices,
+        default=DamageType.OTHER,
+    )
+    pos_x = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0")), MaxValueValidator(Decimal("100"))],
+        help_text="Pozycja X na diagramie (0–100%).",
+    )
+    pos_y = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0")), MaxValueValidator(Decimal("100"))],
+        help_text="Pozycja Y na diagramie (0–100%).",
     )
     severity = models.CharField(
         max_length=20,
@@ -191,6 +305,13 @@ class Damage(models.Model):
         choices=DamageStatus.choices,
         default=DamageStatus.ACTIVE,
     )
+    resolution_status = models.CharField(
+        max_length=20,
+        choices=DamageResolutionStatus.choices,
+        blank=True,
+        default="",
+        help_text="Soft-close: omyłka / naprawione / nieaktualne.",
+    )
     reported_at = models.DateTimeField(auto_now_add=True)
     repaired_at = models.DateTimeField(null=True, blank=True)
 
@@ -201,6 +322,10 @@ class Damage(models.Model):
 
     def __str__(self) -> str:
         return f"{self.car.registration_number}: {self.description[:50]}"
+
+    @property
+    def diagram_letter(self) -> str:
+        return self.damage_type or DamageType.OTHER
 
 
 class DamagePhoto(models.Model):

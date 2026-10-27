@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from apps.accounts.permissions import staff_required
+from apps.accounts.permissions import owner_or_manager_required, staff_required
 from apps.bookings.models import Rental
 from apps.bookings.selectors.rental import get_rental_by_id
 from apps.payments.forms import PaymentRecordForm
@@ -120,7 +120,7 @@ def record_deposit_quick(request: HttpRequest, rental_id: int) -> HttpResponse:
     return redirect("payments:rental_payments", rental_id=rental_id)
 
 
-@staff_required
+@owner_or_manager_required
 def refund_deposit_quick(request: HttpRequest, rental_id: int) -> HttpResponse:
     if request.method == "POST":
         try:

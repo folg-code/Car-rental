@@ -23,6 +23,13 @@ def get_customer_by_user_id(user_id: int) -> Customer | None:
     return Customer.objects.filter(user_id=user_id).first()
 
 
+def get_customer_by_email(email: str) -> Customer | None:
+    normalized = email.strip().lower()
+    if not normalized:
+        return None
+    return Customer.objects.filter(email__iexact=normalized).first()
+
+
 def list_customers(*, search: str | None = None) -> QuerySet[Customer]:
     qs = Customer.objects.select_related("user").order_by("last_name", "first_name")
     if search:

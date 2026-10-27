@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BASE_DIR.parent
@@ -74,7 +75,7 @@ INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
 AUTH_USER_MODEL = "accounts.User"
 
 LOGIN_URL = "accounts:login"
-LOGIN_REDIRECT_URL = "dashboard:home"
+LOGIN_REDIRECT_URL = "dashboard:entry"
 LOGOUT_REDIRECT_URL = "home"
 
 MIDDLEWARE = [
@@ -173,20 +174,45 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
+RESERVATION_PENDING_PAYMENT_TTL_HOURS = env.int(
+    "RESERVATION_PENDING_PAYMENT_TTL_HOURS",
+    default=48,
+)
+
+CELERY_BEAT_SCHEDULE = {
+    "expire-stale-pending-reservations": {
+        "task": "bookings.expire_stale_pending_reservations",
+        "schedule": crontab(minute=20),
+    },
+}
+
 # --- Chat AI (Sprint 8b) ---
 LLM_PROVIDER = env("LLM_PROVIDER", default="mock")
 LLM_API_KEY = env("LLM_API_KEY", default="")
 LLM_MODEL = env("LLM_MODEL", default="gpt-4o-mini")
 LLM_MAX_TOKENS = env.int("LLM_MAX_TOKENS", default=1024)
+LLM_BASE_URL = env("LLM_BASE_URL", default="https://api.openai.com/v1")
+LLM_TIMEOUT_SECONDS = env.float("LLM_TIMEOUT_SECONDS", default=30.0)
 CHAT_RATE_LIMIT_PER_HOUR = env.int("CHAT_RATE_LIMIT_PER_HOUR", default=30)
 CHAT_MESSAGE_RETENTION_DAYS = env.int("CHAT_MESSAGE_RETENTION_DAYS", default=90)
+CHAT_DEFAULT_PICKUP_HOUR = env.int("CHAT_DEFAULT_PICKUP_HOUR", default=10)
+CHAT_DEFAULT_RETURN_HOUR = env.int("CHAT_DEFAULT_RETURN_HOUR", default=10)
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "car-rental-default",
-    },
-}
+CACHE_URL = env("CACHE_URL", default="")
+if "pytest" in sys.modules or not CACHE_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "car-rental-default",
+        },
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": CACHE_URL,
+        },
+    }
 
 
 # Static files (CSS, JavaScript, Images)
@@ -290,3 +316,44 @@ if not DEBUG:
             for host in ALLOWED_HOSTS
             if host not in {"localhost", "127.0.0.1", "0.0.0.0"}
         ]
+
+# --- Logging (stdout — Docker / journald) ---
+LOG_LEVEL = env("LOG_LEVEL", default="INFO")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} [{name}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "celery": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}

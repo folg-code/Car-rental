@@ -7,7 +7,9 @@ from apps.fleet.models import Car, CarCategory, CarStatus
 from apps.pricing.models import DailyRate, PriceList
 from apps.website.services.chat_tools import (
     build_booking_deep_link,
+    execute_ask_clarifying_question,
     execute_estimate_price,
+    execute_get_deposit_info,
     execute_get_faq_snippet,
     execute_get_my_reservation_status,
     execute_search_available_cars,
@@ -90,4 +92,37 @@ class TestChatTools:
         search = execute_search_available_cars(start_at=start, end_at=end)
         text = format_tool_results((search,))
         assert "Toyota" in text
-        assert "Rezerwacja:" in text
+        assert "zarezerwuj:" in text
+        assert "1 wolne auto" in text
+        assert "auto/auta" not in text
+
+    def test_polish_available_cars_phrase(self) -> None:
+        from apps.website.services.chat_tools import _polish_available_cars_phrase
+
+        assert _polish_available_cars_phrase(1) == "1 wolne auto"
+        assert _polish_available_cars_phrase(2) == "2 wolne auta"
+        assert _polish_available_cars_phrase(5) == "5 wolnych aut"
+        assert _polish_available_cars_phrase(12) == "12 wolnych aut"
+        assert _polish_available_cars_phrase(22) == "22 wolne auta"
+
+    def test_deposit_info_for_category(self, category: CarCategory) -> None:
+        category.deposit = Decimal("2000.00")
+        category.save(update_fields=["deposit"])
+        result = execute_get_deposit_info(category_id=category.pk)
+        assert result.data["categories"] == [
+            {
+                "id": category.pk,
+                "name": "Kompakt",
+                "deposit": "2000.00",
+            },
+        ]
+        text = format_tool_results((result,))
+        assert "2000.00" in text
+        assert "Kaucja" in text
+
+    def test_clarifying_question_formatter(self) -> None:
+        result = execute_ask_clarifying_question(
+            question="Na jaki termin mam sprawdzić dostępność?",
+        )
+        text = format_tool_results((result,))
+        assert "termin" in text.lower()

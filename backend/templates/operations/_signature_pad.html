@@ -1,0 +1,18 @@
+<div class="op-signature-pad" data-signature-pad>
+    <p class="op-label mb-2">Podpis klienta (palcem / rysikiem)</p>
+    <canvas
+        class="op-signature-canvas"
+        width="600"
+        height="220"
+        aria-label="Pole podpisu"
+    ></canvas>
+    <div class="flex gap-2 mt-2 mb-3">
+        <button type="button" class="op-btn-secondary op-signature-clear py-2 text-sm">
+            Wyczysc podpis
+        </button>
+    </div>
+    {{ form.signature_data_url }}
+    <p class="text-xs text-gray-500 mb-2">Albo dolacz zdjecie podpisu:</p>
+    <label class="op-label">{{ form.signature_image.label }}</label>
+    {{ form.signature_image }}
+</div>

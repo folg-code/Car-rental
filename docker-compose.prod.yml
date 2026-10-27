@@ -24,17 +24,32 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     volumes:
       - media_data:/app/media
       - static_data:/app/staticfiles
       - private_documents_data:/app/private_documents
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=5)\"",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   celery:
     image: ${WEB_IMAGE:-ghcr.io/folg-code/car-rental:latest}
@@ -46,28 +61,36 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     volumes:
       - media_data:/app/media
       - private_documents_data:/app/private_documents
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "cd backend && celery -A config inspect ping -d celery@$$HOSTNAME -t 5",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
-  caddy:
-    profiles: ["https"]
-    image: caddy:2-alpine
+  celery-beat:
+    image: ${WEB_IMAGE:-ghcr.io/folg-code/car-rental:latest}
     restart: unless-stopped
     env_file:
       - .env.production
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-      - static_data:/srv/static:ro
-      - media_data:/srv/media:ro
+    command: sh -c "cd backend && celery -A config beat -l info"
     depends_on:
-      - web
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Brak Caddy w tym stacku — publiczny TLS jest na VPS w /opt/edge
+  # (car-rental.filipf.online → web:8000 na sieci car-rental_default).
+  # Nie publikuj tu :80/:443 — zabierzesz porty edge i dostaniesz 502.
 
 volumes:
   postgres_data:
@@ -75,5 +98,3 @@ volumes:
   static_data:
   redis_data:
   private_documents_data:
-  caddy_data:
-  caddy_config:

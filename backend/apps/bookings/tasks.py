@@ -16,6 +16,17 @@ def send_reservation_email_task(
     )
 
 
+@shared_task(name="bookings.send_portal_login_code")
+def send_portal_login_code_task(customer_id: int, code: str) -> bool:
+    """Wyslij kod OTP do logowania w portalu klienta (Sprint 12.2)."""
+    from apps.website.services.portal_auth import PortalLoginService
+
+    return PortalLoginService.send_login_code_email(
+        customer_id=customer_id,
+        code=code,
+    )
+
+
 @shared_task(name="bookings.send_reservation_sms")
 def send_reservation_sms_task(
     reservation_id: int,
@@ -29,3 +40,11 @@ def send_reservation_sms_task(
         reservation_id,
         sms_kind=sms_kind,
     )
+
+
+@shared_task(name="bookings.expire_stale_pending_reservations")
+def expire_stale_pending_reservations_task() -> int:
+    """Wygas zalegle rezerwacje pending_payment (Celery Beat, Sprint 11.3)."""
+    from apps.bookings.services.reservation import ReservationService
+
+    return ReservationService.expire_stale_pending_payments()

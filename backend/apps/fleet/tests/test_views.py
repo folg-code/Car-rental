@@ -54,6 +54,7 @@ class TestFleetViews:
                 "year": 2021,
                 "status": "active",
                 "fuel_type": "petrol",
+                "fuel_tank_capacity_liters": "35.0",
                 "mileage": 45000,
                 "seats": 4,
                 "notes": "",

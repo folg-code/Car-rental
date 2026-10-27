@@ -1,6 +1,17 @@
 # Car Rental Operations Platform
 
-Platforma operacyjna do zarządzania wypożyczalnią samochodów — od rezerwacji, przez wydanie i zwrot pojazdu, po dokumentację PDF i rozliczenia. Zoptymalizowana pod małe i średnie firmy (~15 pojazdów, 1–5 pracowników), z naciskiem na mobilne workflow terenowe.
+Mała/średnia wypożyczalnia (~15 aut) potrzebuje jednego systemu od rezerwacji online,
+przez wydanie i zwrot pojazdu w terenie, po PDF i rozliczenia — bez papierowych protokołów
+i bez rozjeżdżających się arkuszy.
+
+Ta platforma łączy kanał publiczny (dostępność, rezerwacja, mock płatności), panel
+pracownika (flota, KPI, raporty) oraz mobilne operacje (protokół wydania/zwrotu ze
+schematem uszkodzeń). Dane historyczne są chronione snapshotami cen i szkód.
+
+**Demo live:** https://car-rental.filipf.online  
+**Konta po `seed_demo`:** `admin` / `manager` / `klient` — hasło `demo1234`  
+**Uruchomienie lokalne:** Docker Compose → `migrate` → `seed_demo` (sekcja poniżej).  
+**Ścieżka prezentacji:** [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md) (jedna ścieżka end-to-end + seed check).
 
 ---
 
@@ -433,6 +444,10 @@ Checklist: [`docs/DEPLOY.md`](docs/DEPLOY.md). Po deploy:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec web python backend/manage.py seed_demo
+# opcjonalnie:
+# CACHE_URL=redis://redis:6379/2  w .env.production
+# ./scripts/install-backup-cron.sh --check
+# SMOKE_BASE_URL=https://twoja-domena.pl ./scripts/smoke-health.sh
 ```
 
 Konta demo (`admin` / `demo1234`) są **zamierzone** na wersji pokazowej. Pełny runbook: [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md).
@@ -448,6 +463,9 @@ Konta demo (`admin` / `demo1234`) są **zamierzone** na wersji pokazowej. Pełny
 | `POSTGRES_PASSWORD` | Hasło bazy | (generuj) |
 | `POSTGRES_HOST` | Host bazy | `db` |
 | `PUBLIC_SITE_BASE_URL` | Bazowy URL w linkach email | `http://localhost:8000` |
+| `CACHE_URL` | Redis cache (rate limity); puste = LocMem | `redis://redis:6379/2` |
+| `RESERVATION_PENDING_PAYMENT_TTL_HOURS` | TTL auto-wygasania `pending_payment` | `48` |
+| `BACKUP_OFFSITE_REMOTE` | rclone remote (puste = SKIP) | `remote:car-rental-backups` |
 | `DEFAULT_FROM_EMAIL` | Nadawca emaili | `noreply@car-rental.local` |
 | `EMAIL_BACKEND` | Backend Django (`console` / `smtp`) | `console` w dev |
 | `EMAIL_HOST` | Serwer SMTP | `smtp.gmail.com` |
@@ -509,7 +527,7 @@ Car-rental/
 │   ├── DOCKER.md               # Docker stack, roadmap Celery/Redis
 │   └── AI_CONSULTANT.md        # Specyfikacja chatbota AI
 ├── docker-compose.yml          # dev (db + web + tailwind)
-├── docker-compose.prod.yml     # prod (db + web + caddy)
+├── docker-compose.prod.yml     # prod (db + web + celery + redis; TLS: /opt/edge)
 ├── Dockerfile                  # dev image
 ├── Dockerfile.prod             # prod image (Gunicorn, non-root)
 ├── pyproject.toml              # zależności, Ruff config, pytest config
@@ -580,11 +598,15 @@ Szczegóły: [`docs/CICD.md`](docs/CICD.md)
 | 8b | AI Chatbot — konsultant klienta | ✅ |
 | 9 | Produkcja i płatności online (mock) | ✅ |
 | 9+ | Rozszerzenia (raporty, SMS, seed) | ✅ |
-| **10** | **Demo produkcyjne (VPS pokazowy)** | **🟡** |
-| 11 | Utrzymanie demo (health, logging, Beat) | ⬜ |
-| 12+ | Backlog (RBAC, i18n, pełna prod) | Backlog |
+| **10** | **Demo produkcyjne (VPS pokazowy)** | ✅ |
+| 11 | Utrzymanie demo (health, Beat, Redis, smoke) | ✅ |
+| 12 | Demo polish / UX v2 | ✅ |
+| 13 | Zaawansowane protokoły wydania/zwrotu | ✅ |
+| 14 | Demo UX (przewodnik, diagram, asystent) | ✅ |
+| **15** | **Ścieżka prezentacji i niezawodność demo** | ✅ |
+| 12+ | Backlog (eskalacja chatu, HTMX, Sentry, i18n, pełna prod) | Backlog |
 
-Szczegóły tasków Sprint 10–12: [`PROJECT_PLAN.md`](PROJECT_PLAN.md#sprint-10--demo-produkcyjne-vps-pokazowy-).
+Szczegóły tasków Sprint 10–15: [`PROJECT_PLAN.md`](PROJECT_PLAN.md).
 
 ### Sprint 8 — taski (szczegóły w [`PROJECT_PLAN.md`](PROJECT_PLAN.md))
 

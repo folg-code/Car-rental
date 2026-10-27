@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from apps.payments.models import PaymentIntent
+from apps.website.faq_content import DEMO_CHAT_PROMPTS
 from apps.website.forms import AvailabilitySearchForm, PriceQuoteForm, PublicBookingForm
 from apps.website.selectors.availability_search import search_available_cars
 from apps.website.selectors.fleet_catalog import get_public_fleet_catalog
@@ -412,7 +413,10 @@ def consultant(request: HttpRequest) -> HttpResponse:
     response = render(
         request,
         "website/consultant.html",
-        {"messages": messages},
+        {
+            "messages": messages,
+            "demo_prompts": DEMO_CHAT_PROMPTS,
+        },
     )
     if _get_chat_session_key(request) != session_key:
         _set_chat_session_cookie(response, session_key)

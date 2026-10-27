@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -204,6 +205,31 @@ class ReservationService:
         reservation.status = ReservationStatus.EXPIRED
         reservation.save(update_fields=["status", "updated_at"])
         return reservation
+
+    @staticmethod
+    def expire_stale_pending_payments(
+        *,
+        older_than_hours: int | None = None,
+    ) -> int:
+        """Wygas rezerwacje pending_payment starsze niz TTL (Sprint 11.3)."""
+        hours = (
+            older_than_hours
+            if older_than_hours is not None
+            else int(settings.RESERVATION_PENDING_PAYMENT_TTL_HOURS)
+        )
+        if hours < 1:
+            raise ValidationError("TTL wygasania musi byc co najmniej 1 godzina.")
+
+        cutoff = timezone.now() - timedelta(hours=hours)
+        stale = Reservation.objects.filter(
+            status=ReservationStatus.PENDING_PAYMENT,
+            created_at__lt=cutoff,
+        ).order_by("pk")
+        expired_count = 0
+        for reservation in stale.iterator():
+            ReservationService.expire(reservation)
+            expired_count += 1
+        return expired_count
 
     @staticmethod
     def update(

@@ -6,6 +6,8 @@ app_name = "operations"
 
 urlpatterns = [
     path("", views.operations_home, name="home"),
+    path("wydania/", views.handover_queue, name="handover_queue"),
+    path("zwroty/", views.return_queue, name="return_queue"),
     path("wydanie/<int:rental_id>/", views.handover_create, name="handover_create"),
     path(
         "wydanie/<int:rental_id>/podglad/",

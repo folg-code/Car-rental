@@ -29,8 +29,8 @@
     </tr>
     <tr>
         <th>Poziom paliwa</th>
-        <td>{{ handover_fuel_level_percent }}%</td>
-        <td>{{ fuel_level_percent }}%</td>
+        <td>{% if handover_fuel_level %}{{ handover_fuel_level }}{% else %}{{ handover_fuel_level_percent }}%{% endif %}</td>
+        <td>{% if fuel_level %}{{ fuel_level }}{% else %}{{ fuel_level_percent }}%{% endif %}</td>
     </tr>
     {% if mileage_driven is not None %}
     <tr>
@@ -39,6 +39,20 @@
     </tr>
     {% endif %}
 </table>
+
+{% if cleanliness_summary %}
+<h2>Czystosc</h2>
+<p>{{ cleanliness_summary }}</p>
+{% endif %}
+
+{% if settlement_lines %}
+<h2>Rozliczenie</h2>
+<ul>
+    {% for line in settlement_lines %}
+    <li>{{ line }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 
 {% if notes or surcharge_notes %}
 <h2>Uwagi</h2>
@@ -57,6 +71,7 @@
     {% for damage in damages %}
     <li class="{% if damage.is_new %}new{% endif %}">
         {% if damage.is_new %}[NOWE] {% endif %}
+        {% if damage.damage_type %}<strong>{{ damage.damage_type }}</strong> {% endif %}
         {% if damage.location %}{{ damage.location }}: {% endif %}
         {{ damage.description }}
         ({{ damage.severity }})

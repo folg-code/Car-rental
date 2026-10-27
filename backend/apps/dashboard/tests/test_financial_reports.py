@@ -114,6 +114,9 @@ class TestFinancialPeriodReport:
             description="Paliwo",
             amount=Decimal("75.00"),
         )
+        RentalCharge.objects.filter(idempotency_key="report-charge-1").update(
+            created_at=datetime(2026, 7, 12, 12, 0, tzinfo=UTC)
+        )
         invoice = InvoiceService.create_from_rental(
             rental.pk,
             issue_date=date(2026, 7, 15),
